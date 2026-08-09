@@ -1,9 +1,12 @@
 # lean code — protocol/formalizer/lean/
 
 The lean code produced from the Formalizer's single qmd file lives here. the
-Formalizer is the fourth subcoordinator: it only receives idea reports that have
-passed the hygiene linter — successful or unsuccessful — and it runs in the
-background across rounds, not bound by the 133-minute round budget.
+Formalizer is the fourth subcoordinator: its inputs are verdict-aware:
+examine-failed lint-passed reports go immediately; accepted/accepted-core
+routes (full or core form) together with the promoter's note go
+post-verdict from the Selector; rejected pairs go to the fragment region.
+and it runs in the background across rounds, not bound by the 133-minute
+round budget.
 
 ## What lives here
 
@@ -26,11 +29,11 @@ background across rounds, not bound by the 133-minute round budget.
   detects that similar lemmas, definitions, theorems or propositions already
   exist in the qmd file, it places them closely.
 - the lean code runner (lock this name): an independent, resumable worker that
-  wakes on every qmd update, plans the verification jobs in advance, and
-  distributes them to its own swarm agents — whatever number the plan requires,
-  unrelated to the working swarm; it integrates the green results, locking
-  green pieces in the qmd file, placing their lean code in the reliable idea
-  set, and updating the dependency graph.
+  is resumed by the Coordinator on every qmd file update, plans the
+  verification jobs in advance, and distributes them to its own swarm agents —
+  whatever number the plan requires, unrelated to the working swarm; it
+  integrates the green results, locking green pieces in the qmd file, placing
+  their lean code in the reliable idea set, and updating the dependency graph.
 
 ## How pieces become established
 
@@ -71,5 +74,6 @@ background across rounds, not bound by the 133-minute round budget.
   over — the relay restarts the 10-minute clock on the receiving worker; if no
   such worker appears within 1 minute, you send the packaged partial work to
   the fragment region.
-- the lean code runner never closes: it persists and can always be resumed, like
-  the subcoordinators and the PIs. a round close never cuts the swarm.
+- the lean code runner is resumable: the Coordinator resumes it per qmd update
+  and restores it after a session resume, like the subcoordinators and the PIs.
+  a round close never cuts the swarm.

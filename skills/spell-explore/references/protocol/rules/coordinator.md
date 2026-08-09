@@ -74,8 +74,12 @@ for transferring documents between workers and subcoordinators.
 
 All subcoordinators and all workers run in the background: every subagent is spawned
 in the explicit background mode, never the blocking foreground. The subcoordinators,
-the PIs, and the lean code runner never close: they persist and can always be
-resumed. Every other worker closes once its job is done.
+the PIs, and the lean code runner are resumable: each runs its phase to completion
+in one run and is resumed by the Coordinator for the next phase; a subcoordinator
+never returns early — its final message comes only after every worker it spawned has
+produced its artifact at the assigned path and the subcoordinator has verified the
+write. Every other worker closes once its job is done. see rules/worker-lifespans.md
+for the hold-open connections.
 
 Everything is versioned — every fresh summary, idea report, route, review summary,
 change list, stale entry, qmd file update, reliable idea set entry, fragment region
@@ -90,10 +94,11 @@ champion-route pointer — as every fresh worker does.
 
 At the start of each round it performs the bounded Formalizer check before the round
 clock starts: it reads the formalization status line in the Knowledge State index and
-the live background state, verifies that the Formalizer and the lean code runner are
-present and working — re-spawning them if a resumed session lost them — and resolves
-any stall or conflict it finds; the check is a bounded read that, like the round-1
-setup, is not counted in the 133-minute budget.
+the live background state, verifies that the resumable workers are present and
+working — the four subcoordinators (Creator, Producer, Selector, Formalizer), the
+PIs, and the lean code runner — re-spawning any that a resumed session lost — and
+resolves any stall or conflict it finds; the check is a bounded read that, like the
+round-1 setup, is not counted in the 133-minute budget.
 
 ## 4. Solving stalls and conflicts
 
@@ -138,7 +143,7 @@ The timeline (critical path, one route):
 
 Off the critical path and in the background: the Creator's second phase, the
 Formalizer (its decompose workers run per pair of reports and feed the working swarm,
-and the lean code runner wakes on every qmd update — the Formalizer runs across
+and the lean code runner, resumed by the Coordinator on every qmd update — the Formalizer runs across
 rounds and is not bound by the 133-minute budget), and any additional Producer report
 workers.
 

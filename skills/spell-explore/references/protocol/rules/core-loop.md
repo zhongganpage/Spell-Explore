@@ -36,8 +36,12 @@ Selector's rules):
   happens before the round clock starts and is not counted in the budget.
 - all subcoordinators run in the background, and the workers also work in the background:
   every subagent is spawned in the explicit background mode, never the blocking foreground.
-- the subcoordinators never close: they persist and can always be resumed. the PI and the
-  lean code runner also never close. every other worker closes once its job is done.
+- the subcoordinators, the PIs, and the lean code runner are resumable: each runs its
+  phase to completion in one run and is resumed by the Coordinator for the next phase; a
+  subcoordinator never returns early — its final message comes only after every worker it
+  spawned has produced its artifact at the assigned path and the subcoordinator has
+  verified the write. every other worker closes once its job is done. see
+  rules/worker-lifespans.md for the hold-open connections.
 - everything is versioned: every fresh summary, idea report, route, stale entry, reliable
   idea set entry and fragment region update carries a version (v1, v2, …); nothing is
   cited or built on without its version. the locked goal file is the exception: it is
@@ -70,7 +74,7 @@ files in the project folder, not the dossier.
 the Creator's job is to create ideas and archive. it does not create new ideas itself: it
 regulates its own workers within its domain — idea generation and archiving — monitoring
 their status, enforcing the time limits and the artifact rules, and solving issues inside
-its territory. it never closes.
+its territory. it is resumable.
 
 the Creator has two phases, which are independent and may run at the same time:
 
@@ -91,10 +95,12 @@ there are stale documents (summaries / reports / routes) from the other subcoord
   not follow the persistence and verification protocols: their exploration is free-form,
   bound only by the time limits and the summary format.
 - when the Creator receives all the ideas from the workers, it does not close the
-  workers: it rotates the n ideas — it hands the ideas of each worker to the next worker
-  (idea of worker i goes to worker i+1, wrapping around; with n = 4 this is idea of
-  worker 1234 given to worker 4123) — and the workers learn from the idea they receive
-  and write a summary. the rotation hands all n ideas at once and the workers write in
+  workers: it rotates the n ideas — the Creator holds all n idea-workers open from
+  thinking through the rotation to the summaries: it waits for all n ideas before
+  rotating and for all n summaries before archiving; no idea-worker closes mid-rotation
+  — it hands the ideas of each worker to the next worker (idea of worker i goes to
+  worker i+1, wrapping around; with n = 4 this is idea of worker 1234 given to worker
+  4123) — and the workers learn from the idea they receive and write a summary. the rotation hands all n ideas at once and the workers write in
   parallel, so all n fresh summaries are ready by ~20 min. with n = 0 the phase produces
   nothing.
 - the workers have at most 10 min to write their summaries down. in the idea summaries,
@@ -147,7 +153,7 @@ there are stale documents (summaries / reports / routes) from the other subcoord
 
 the Producer does not produce anything: it regulates report and route production within
 its domain — monitoring the report workers, enforcing time limits and artifact rules, and
-solving issues inside its territory. it never closes.
+solving issues inside its territory. it is resumable.
 
 - whenever the Creator has a fresh summary ready, the Creator hands it to the Producer.
 - at the start of a round any carried-over work is handled first: the Producer processes
@@ -213,10 +219,13 @@ solving issues inside its territory. it never closes.
 - if the examine fails: the report is unsuccessful; it is sent back to the Creator
   (processed in phase 2) and the worker who produced it is closed.
 - if the examine passes: the report is successful and is renamed a route with a title (§6).
-- copies of every lint-passed report — successful or unsuccessful — are copied to the
-  Formalizer by the corresponding subcoordinators: the Formalizer only receives idea
-  reports after they have passed the hygiene linter. an examine failure does not prevent
-  the Formalizer from receiving the report — it has already passed the linter.
+- an examine-failed lint-passed report is copied to the Formalizer by the Producer as
+  soon as it is stale — its raw form is its final form. a lint-passed report that becomes
+  a route is not copied at linter time: after the Selector's verdict, the Selector sends
+  the accepted route — full form (the PI's modified route) or core form (the accepted
+  salvageable core) — together with the promoter's nearest true version note to the
+  Formalizer (the note as scoping metadata); a rejected route's pair is not sent to the
+  Formalizer — it enriches the fragment region.
 
 ### 2.5 archive duties
 
@@ -311,8 +320,10 @@ solving issues inside its territory. it never closes.
   route (lock this name) with a title (lock this name: title — to distinguish it from
   other routes). the route is a versioned file in `routes/`.
 - the worker who produced a successful route will remain and be called the PI (lock this
-  name). the PI never closes: it persists and can always be resumed — it defends the
-  route in the review, rebuts the panel, and modifies the route (see the Selector rule).
+  name). the PI is resumable: the Producer holds it open when the report succeeds, and
+  the Coordinator or the Selector re-invokes it (resume-by-ID) if the route is
+  challenged or revised in a later round — it defends the route in the review, rebuts
+  the panel, and modifies the route (see the Selector rule).
 - the Producer will archive any route properly with versions, and whenever the Producer
   has a fresh route, the Producer sends the route to the Selector (see the Selector rule
   for the panel, the review summaries, the swarm and the verdict).

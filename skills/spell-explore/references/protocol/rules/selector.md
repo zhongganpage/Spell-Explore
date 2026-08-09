@@ -30,7 +30,9 @@ as a subcoordinator the Selector regulates its own workers within its domain: it
 monitors their status, enforces the time limits and the artifact rules, and solves
 issues inside its territory, subject to the Coordinator. every worker it spawns is
 spawned in the explicit background mode, never the blocking foreground. the Selector
-itself never closes: it persists and can always be resumed.
+is resumable: it runs each review phase to completion in one run — waiting for every
+worker's artifact before returning — and is resumed by the Coordinator for the next
+phase; it never returns early, and a narrated step is not a done step.
 
 ## 2. two panels at a time
 
@@ -165,7 +167,10 @@ false step, or unproved claim whose absence makes the route fail.
 at the same stage the Selector resumes the BCD reviewers — they keep their panel context
 and also have 20 minutes — and they vote as well. the BCD reviewers do not close after
 writing their summaries: they pause to wait for the PI's rebuttals, vote at the swarm
-stage, and only then close. a phase that reaches its window end is cut and its partial
+stage, and only then close. the Selector holds the BCD reviewers paused, with their
+panel context, across the PI rebuttal window — they are resumed for the vote, not
+re-created, because a fresh reviewer would lack the panel context. a phase that reaches
+its window end is cut and its partial
 output recorded; the round closes atomically at 133 min even if a phase is mid-flight.
 
 ## 9. acceptance, milestone, and quality ranking
@@ -200,6 +205,11 @@ to the user with the decision list, its abstract (the core's) entering
 question-routes.md. the user decides on each unaccepted route: recycle it back to the
 Creator, or park it (the fragments are kept but it is not auto-recycled). unless the
 user parks it, an unaccepted route is sent back to the Creator for the second phase.
+
+after the verdict, the Selector sends the accepted route — full form (the PI's modified
+route) or core form (the accepted salvageable core) — together with the promoter's
+nearest true version note to the Formalizer, the note as scoping metadata; a rejected
+route's pair enriches the fragment region instead.
 
 every unaccepted route is marked stale, and the stale marking records three things: the
 failure reason (the panel findings that rejected it, including the load-bearing

@@ -18,11 +18,12 @@
 # locked goal — then the Coordinator writes the manuscript (lock this name), the
 # report about the project in PDF.
 #
-# The subcoordinators, the PIs, and the lean code runner (lock this name) never
-# close: they persist and can always be resumed, so no timeout applies to them.
-# every other worker closes once its job is done. all subcoordinators and
-# workers run in the background — every subagent is spawned in the explicit
-# background mode, never the blocking foreground.
+# The subcoordinators, the PIs, and the lean code runner are resumable: each
+# runs its phase to completion in one run and is resumed by the Coordinator for
+# its next phase, so no timeout applies to them; every other worker closes once
+# its job is done. all subcoordinators and workers run in the background — every
+# subagent is spawned in the explicit background mode, never the blocking
+# foreground.
 
 [background]
 max_running_tasks = 50    # cap for simultaneous background agents

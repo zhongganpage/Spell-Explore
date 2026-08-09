@@ -20,8 +20,10 @@ and be renamed a route with a title.
   summaries it received — the goal-frontier score guides the pairing but does not dictate the
   worker's synthesis.
 - where it lands: the Producer archives the report in the project folder (reports/), versioned;
-  all reports that pass the hygiene linter — successful or unsuccessful — are copied to the
-  Formalizer, which decomposes them into the decomposed fragments.
+  the Formalizer's inputs are verdict-aware: examine-failed lint-passed reports go immediately;
+  accepted/accepted-core routes (full or core form) together with the promoter's note go
+  post-verdict from the Selector; rejected pairs go to the fragment region; the note is
+  scoping metadata, never decomposed.
 - after the examine: a successful report is renamed a route with a title, and the worker who
   produced it remains and is called the PI. an unsuccessful report is sent back to the Creator
   for the second phase and marked stale.

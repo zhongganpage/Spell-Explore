@@ -19,7 +19,7 @@ consistency-checked; this plan says what to build, in what order, and how to val
 │   └── examples.md · reformulations.md · literature-map.md   # split-out reference sections
 ├── question-routes/              # Coordinator-maintained
 │   ├── question-routes.md        # the main question + abstract of every accepted route (living map)
-│   ├── reliable-idea-set.md      # copy of the full reliable idea set
+│   ├── reliable-idea-set.md      # copy of the full reliable idea set (runtime: the Coordinator creates it once [Formalized] ideas land)
 │   └── <accepted route title>/   # summaries · idea reports · route (versions) · review reports
 ├── reports/ · routes/ · stale/   # versioned artifacts (project folder, not the dossier)
 ├── formalizer/
@@ -37,8 +37,8 @@ consistency-checked; this plan says what to build, in what order, and how to val
 | 20–45 | Producer report worker (25) | paired summary + complement → idea report |
 | 45–58 | linter (layer 1 ≈2, layer 2 ≈6) + examine (cap 5) | linter first, then examine; fail → stale |
 | 58–98 | Selector panel (40) | A lists by 73; B/C/D review 58–88; exchange 88–98; two panels at a time |
-| 98–113 | PI rebuts + change list; promoter in parallel | both feed the swarm |
-| 113–133 | swarm (20) + resumed BCD (20) | accept ≥2/3 swarm AND ≥2/3 BCD; milestone = 9/9 + 3/3 + goal achieved |
+| 98–113 | PI rebuts + change list; promoter's nearest true version note in parallel (a high-level check) | the PI's rebuttal and the note go to the swarm |
+| 113–133 | swarm (20) + resumed BCD (20) | accept / accept-core / reject: accept and accept-core each need ≥2/3 swarm AND ≥2/3 BCD; milestone = 9/9 + 3/3 + goal achieved |
 
 Round-2+ variant: carried reviews own the critical path; Creator phase 1 + Producer run in the
 background alongside; a new route's review starts only if a full 75-min review fits.
@@ -48,7 +48,7 @@ background alongside; a new route's review starts only if a full 75-min review f
 Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), each with `tools`,
 `subagents` allowlists, and `model_preference`:
 
-| role | tools | model | never closes |
+| role | tools | model | resumable |
 |---|---|---|---|
 | coordinator | full | primary | ✓ |
 | creator / producer / selector / formalizer | full within territory | primary | ✓ (subcoordinators) |
@@ -59,7 +59,8 @@ Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), eac
 | examine worker | Read/Grep | primary (quality-critical) | ✗ |
 | decompose worker | Read/Grep | secondary | ✗ |
 | swarm worker | Read/Grep | secondary | ✗ (30-min life) |
-| panel B/C/D | Read/Grep (no write) | primary | ✗ (pause until swarm vote, then close) |
+| idea worker | Read/Grep | secondary | ✗ |
+| panel B/C/D | Read/Grep (no write) | primary | ✓ (paused across the PI window, then close after the vote) |
 | workerA | Read/Grep | secondary | ✗ |
 | workerD | Read/Grep (external provider) | primary | ✗ |
 | promoter | Read/Grep | primary | ✗ |
@@ -67,7 +68,9 @@ Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), eac
 Rules encoded in profiles: **every agent file body states "your final message is the complete,
 self-contained result"** (custom agents don't inherit the built-in handoff framing). `subagents`
 allowlists enforce: workers may spawn workers, never judges; a reviewer can spawn nothing.
-Every spawn uses `run_in_background=true`.
+Every spawn uses `run_in_background=true`. subcoordinators and quality-critical workers (the
+examine worker, the panel, the PI) run on the primary model; the Coordinator never assigns a
+subcoordinator role to a weaker model.
 
 ## 4. Templates
 
@@ -107,8 +110,12 @@ structural-completeness check: every claim has a proof attempt, no GAP) → rout
    BCD (judge the route itself, the promoter's nearest true version note as a high-level check;
    2/3+2/3 accept; verdicts accept / accept-core — the salvageable core is banked as a reduced
    route — / reject, each rejecting vote naming the load-bearing obstruction; 9/9+3/3
-   milestone).
-4. **Formalizer** — decompose workers (10-min pairs, 10-min unpaired timeout) → mechanical
+   milestone); sends accepted/accepted-core routes (full or core form) + the promoter's note to
+   the Formalizer after the verdict; rejected pairs go to the fragment region.
+4. **Formalizer** — verdict-aware input (examine-failed lint-passed reports immediately;
+   accepted/accepted-core routes' full-or-core form + the promoter's note post-verdict from the
+   Selector; rejected pairs → fragment region; the note as scoping metadata, never decomposed) →
+   decompose workers (10-min pairs, 10-min unpaired timeout) → mechanical
    working swarm (~8, 30-min life, 5-min tail; a job running >10 min is packaged and relayed to
    a free worker, 1-min wait, else fragment region) → single qmd → lean code runner (plans the
    verification jobs in advance, dispatches them to its own swarm of the required number —
@@ -116,14 +123,20 @@ structural-completeness check: every claim has a proof attempt, no GAP) → rout
    tree with goal node + [Hired]); keeps the index's formalization status current — one dated
    line per completed batch (green count, [Formalized] count, fragment deposits, graph delta).
 5. **Coordinator regulation** — status monitoring (incl. the bounded round-start Formalizer
-   check before the clock: read the index status line + live background state, re-spawn the
-   Formalizer/lean code runner if a resumed session lost them), timeline enforcement (announce,
+   check before the clock: read the index status line + live background state, re-spawn any of
+   the four subcoordinators, the PIs, or the lean code runner that a resumed session lost),
+   timeline enforcement (announce,
    timestamps, cuts, atomic close), measurements (idea-yield, premature kills — never into
    votes), the two-consecutive-0/9 steering report (split the goal / nominate pairings /
    pause), user-facing surfacing of substantive formalization news, milestone → manuscript
    (PDF), question-routes maintenance.
 6. **Protocols** — wire the persistence discipline (phase-2 + report workers) and verification
    discipline (independence, ledger, [Formalized] premise channel) into the worker prompts.
+7. **Worker lifespans** — encode the hold-open invariants (report worker → PI, the Creator's
+   rotation hold, the BCD pause across the PI window, the working-swarm 30-min resumable
+   window, the lean code runner across rounds) in `rules/worker-lifespans.md` and wire a
+   hold-open clause into each subcoordinator's profile; subcoordinators are single-run
+   orchestrators — never return before every spawned worker's artifact exists and is verified.
 
 ## 6. Validation
 
@@ -149,6 +162,14 @@ structural-completeness check: every claim has a proof attempt, no GAP) → rout
   (≥2/3+2/3), and the core is banked as a reduced route with its own title in question-routes.
 - **Obstruction-naming check**: a rejected route's stale entry and the obstructions register
   carry the load-bearing obstruction named by the rejecting votes.
+- **Lifespan drill**: a subcoordinator never returns before every worker it spawned has
+  produced its artifact at the assigned path; a resumed session restores the four
+  subcoordinators, the PIs, and the lean code runner.
+- **No-early-return check**: a subcoordinator's final message cites verified artifact paths;
+  a narrated-but-unverified spawn is treated as a failure.
 - **Formalizer visibility check**: at round start the Coordinator reads a current formalization
   status line in the index; a green lemma lands there and is surfaced to the user without being
   pointed out.
+- **Verdict-aware input drill**: an examine-failed report reaches the Formalizer immediately; an
+  accepted route's full-or-core form + the promoter's note arrive post-verdict; a rejected
+  route's pair goes to the fragment region, never to the Formalizer.

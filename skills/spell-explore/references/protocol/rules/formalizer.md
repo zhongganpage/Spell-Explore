@@ -17,8 +17,7 @@ itself: it regulates its own workers within formalization — the decompose work
 working swarm, and the lean code runner — monitoring their status, enforcing the time limits
 and the artifact rules, and solving issues inside its territory, while the Coordinator
 regulates the Formalizer. every worker it spawns is spawned in the explicit background mode,
-never the blocking foreground. the Formalizer never closes: subcoordinators persist and can
-always be resumed, and within the Formalizer's territory so does the lean code runner (see
+never the blocking foreground. the Formalizer is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. within the Formalizer's territory so does the lean code runner (see
 below).
 
 the Formalizer runs in the background across rounds: it is not bound by the 2-hour-and-13-
@@ -26,7 +25,7 @@ minute round budget — its decompose workers run per pair of reports at any tim
 critical path of the round timeline (0–20 the Creator's phase 1, 20–45 the Producer's report,
 45–58 the hygiene linter and the examine worker, 58–98 the Selector's panel, 98–113 the PI's
 rebuttal and the promoter, 113–133 the Selector's swarm and the resumed BCD reviewers), and
-the lean code runner wakes on every qmd update. the reliable idea set and the fragment region
+the Coordinator resumes the lean code runner on every qmd file update. the reliable idea set and the fragment region
 grow continuously across rounds, and a round close never cuts the swarm. the Formalizer has
 no overall time budget: only the decompose workers and the swarm agents carry time limits.
 
@@ -42,16 +41,19 @@ assumptions; when the milestone is reached the Coordinator writes a report in PD
 manuscript, and maintains the question-routes folder, which holds a copy of the full reliable
 idea set.
 
-## inputs: lint-passed idea reports only
+## inputs: verdict-aware
 
-the Formalizer only receives idea reports after they have passed the hygiene linter: all such
-reports — successful or unsuccessful — are copied to it by the corresponding subcoordinators.
-in practice the Producer runs the hygiene linter on every idea report and copies every
-lint-passed report to the Formalizer, whether the examine worker later finds it sufficient
-(the report becomes a route, with a title, and its worker becomes the PI) or insufficient
-(the report goes stale and is sent back to the Creator for its second phase). there is no
-limit on the number of reports the Formalizer can take. a report that does not pass the quick
-lint is stale and never reaches the Formalizer.
+the Formalizer's inputs are verdict-aware. a lint-passed report that fails the examine
+worker is copied to it by the Producer as soon as it is stale — its raw form is its final
+form. a lint-passed report that becomes a route is not copied at linter time: after the
+Selector's verdict, the Selector sends the accepted route — full form (the PI's modified
+route) or core form (the accepted salvageable core) — together with the promoter's nearest
+true version note; a rejected route's pair enriches the fragment region instead. the
+promoter's note is scoping metadata for the decompose workers: it marks the honest core to
+formalize and the exact breaking point (an obstruction in the fragment region and the
+obstructions register), and the note itself is never decomposed. there is no limit on the
+number of inputs the Formalizer can take: every two units — a lint-passed examine-failed
+report, or an accepted route with its note — make a new worker that decomposes them.
 
 the Formalizer relies on the linter's layer 2, which produces the format: every claim, lemma,
 theorem and proposition has a uniform structure — a precise statement, its assumptions
@@ -64,7 +66,8 @@ code, never identifying assumptions or judging the mathematics.
 
 ## the decompose workers
 
-every two reports make a new worker that decomposes them. the decompose worker:
+every two units make a new worker that decomposes them — a unit being a lint-passed
+examine-failed report, or an accepted route with its promoter's note. the decompose worker:
 
 1. identifies the groups of claims with their assumptions and implications, as grouped by the
    linter's layer 2 — the format already gives each claim its statement, its explicit
@@ -76,7 +79,7 @@ every two reports make a new worker that decomposes them. the decompose worker:
    which worker, in which order, so the swarm works in parallel without duplicating or
    conflicting claims.
 
-the decomposed fragments are thrown to the working swarm of ~8 workers. a report that waits
+the decomposed fragments are thrown to the working swarm of ~8 workers. a unit that waits
 more than ten minutes without a proper pair moves to the next step on its own: the Formalizer
 holds incoming reports up to 10 minutes for a complement, and if none arrives the unpaired
 report is decomposed singly — the 10-minute unpaired timeout, the same value as the
@@ -128,13 +131,11 @@ the swarm's rules:
 
 ## the lean code runner (lock this name)
 
-the lean code runner is an independent, resumable worker. it never closes: like the
-subcoordinators and the PIs it persists and can always be resumed. it is event-driven — it
-wakes on every qmd file update — and it plans in advance: on every wake it examines the qmd
+the lean code runner is an independent, resumable worker. like the subcoordinators and the PIs it is resumed by the Coordinator on every qmd file update and restored after a session resume — it does not wake on its own. it plans in advance: on every resumption it examines the qmd
 file, the generated lean code, the reliable idea set and the dependency graph, and builds a
 forward plan of the mechanical verification jobs — which lean code to run, which pieces to
 green-check, and in what order, preferring the pieces that shrink the goal node's distance
-to the acceptable set. its duties, in order, on every wake:
+to the acceptable set. its duties, in order, on every resumption:
 
 1. **plan and distribute.** it distributes the planned verification jobs to its own swarm
    agents — whatever number the plan requires, with no fixed count. the lean code runner's
@@ -209,7 +210,7 @@ toward the goal, and rewards ideas that would hire new assumptions).
 
 the Formalizer keeps the formalization status in the Knowledge State index current: after
 each completed batch — a decompose run, a swarm update of the qmd file, or a lean code
-runner wake that greens a piece or deposits fragments — it writes one dated line recording
+runner resumption that greens a piece or deposits fragments — it writes one dated line recording
 the green count, the [Formalized] count, the fragment deposits and the dependency graph
 delta, so the index always reflects the current formalization state and the Coordinator's
 round-start check reads a live number. the formalization status block holds the green
@@ -239,10 +240,11 @@ goal node's distance to the acceptable set.
 
 ## relationship to the other subcoordinators
 
-- the Producer feeds the Formalizer (lint-passed idea reports, successful or unsuccessful) and
-  consumes its outputs (the [Formalized] premises and the dependency tree, via the
-  goal-frontier score; the fragment region as pairing material). the Producer prefers pairings
-  that shrink the goal node's distance to the acceptable set.
+- the Producer feeds the Formalizer (examine-failed lint-passed reports) and the Selector
+  feeds it post-verdict (accepted routes — full or core form — with the promoter's note as
+  scoping metadata); the Producer consumes its outputs (the [Formalized] premises and the
+  dependency tree, via the goal-frontier score; the fragment region as pairing material).
+  the Producer prefers pairings that shrink the goal node's distance to the acceptable set.
 - the Creator's second phase consumes its outputs: its phase-2 workers search for good ideas
   and techniques in the reliable idea set and the fragment region in the dossier.
 - the Selector's acceptance decisions are orthogonal to formalization: acceptance of a route

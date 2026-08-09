@@ -11,7 +11,7 @@ the template the Producer and the PI maintain; the filled file becomes the artif
 - created by: the Producer, from a successful report — the report is renamed a route with a
   title; the Producer archives it properly with versions.
 - the PI: the worker who produced the successful report remains and is called the PI; it
-  defends and modifies the route in the 98–113 window, makes a change list, and never closes.
+  defends and modifies the route in the 98–113 window, makes a change list, and stays resumable.
 - where it lives: the project folder (routes/), versioned; once accepted, all its artifacts are
   gathered in the question-routes folder, in a subfolder named by the title of that route.
 - the Selector reviews each fresh route as it becomes ready; an accepted route is marked a new
