@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="830" viewBox="0 0 1320 830" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="28" font-size="17" font-weight="bold" fill="#1f3864">Formalizer workflow — optional subcoordinator · 30-minute budget · runs in the background</text>
+
+  <!-- main chain edges -->
+  <g stroke="#555" stroke-width="1.6" fill="none">
+    <path d="M 660 96 L 660 133" marker-end="url(#arrow)"/>
+    <path d="M 660 177 L 660 213" marker-end="url(#arrow)"/>
+    <path d="M 660 257 L 660 295" marker-end="url(#arrow)"/>
+    <path d="M 660 355 L 660 397" marker-end="url(#arrow)"/>
+    <path d="M 660 463 L 660 514" marker-end="url(#arrow)"/>
+    <path d="M 660 566 L 660 612" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- linter → lean (assumptions) -->
+  <g stroke="#6a329f" stroke-width="1.6" fill="none">
+    <path d="M 390 415 L 440 430" marker-end="url(#arrow)"/>
+  </g>
+  <text x="358" y="408" font-size="11" fill="#6a329f" text-anchor="end">assumptions (layer 2)</text>
+
+  <!-- chain boxes -->
+  <g>
+    <rect x="450" y="44" width="420" height="52" rx="8" fill="#e6e6e6"/>
+    <text x="660" y="64" text-anchor="middle" font-size="13" fill="#222">Idea reports — only after the hygiene linter</text>
+    <text x="660" y="82" text-anchor="middle" font-size="12" fill="#555">successful and unsuccessful · copied by the corresponding subcoordinators</text>
+
+    <rect x="510" y="133" width="300" height="44" rx="8" fill="#dbe5f1"/>
+    <text x="660" y="160" text-anchor="middle" font-size="12.5" fill="#222">intake — two reports at once (0–2 min)</text>
+
+    <rect x="500" y="213" width="320" height="44" rx="8" fill="#dbe5f1"/>
+    <text x="660" y="240" text-anchor="middle" font-size="12.5" fill="#222">decomposition plan (2–5 min)</text>
+
+    <rect x="440" y="295" width="440" height="60" rx="8" fill="#e4d9f0"/>
+    <text x="660" y="317" text-anchor="middle" font-size="12.5" fill="#222">swarm ~8 — purely mechanical (5–17 min)</text>
+    <text x="660" y="334" text-anchor="middle" font-size="12" fill="#444">two reports → a single qmd file · similar lemmas / definitions /</text>
+    <text x="660" y="348" text-anchor="middle" font-size="12" fill="#444">theorems / propositions placed closely · does not run qmd-prover</text>
+
+    <rect x="440" y="397" width="440" height="66" rx="8" fill="#e4d9f0"/>
+    <text x="660" y="419" text-anchor="middle" font-size="12.5" fill="#222">swarm ~8 — writes lean code (17–27 min)</text>
+    <text x="660" y="436" text-anchor="middle" font-size="12" fill="#444">assumptions from the hygiene linter · mathlib optional</text>
+    <text x="660" y="452" text-anchor="middle" font-size="12" fill="#c55a11">per-lemma taking more than 10 min → cut</text>
+
+    <rect x="470" y="514" width="380" height="52" rx="8" fill="#dbe5f1"/>
+    <text x="660" y="534" text-anchor="middle" font-size="12.5" fill="#222">independent worker runs lean (27–30 min)</text>
+    <text x="660" y="552" text-anchor="middle" font-size="12" fill="#555">counts the green theorems</text>
+
+    <rect x="460" y="612" width="400" height="56" rx="8" fill="#ffd966"/>
+    <text x="660" y="633" text-anchor="middle" font-size="13" fill="#333">reliable idea set [Formalized] (lock this name)</text>
+    <text x="660" y="651" text-anchor="middle" font-size="12" fill="#555">recorded in the idea pool in dossier — lean-verified, un-overturnable</text>
+  </g>
+
+  <!-- hygiene linter side box -->
+  <g>
+    <rect x="110" y="300" width="280" height="190" rx="8" fill="#eef2f8"/>
+    <text x="125" y="322" font-size="13" font-weight="bold" fill="#1f3864">Hygiene linter — two layers</text>
+    <text x="125" y="342" font-size="12" fill="#333">(upstream of the Formalizer)</text>
+    <text x="125" y="366" font-size="12" fill="#333">layer 1 — deterministic mechanical</text>
+    <text x="125" y="382" font-size="12" fill="#333">checks (citations, proofs present,</text>
+    <text x="125" y="398" font-size="12" fill="#333">names, numbers, brackets)</text>
+    <text x="125" y="422" font-size="12" fill="#333">layer 2 — formalizes the arguments</text>
+    <text x="125" y="438" font-size="12" fill="#333">and identifies the assumptions of</text>
+    <text x="125" y="454" font-size="12" fill="#333">the claims</text>
+    <text x="125" y="478" font-size="12" fill="#6a329f">never delegated to a swarm</text>
+  </g>
+
+  <!-- 30-minute timeline -->
+  <g>
+    <text x="60" y="700" font-size="13" font-weight="bold" fill="#1f3864">30-minute budget (background — may span the round close; overrun → cut, partial qmd / lean files retained)</text>
+    <rect x="60" y="712" width="80" height="34" rx="4" fill="#d9d9d9"/>
+    <rect x="140" y="712" width="120" height="34" rx="4" fill="#dbe5f1"/>
+    <rect x="260" y="712" width="480" height="34" rx="4" fill="#e4d9f0"/>
+    <rect x="740" y="712" width="400" height="34" rx="4" fill="#d9c3ef"/>
+    <rect x="1140" y="712" width="120" height="34" rx="4" fill="#dbe5f1"/>
+    <g font-size="11.5" fill="#555">
+      <text x="100" y="764" text-anchor="middle">0–2 · intake</text>
+      <text x="200" y="764" text-anchor="middle">2–5 · decomposition plan</text>
+      <text x="500" y="764" text-anchor="middle">5–17 · qmd transform (swarm)</text>
+      <text x="940" y="764" text-anchor="middle">17–27 · lean code (swarm)</text>
+      <text x="1200" y="764" text-anchor="middle">27–30 · run + count</text>
+    </g>
+  </g>
+</svg>

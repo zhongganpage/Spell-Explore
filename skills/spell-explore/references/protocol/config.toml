@@ -1,0 +1,97 @@
+# Spell-Explore — protocol configuration.
+# Scaffolded per construction-plan §5 (build order, step 1: scaffolding) and
+# consistent with planning-idea.md (the spec is authoritative).
+#
+# Round budget: 2 hours and 13 minutes (133 minutes) per round. the round-1
+# setup — the Coordinator asking the user for the rough idea and writing it into
+# the locked goal file (goal.md) — happens before the round clock starts and is
+# not counted in the budget. the round start is announced and written in the
+# dossier before any agent spawns; phase start and end timestamps are recorded at
+# each boundary in the phase-time table; a phase that reaches its window end is
+# cut and its partial output recorded; the round closes atomically at 133 min
+# even if a phase is mid-flight. changing any window means the 133-minute budget
+# no longer holds.
+#
+# Acceptance: a route is accepted iff at least 2/3 of the swarm workers AND at
+# least 2/3 of the BCD reviewers agree. Milestone: all 9 swarm workers and all 3
+# BCD reviewers accept (9/9 + 3/3) and the accepted routes together achieve the
+# locked goal — then the Coordinator writes the manuscript (lock this name), the
+# report about the project in PDF.
+#
+# The subcoordinators, the PIs, and the lean code runner (lock this name) never
+# close: they persist and can always be resumed, so no timeout applies to them.
+# every other worker closes once its job is done. all subcoordinators and
+# workers run in the background — every subagent is spawned in the explicit
+# background mode, never the blocking foreground.
+
+[background]
+max_running_tasks = 50    # cap for simultaneous background agents
+
+[round]
+budget_ms = 7980000       # 133 min = 2 h 13 m, the hard round budget
+
+# Per-phase subagent timeouts (milliseconds) matching the 133-minute timeline.
+[subagent.timeouts]
+# window 0–20 — the Creator's phase-1 workers think (≤10 min) and write their
+# fresh summaries (≤10 min); the rotation hands all n ideas at once and the
+# workers write in parallel, so all n fresh summaries are ready by ~20 min.
+creator_phase1_think_ms   = 600000
+creator_phase1_summary_ms = 600000
+
+# window 20–45 — the Producer's report worker writes the idea report (25 min).
+producer_report_ms        = 1500000
+
+# window 45–58 — the hygiene linter runs first, then the examine worker.
+# layer 1 ≈2 min: deterministic mechanical pass (no AI). layer 2 ≈6 min:
+# produces the format (lock this name) — statement, explicit assumptions,
+# implications — and groups them. examine cap 5 min: sufficiency only, never
+# correctness.
+linter_layer1_ms          = 120000
+linter_layer2_ms          = 360000
+examine_cap_ms            = 300000
+
+# window 58–98 — the Selector's adversarial review panel (two panels at a time).
+# workerA lists the evidence points by 73 min; workerB/C/D review from 58 min
+# (30 min), exchange reports and write the review summaries (10 min).
+selector_workerA_ms       = 900000
+selector_BCD_review_ms    = 1800000
+selector_BCD_exchange_ms  = 600000
+
+# window 98–113 — the PI modifies the route and rebuts (15 min); the promoter
+# writes its nearest true version note in the same window, in parallel (15 min).
+selector_PI_rebuttal_ms   = 900000
+selector_promoter_ms      = 900000
+
+# window 113–133 — the decision swarm (~9 workers, 20 min) and the resumed BCD
+# reviewers voting with their panel context (20 min) run together.
+selector_swarm_ms         = 1200000
+selector_resumed_BCD_ms   = 1200000
+
+# off the critical path — the Creator's second phase (search ≤15 min, then
+# summaries ≤10 min as in phase 1) runs whenever there are stale documents from
+# the other subcoordinators.
+creator_phase2_search_ms  = 900000
+creator_phase2_summary_ms = 600000
+
+# the Formalizer — runs in the background across rounds, not bound by the
+# 133-minute budget; only its decompose workers and swarm agents carry time
+# limits.
+formalizer_decompose_ms   = 600000   # 10 min per pair of reports; on overrun it is cut and its output goes to the fragment region
+formalizer_unpaired_ms    = 600000   # a report waiting >10 min without a proper pair moves to the next step on its own
+formalizer_swarm_life_ms  = 1800000  # 30 min swarm-agent life, resumable within the window
+formalizer_swarm_tail_ms  = 300000   # last 5 min: remaining unformalized work → fragment region
+formalizer_lemma_cut_ms   = 600000   # a lemma taking >10 min is packaged and relayed to a swarm worker that has done its job (1-min wait, else the fragment region)
+formalizer_relay_wait_ms  = 60000    # a job running >10 min is packaged; wait up to 1 min for a free swarm worker to take it over, else send the packaged partial work to the fragment region
+lean_runner_swarm_life_ms  = 1800000  # the lean code runner's own swarm agents: 30-min life, resumable within the window
+lean_runner_swarm_tail_ms   = 300000   # last 5 min: unfinished verification work returns to the lean code runner's next plan
+
+# The binding timeline windows (critical path, one route). machine-readable map
+# for the Coordinator's phase-time table; timestamps are recorded at each
+# boundary and never reconstructed after the fact.
+[subagent.timeline]
+"0-20"    = "creator phase 1: n idea-workers (0–8) think (≤10) + fresh summaries (≤10), ready ~20"
+"20-45"   = "producer report worker (25 min) → idea report"
+"45-58"   = "linter layer 1 ≈2, layer 2 ≈6, then examine cap 5; fail → stale"
+"58-98"   = "selector panel: A lists by 73; B/C/D review 58–88; exchange + review summaries 88–98"
+"98-113"  = "PI modifies the route + rebuts; promoter nearest true version note, in parallel"
+"113-133" = "swarm decides (20) + resumed BCD vote (20); round closes atomically at 133"

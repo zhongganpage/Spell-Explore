@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1660" height="1120" viewBox="0 0 1660 1120" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" font-size="17" font-weight="bold" fill="#1f3864">Spell-Explore workflow — planning-idea.md · sequential stages: Creator → Producer → Selector · Formalizer (background, across rounds)</text>
+
+  <!-- main chain edges -->
+  <g stroke="#555" stroke-width="1.6" fill="none">
+    <path d="M 640 57 L 640 84" marker-end="url(#arrow)"/>
+    <path d="M 640 136 L 640 170" marker-end="url(#arrow)"/>
+    <path d="M 640 220 L 640 245" marker-end="url(#arrow)"/>
+    <path d="M 640 295 L 640 317" marker-end="url(#arrow)"/>
+    <path d="M 640 373 L 640 407" marker-end="url(#arrow)"/>
+    <path d="M 640 463 L 640 488" marker-end="url(#arrow)"/>
+    <path d="M 640 532 L 640 547" marker-end="url(#arrow)"/>
+    <path d="M 640 603 L 640 622" marker-end="url(#arrow)"/>
+    <path d="M 640 678 L 640 723" marker-end="url(#arrow)"/>
+    <path d="M 640 787 L 640 816" marker-end="url(#arrow)"/>
+    <path d="M 640 864 L 640 887" marker-end="url(#arrow)"/>
+    <path d="M 640 943 L 640 978" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- feedback edges -->
+  <g stroke="#c55a11" stroke-width="1.6" fill="none">
+    <path d="M 510 575 L 400 575 L 400 612 L 380 612" marker-end="url(#arrow)"/>
+    <path d="M 490 915 L 420 915 L 420 628 L 380 628" marker-end="url(#arrow)"/>
+  </g>
+  <g stroke="#555" stroke-width="1.6" fill="none">
+    <path d="M 265 585 L 265 505" marker-end="url(#arrow)"/>
+    <path d="M 380 470 L 430 470 L 430 378 L 500 378" marker-end="url(#arrow)"/>
+    <path d="M 910 777 L 790 777 L 790 915" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- formalizer edges -->
+  <g stroke="#6a329f" stroke-width="1.6" fill="none">
+    <path d="M 780 110 L 1180 110 L 1180 200 L 1230 200" marker-end="url(#arrow)"/>
+  </g>
+  <g stroke="#6a329f" stroke-width="1.6" stroke-dasharray="6,4" fill="none">
+    <path d="M 1040 665 L 1000 665 L 1000 345 L 780 345" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- formalizer column edges -->
+  <g stroke="#555" stroke-width="1.6" fill="none">
+    <path d="M 1330 222 L 1330 259" marker-end="url(#arrow)"/>
+    <path d="M 1330 311 L 1330 342" marker-end="url(#arrow)"/>
+    <path d="M 1330 398 L 1330 424" marker-end="url(#arrow)"/>
+    <path d="M 1330 496 L 1330 527" marker-end="url(#arrow)"/>
+    <path d="M 1470 603 L 1470 633" marker-end="url(#arrow)"/>
+    <path d="M 1190 603 L 1190 633" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- edge labels -->
+  <g font-size="12" fill="#8a8a8a">
+    <text x="650" y="616" text-anchor="middle" fill="#c55a11">pass</text>
+    <text x="415" y="590" text-anchor="middle" fill="#c55a11">fail</text>
+    <text x="440" y="760" text-anchor="middle" fill="#c55a11">reject</text>
+    <text x="275" y="549" text-anchor="middle">auto-sent</text>
+    <text x="1000" y="338" text-anchor="end" fill="#6a329f">→ idea pool (dossier)</text>
+  </g>
+
+  <!-- nodes -->
+  <g>
+    <rect x="570" y="23" width="140" height="34" rx="8" fill="#ffd966"/>
+    <text x="640" y="45" text-anchor="middle" font-size="13" fill="#333">User</text>
+
+    <rect x="500" y="84" width="280" height="52" rx="8" fill="#1f3864"/>
+    <text x="640" y="103" text-anchor="middle" font-size="13" fill="#fff">Coordinator</text>
+    <text x="640" y="118" text-anchor="middle" font-size="12" fill="#dce6f2">runs rounds · 2h13 budget · measures system</text>
+
+    <!-- stage 1 : Creator -->
+    <rect x="60" y="163" width="130" height="34" rx="8" fill="#2f5597"/>
+    <text x="125" y="185" text-anchor="middle" font-size="12.5" fill="#fff">Stage 1 · Creator</text>
+
+    <rect x="500" y="170" width="280" height="50" rx="8" fill="#dbe5f1"/>
+    <text x="640" y="188" text-anchor="middle" font-size="12.5" fill="#222">phase 1 — 4 workers think (≤10 min)</text>
+    <text x="640" y="203" text-anchor="middle" font-size="12.5" fill="#222">summaries written concurrently; first two by ~20 min</text>
+
+    <rect x="490" y="245" width="300" height="50" rx="8" fill="#dbe5f1"/>
+    <text x="640" y="263" text-anchor="middle" font-size="12.5" fill="#222">rotate ideas 1234→4123</text>
+    <text x="640" y="278" text-anchor="middle" font-size="12.5" fill="#222">each writes a summary (≤15 min each)</text>
+
+    <rect x="500" y="317" width="280" height="56" rx="8" fill="#e6e6e6"/>
+    <text x="640" y="338" text-anchor="middle" font-size="12.5" fill="#222">idea pool in dossier</text>
+    <text x="640" y="353" text-anchor="middle" font-size="12.5" fill="#222">fresh summaries · fragment region</text>
+
+    <!-- stage 2 : Producer -->
+    <rect x="60" y="403" width="130" height="34" rx="8" fill="#2e7d32"/>
+    <text x="125" y="425" text-anchor="middle" font-size="12.5" fill="#fff">Stage 2 · Producer</text>
+
+    <rect x="480" y="407" width="320" height="56" rx="8" fill="#e2f0d9"/>
+    <text x="640" y="422" text-anchor="middle" font-size="12.5" fill="#222">report worker (25 min)</text>
+    <text x="640" y="436" text-anchor="middle" font-size="12.5" fill="#222">two fresh summaries → idea report</text>
+    <text x="640" y="450" text-anchor="middle" font-size="12.5" fill="#222">may use dossier ideas + fragments</text>
+
+    <rect x="520" y="488" width="240" height="44" rx="8" fill="#e6e6e6"/>
+    <text x="640" y="515" text-anchor="middle" font-size="12.5" fill="#222">hygiene linter (2 layers)</text>
+
+    <rect x="510" y="547" width="260" height="56" rx="8" fill="#e2f0d9"/>
+    <text x="640" y="568" text-anchor="middle" font-size="12.5" fill="#222">examine worker (10 min)</text>
+    <text x="640" y="583" text-anchor="middle" font-size="12.5" fill="#222">sufficiency only, not correctness</text>
+
+    <rect x="490" y="622" width="300" height="56" rx="8" fill="#2e7d32"/>
+    <text x="640" y="643" text-anchor="middle" font-size="12.5" fill="#fff">pass → route + title</text>
+    <text x="640" y="658" text-anchor="middle" font-size="12.5" fill="#dff0d8">report worker becomes PI</text>
+
+    <!-- stage 3 : Selector -->
+    <rect x="60" y="723" width="130" height="34" rx="8" fill="#c55a11"/>
+    <text x="125" y="745" text-anchor="middle" font-size="12.5" fill="#fff">Stage 3 · Selector</text>
+
+    <rect x="480" y="723" width="320" height="64" rx="8" fill="#fbe5d6"/>
+    <text x="640" y="742" text-anchor="middle" font-size="12.5" fill="#222">panel (40 min) + canary gate</text>
+    <text x="640" y="756" text-anchor="middle" font-size="12.5" fill="#222">A evidence-list → B/C/D review + exchange</text>
+    <text x="640" y="770" text-anchor="middle" font-size="12.5" fill="#222">→ 3 review summaries</text>
+
+    <rect x="500" y="816" width="280" height="48" rx="8" fill="#fbe5d6"/>
+    <text x="640" y="840" text-anchor="middle" font-size="12.5" fill="#222">PI rebuts + change list (15 min)</text>
+
+    <rect x="490" y="887" width="300" height="56" rx="8" fill="#fbe5d6"/>
+    <text x="640" y="908" text-anchor="middle" font-size="12.5" fill="#222">swarm ~9 + BCD (resumed) — accept ≥2/3 · close 9/9+3/3 (20 min)</text>
+
+    <rect x="490" y="978" width="300" height="44" rx="8" fill="#ffd966"/>
+    <text x="640" y="1005" text-anchor="middle" font-size="12.5" fill="#333">accepted → presented to user → new version</text>
+
+    <!-- feedback lane -->
+    <rect x="150" y="435" width="230" height="70" rx="8" fill="#dbe5f1"/>
+    <text x="265" y="457" text-anchor="middle" font-size="12.5" fill="#222">Creator phase 2</text>
+    <text x="265" y="471" text-anchor="middle" font-size="12.5" fill="#222">4 fresh workers mine ideas /</text>
+    <text x="265" y="485" text-anchor="middle" font-size="12.5" fill="#222">techniques (≤15 min)</text>
+
+    <rect x="150" y="585" width="230" height="70" rx="8" fill="#e6e6e6"/>
+    <text x="265" y="613" text-anchor="middle" font-size="12.5" fill="#222">stale: failure reason +</text>
+    <text x="265" y="628" text-anchor="middle" font-size="12.5" fill="#222">revival trigger + fragments</text>
+
+    <!-- promoter -->
+    <rect x="910" y="733" width="280" height="44" rx="8" fill="#fbe5d6"/>
+    <text x="1050" y="760" text-anchor="middle" font-size="12.5" fill="#222">promoter — nearest true version note</text>
+
+    <!-- formalizer column -->
+    <rect x="1230" y="178" width="200" height="44" rx="8" fill="#6a329f"/>
+    <text x="1330" y="205" text-anchor="middle" font-size="12.5" fill="#fff">Formalizer</text>
+
+    <rect x="1180" y="259" width="300" height="52" rx="8" fill="#e4d9f0"/>
+    <text x="1330" y="278" text-anchor="middle" font-size="12.5" fill="#222">idea reports — after the hygiene linter</text>
+    <text x="1330" y="295" text-anchor="middle" font-size="12" fill="#555">successful or unsuccessful · no limit on number</text>
+
+    <rect x="1180" y="342" width="300" height="56" rx="8" fill="#e4d9f0"/>
+    <text x="1330" y="362" text-anchor="middle" font-size="12.5" fill="#222">decompose workers — one per pair</text>
+    <text x="1330" y="378" text-anchor="middle" font-size="12" fill="#555">(10 min limit) → decomposed fragments (lock this name)</text>
+
+    <rect x="1175" y="424" width="310" height="72" rx="8" fill="#e4d9f0"/>
+    <text x="1330" y="444" text-anchor="middle" font-size="12.5" fill="#222">working swarm ~8 — purely mechanical</text>
+    <text x="1330" y="460" text-anchor="middle" font-size="12" fill="#444">decomposed fragments → single qmd file · similar lemmas,</text>
+    <text x="1330" y="476" text-anchor="middle" font-size="12" fill="#444">definitions, theorems, propositions placed closely</text>
+
+    <rect x="1175" y="527" width="310" height="76" rx="8" fill="#d9c3ef"/>
+    <text x="1330" y="547" text-anchor="middle" font-size="12.5" fill="#222">lean code runner (lock this name)</text>
+    <text x="1330" y="563" text-anchor="middle" font-size="12" fill="#444">resumable · never closes while Formalizer active</text>
+    <text x="1330" y="579" text-anchor="middle" font-size="12" fill="#444">wakes on every qmd update · runs lean, counts green</text>
+
+    <rect x="1320" y="633" width="300" height="64" rx="8" fill="#ffd966"/>
+    <text x="1470" y="650" text-anchor="middle" font-size="12.5" fill="#333">reliable idea set [Formalized]</text>
+    <text x="1470" y="666" text-anchor="middle" font-size="12" fill="#555">(lock this name) — in the idea pool,</text>
+    <text x="1470" y="681" text-anchor="middle" font-size="12" fill="#555">only green lean codes</text>
+
+    <rect x="1040" y="633" width="300" height="64" rx="8" fill="#e6e6e6"/>
+    <text x="1190" y="650" text-anchor="middle" font-size="12.5" fill="#222">fragment region (lock this name)</text>
+    <text x="1190" y="666" text-anchor="middle" font-size="12" fill="#555">in the idea pool in the dossier —</text>
+    <text x="1190" y="681" text-anchor="middle" font-size="12" fill="#555">collects anything not well formatted</text>
+  </g>
+
+  <!-- legend -->
+  <g font-size="12" fill="#666">
+    <rect x="20" y="1062" width="1620" height="40" rx="6" fill="#f7f7f7"/>
+    <text x="35" y="1079">vertical chain = sequential stages 1→2→3 · Coordinator (navy) · subcoordinators (blue / green / orange / purple) · process steps (light) · artifacts (gray) · user / outcome (gold)</text>
+    <text x="35" y="1095">red feedback arrows = fail / reject → stale → Creator phase 2 → idea pool · purple = Formalizer (mandated, solid) + outputs feeding the idea pool (dashed) · fragment region &amp; reliable idea set live in the idea pool in the dossier</text>
+  </g>
+</svg>
