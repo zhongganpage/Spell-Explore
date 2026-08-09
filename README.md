@@ -1,6 +1,10 @@
 # Spell-Explore
 
-Adversarial multi-agent proof exploration protocol. A rough idea goes in; attacked, reviewed, and Lean-verified mathematics comes out. The output is a manuscript at a milestone — nothing is a certificate.
+Spell-Explore is an adversarial multi-agent proof exploration protocol. A rough idea goes in; attacked, reviewed, and digested mathematics comes out — a manuscript at a milestone, never a certificate.
+
+In Spell-Explore, ideas can be preserved and revived: nothing the project learns is thrown away. Wild ideas are archived in the append-only idea pool, and a revival trigger can return a stalled idea or fragment to the pairing queue. Unsuccessful routes are not lost either — they are fragmented, and the sub-results that still hold, the obstruction, and the closest technique are stored in the fragment region as reusable material, eventually formalized into green lean codes in the reliable idea set, where a `[Formalized]` idea becomes an un-overturnable premise. Every mechanism in the protocol — the adversarial panels, the canary gate, the three-way verdict, the Lean formalization pipeline, the goal-frontier pairing — exists to improve, a bit at a time, the possibility of finding the true proof.
+
+Enjoy your time with math and agents :)
 
 ## What it is
 
