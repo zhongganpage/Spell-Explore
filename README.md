@@ -21,6 +21,24 @@ Spell-Explore runs a project of background agents against a locked goal, in fixe
 - The persistence and verification protocols bind the workers: no agent grades its own homework; a claim is established only after independent review; a `[Formalized]` idea is an additional premise channel that cannot be overturned by a later round.
 - The project reaches a milestone only on full consensus (9/9 swarm + 3/3 BCD) with the accepted routes achieving the locked goal — operationally, the goal node of the dependency graph reachable from `[Formalized]`/`[Hired]` assumptions. Two consecutive rounds of total rejection (0/9, 0/3) trigger the Coordinator's steering report: split the goal, nominate pairings, or pause.
 
+## Diagrams
+
+![Spell-Explore workflow](workflow.svg)
+
+The full pipeline: sequential stages Creator → Producer → Selector, the feedback lanes (fail/reject → stale → Creator phase 2 → idea pool), and the Formalizer running in the background across rounds.
+
+![133-minute round timeline](round-timeline.svg)
+
+The binding per-phase windows of one route's critical path.
+
+![Formalizer pipeline](formalizer-workflow.svg)
+
+The Lean formalization pipeline: lint-passed reports → decompose → working swarm → lean code runner (plans and dispatches to its own swarm) → reliable idea set, dependency graph, fragment region.
+
+![Subagent nesting in Kimi Code](subagent-nesting.svg)
+
+How agents spawn agents — context isolation, permissions, background execution, and resumability.
+
 ## Repository layout
 
 - `skills/spell-explore/` — the built protocol as a runnable skill:
