@@ -1,87 +1,105 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="830" viewBox="0 0 1320 830" font-family="Arial, Helvetica, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="860" viewBox="0 0 1200 860" font-family="Arial, Helvetica, sans-serif">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#555"/>
     </marker>
   </defs>
 
-  <text x="20" y="28" font-size="17" font-weight="bold" fill="#1f3864">Formalizer workflow — optional subcoordinator · 30-minute budget · runs in the background</text>
+  <text x="20" y="26" font-size="17" font-weight="bold" fill="#6a329f">Formalizer — mandated subcoordinator · runs in the background across rounds · no overall time budget</text>
+  <text x="20" y="44" font-size="12" fill="#666">only the decompose workers, the working swarm, and the lean code runner's swarm carry time limits · a round close never cuts the swarm</text>
 
-  <!-- main chain edges -->
-  <g stroke="#555" stroke-width="1.6" fill="none">
-    <path d="M 660 96 L 660 133" marker-end="url(#arrow)"/>
-    <path d="M 660 177 L 660 213" marker-end="url(#arrow)"/>
-    <path d="M 660 257 L 660 295" marker-end="url(#arrow)"/>
-    <path d="M 660 355 L 660 397" marker-end="url(#arrow)"/>
-    <path d="M 660 463 L 660 514" marker-end="url(#arrow)"/>
-    <path d="M 660 566 L 660 612" marker-end="url(#arrow)"/>
-  </g>
-
-  <!-- linter → lean (assumptions) -->
+  <!-- main column edges -->
   <g stroke="#6a329f" stroke-width="1.6" fill="none">
-    <path d="M 390 415 L 440 430" marker-end="url(#arrow)"/>
+    <path d="M 400 122 L 400 150" marker-end="url(#arrow)"/>
+    <path d="M 400 232 L 400 260" marker-end="url(#arrow)"/>
+    <path d="M 400 372 L 400 400" marker-end="url(#arrow)"/>
+    <path d="M 400 480 L 400 508" marker-end="url(#arrow)"/>
+    <path d="M 400 598 L 400 626" marker-end="url(#arrow)"/>
   </g>
-  <text x="358" y="408" font-size="11" fill="#6a329f" text-anchor="end">assumptions (layer 2)</text>
-
-  <!-- chain boxes -->
-  <g>
-    <rect x="450" y="44" width="420" height="52" rx="8" fill="#e6e6e6"/>
-    <text x="660" y="64" text-anchor="middle" font-size="13" fill="#222">Idea reports — only after the hygiene linter</text>
-    <text x="660" y="82" text-anchor="middle" font-size="12" fill="#555">successful and unsuccessful · copied by the corresponding subcoordinators</text>
-
-    <rect x="510" y="133" width="300" height="44" rx="8" fill="#dbe5f1"/>
-    <text x="660" y="160" text-anchor="middle" font-size="12.5" fill="#222">intake — two reports at once (0–2 min)</text>
-
-    <rect x="500" y="213" width="320" height="44" rx="8" fill="#dbe5f1"/>
-    <text x="660" y="240" text-anchor="middle" font-size="12.5" fill="#222">decomposition plan (2–5 min)</text>
-
-    <rect x="440" y="295" width="440" height="60" rx="8" fill="#e4d9f0"/>
-    <text x="660" y="317" text-anchor="middle" font-size="12.5" fill="#222">swarm ~8 — purely mechanical (5–17 min)</text>
-    <text x="660" y="334" text-anchor="middle" font-size="12" fill="#444">two reports → a single qmd file · similar lemmas / definitions /</text>
-    <text x="660" y="348" text-anchor="middle" font-size="12" fill="#444">theorems / propositions placed closely · does not run qmd-prover</text>
-
-    <rect x="440" y="397" width="440" height="66" rx="8" fill="#e4d9f0"/>
-    <text x="660" y="419" text-anchor="middle" font-size="12.5" fill="#222">swarm ~8 — writes lean code (17–27 min)</text>
-    <text x="660" y="436" text-anchor="middle" font-size="12" fill="#444">assumptions from the hygiene linter · mathlib optional</text>
-    <text x="660" y="452" text-anchor="middle" font-size="12" fill="#c55a11">per-lemma taking more than 10 min → cut</text>
-
-    <rect x="470" y="514" width="380" height="52" rx="8" fill="#dbe5f1"/>
-    <text x="660" y="534" text-anchor="middle" font-size="12.5" fill="#222">independent worker runs lean (27–30 min)</text>
-    <text x="660" y="552" text-anchor="middle" font-size="12" fill="#555">counts the green theorems</text>
-
-    <rect x="460" y="612" width="400" height="56" rx="8" fill="#ffd966"/>
-    <text x="660" y="633" text-anchor="middle" font-size="13" fill="#333">reliable idea set [Formalized] (lock this name)</text>
-    <text x="660" y="651" text-anchor="middle" font-size="12" fill="#555">recorded in the idea pool in dossier — lean-verified, un-overturnable</text>
+  <!-- dispatch + report edges to the runner's swarm (side) -->
+  <g stroke="#555" stroke-width="1.6" fill="none">
+    <path d="M 540 440 L 850 440" marker-end="url(#arrow)"/>
+    <path d="M 930 490 L 930 420 L 590 420" marker-end="url(#arrow)"/>
   </g>
 
-  <!-- hygiene linter side box -->
+  <!-- nodes -->
   <g>
-    <rect x="110" y="300" width="280" height="190" rx="8" fill="#eef2f8"/>
-    <text x="125" y="322" font-size="13" font-weight="bold" fill="#1f3864">Hygiene linter — two layers</text>
-    <text x="125" y="342" font-size="12" fill="#333">(upstream of the Formalizer)</text>
-    <text x="125" y="366" font-size="12" fill="#333">layer 1 — deterministic mechanical</text>
-    <text x="125" y="382" font-size="12" fill="#333">checks (citations, proofs present,</text>
-    <text x="125" y="398" font-size="12" fill="#333">names, numbers, brackets)</text>
-    <text x="125" y="422" font-size="12" fill="#333">layer 2 — formalizes the arguments</text>
-    <text x="125" y="438" font-size="12" fill="#333">and identifies the assumptions of</text>
-    <text x="125" y="454" font-size="12" fill="#333">the claims</text>
-    <text x="125" y="478" font-size="12" fill="#6a329f">never delegated to a swarm</text>
+    <!-- 1 intake -->
+    <rect x="200" y="70" width="400" height="52" rx="8" fill="#6a329f"/>
+    <text x="400" y="92" text-anchor="middle" font-size="13" fill="#fff">Idea reports — only after the hygiene linter</text>
+    <text x="400" y="108" text-anchor="middle" font-size="11.5" fill="#e4d9f0">successful and unsuccessful · copied by the corresponding subcoordinators · no limit on number</text>
+
+    <!-- 2 decompose -->
+    <rect x="200" y="150" width="400" height="82" rx="8" fill="#e4d9f0"/>
+    <text x="400" y="172" text-anchor="middle" font-size="13" fill="#222">decompose workers — one per pair</text>
+    <text x="400" y="190" text-anchor="middle" font-size="11.5" fill="#444">10 min per pair · unpaired reports move on after 10 min</text>
+    <text x="400" y="206" text-anchor="middle" font-size="11.5" fill="#444">overrun → cut → fragment region · outputs: decomposed fragments (lock this name)</text>
+    <text x="400" y="222" text-anchor="middle" font-size="11.5" fill="#444">+ the distribution plan for the working swarm</text>
+
+    <!-- 3 working swarm -->
+    <rect x="200" y="260" width="400" height="112" rx="8" fill="#e4d9f0"/>
+    <text x="400" y="282" text-anchor="middle" font-size="13" fill="#222">working swarm ~8 — purely mechanical (unrelated to the lean code runner's swarm)</text>
+    <text x="400" y="300" text-anchor="middle" font-size="11.5" fill="#444">decomposed fragments → single qmd file → lean code · does not run qmd-prover</text>
+    <text x="400" y="316" text-anchor="middle" font-size="11.5" fill="#444">similar lemmas / definitions / theorems / propositions placed closely</text>
+    <text x="400" y="332" text-anchor="middle" font-size="11.5" fill="#444">10-min cut: package the partial work → relay to a free worker (1-min wait) → else fragment region</text>
+    <text x="400" y="348" text-anchor="middle" font-size="11.5" fill="#444">30-min life, resumable in-window · 5-min tail → fragment region</text>
+
+    <!-- 4 lean code runner -->
+    <rect x="200" y="400" width="340" height="80" rx="8" fill="#d9c3ef"/>
+    <text x="370" y="422" text-anchor="middle" font-size="13" fill="#222">lean code runner (lock this name)</text>
+    <text x="370" y="440" text-anchor="middle" font-size="11.5" fill="#444">wakes on every qmd update · resumable · never closes</text>
+    <text x="370" y="456" text-anchor="middle" font-size="11.5" fill="#444">plans the verification jobs in advance (prefers pieces that</text>
+    <text x="370" y="472" text-anchor="middle" font-size="11.5" fill="#444">shrink the goal node's distance) · dispatches them</text>
+
+    <!-- 5 runner's swarm (side) -->
+    <rect x="850" y="400" width="300" height="90" rx="8" fill="#e6e6e6"/>
+    <text x="1000" y="422" text-anchor="middle" font-size="12.5" fill="#222">lean code runner's own swarm — mechanical</text>
+    <text x="1000" y="438" text-anchor="middle" font-size="11.5" fill="#555">whatever number the plan requires · no fixed count</text>
+    <text x="1000" y="454" text-anchor="middle" font-size="11.5" fill="#555">runs the assigned lean code · counts the green theorems</text>
+    <text x="1000" y="470" text-anchor="middle" font-size="11.5" fill="#555">reports green pieces + dependency edges · 30-min life</text>
+
+    <!-- 6 integrate -->
+    <rect x="200" y="508" width="400" height="90" rx="8" fill="#d9c3ef"/>
+    <text x="400" y="530" text-anchor="middle" font-size="13" fill="#222">integrates the reported results</text>
+    <text x="400" y="548" text-anchor="middle" font-size="11.5" fill="#444">locks green pieces in the qmd (locked in place, never removed)</text>
+    <text x="400" y="564" text-anchor="middle" font-size="11.5" fill="#444">places the green lean code in the reliable idea set [Formalized]</text>
+    <text x="400" y="580" text-anchor="middle" font-size="11.5" fill="#444">builds and updates the dependency graph</text>
+
+    <!-- 7 outputs row -->
+    <rect x="60" y="626" width="320" height="90" rx="8" fill="#ffd966"/>
+    <text x="220" y="648" text-anchor="middle" font-size="12.5" fill="#333">reliable idea set [Formalized] (lock this name)</text>
+    <text x="220" y="666" text-anchor="middle" font-size="11.5" fill="#555">green lean codes are the only format · in the idea pool</text>
+    <text x="220" y="682" text-anchor="middle" font-size="11.5" fill="#555">citable as an established premise · un-overturnable</text>
+    <text x="220" y="698" text-anchor="middle" font-size="11.5" fill="#555">a copy lives in the question-routes folder</text>
+
+    <rect x="420" y="626" width="320" height="90" rx="8" fill="#e6e6e6"/>
+    <text x="580" y="648" text-anchor="middle" font-size="12.5" fill="#222">dependency graph (formalizer/dependency-graph.json)</text>
+    <text x="580" y="666" text-anchor="middle" font-size="11.5" fill="#555">every assumption is a node · green lean code is an edge</text>
+    <text x="580" y="682" text-anchor="middle" font-size="11.5" fill="#555">[Hired] flags · the goal node as a distinguished node</text>
+    <text x="580" y="698" text-anchor="middle" font-size="11.5" fill="#555">feeds the Producer's goal-frontier score</text>
+
+    <rect x="780" y="626" width="320" height="90" rx="8" fill="#e6e6e6"/>
+    <text x="940" y="648" text-anchor="middle" font-size="12.5" fill="#222">fragment region (lock this name)</text>
+    <text x="940" y="666" text-anchor="middle" font-size="11.5" fill="#555">anything not well formatted · in the idea pool in the dossier</text>
+    <text x="940" y="682" text-anchor="middle" font-size="11.5" fill="#555">cut decompose output · cut relayed jobs · 5-min-tail handoffs</text>
+    <text x="940" y="698" text-anchor="middle" font-size="11.5" fill="#555">append-only for workers · mined by the Creator's phase 2</text>
+
+    <!-- 8 status -->
+    <rect x="200" y="750" width="400" height="70" rx="8" fill="#dbe5f1"/>
+    <text x="400" y="772" text-anchor="middle" font-size="13" fill="#222">status reporting</text>
+    <text x="400" y="790" text-anchor="middle" font-size="11.5" fill="#444">after each completed batch: one dated line in the Knowledge State index</text>
+    <text x="400" y="806" text-anchor="middle" font-size="11.5" fill="#444">green count · [Formalized] count · fragment deposits · graph delta</text>
   </g>
 
-  <!-- 30-minute timeline -->
-  <g>
-    <text x="60" y="700" font-size="13" font-weight="bold" fill="#1f3864">30-minute budget (background — may span the round close; overrun → cut, partial qmd / lean files retained)</text>
-    <rect x="60" y="712" width="80" height="34" rx="4" fill="#d9d9d9"/>
-    <rect x="140" y="712" width="120" height="34" rx="4" fill="#dbe5f1"/>
-    <rect x="260" y="712" width="480" height="34" rx="4" fill="#e4d9f0"/>
-    <rect x="740" y="712" width="400" height="34" rx="4" fill="#d9c3ef"/>
-    <rect x="1140" y="712" width="120" height="34" rx="4" fill="#dbe5f1"/>
-    <g font-size="11.5" fill="#555">
-      <text x="100" y="764" text-anchor="middle">0–2 · intake</text>
-      <text x="200" y="764" text-anchor="middle">2–5 · decomposition plan</text>
-      <text x="500" y="764" text-anchor="middle">5–17 · qmd transform (swarm)</text>
-      <text x="940" y="764" text-anchor="middle">17–27 · lean code (swarm)</text>
-      <text x="1200" y="764" text-anchor="middle">27–30 · run + count</text>
-    </g>
+  <!-- edge labels -->
+  <g font-size="12" fill="#8a8a8a">
+    <text x="700" y="433" text-anchor="middle">dispatch jobs</text>
+    <text x="700" y="505" text-anchor="middle">report results</text>
+  </g>
+
+  <!-- legend -->
+  <g font-size="12" fill="#666">
+    <rect x="20" y="836" width="1160" height="20" rx="6" fill="#f7f7f7"/>
+    <text x="35" y="850">dark purple = the Formalizer and its intake · light purple = its workers · gray = its outputs / the runner's swarm · gold = reliable idea set · the two swarms (working vs lean code runner's) are unrelated by design</text>
   </g>
 </svg>
