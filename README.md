@@ -10,6 +10,9 @@ Enjoy your time with math and agents :)
 
 **Older version:** the original single-protocol [Spell](https://github.com/zhongganpage/Spell).
 
+**Use of qmd-prover:** this protocol uses [qmd-prover](https://github.com/powergiant/qmd-prover/tree/main).
+
+
 ## What it is
 
 Spell-Explore runs a project of background agents against a locked goal, in fixed 138-minute rounds (rounds ≥ 3 run 139 minutes — the Producer's 1-minute summary choice at the round's start):
