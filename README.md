@@ -6,6 +6,10 @@ In Spell-Explore, ideas can be preserved and revived: nothing the project learns
 
 Enjoy your time with math and agents :)
 
+**User guide:** [USER-GUIDE.md](USER-GUIDE.md) — from installation to hands-free.
+
+**Older version:** the original single-protocol [Spell](https://github.com/zhongganpage/Spell).
+
 ## What it is
 
 Spell-Explore runs a project of background agents against a locked goal, in fixed 138-minute rounds (rounds ≥ 3 run 139 minutes — the Producer's 1-minute summary choice at the round's start):

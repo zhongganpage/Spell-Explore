@@ -19,30 +19,18 @@ hands-free.
 | **lean code runner + swarm** | plans and dispatches lean verification, merges the single qmd, updates the dependency graph |
 | **clock watcher** | not an agent — a background `sleep 120` that wakes the Coordinator every 2 minutes |
 
-## 1. One-time setup (before launching kimi)
+## 1. Installation
 
-```bash
-export KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1   # the worker tier (idea/report/swarm) uses the secondary model
-```
+ask any agent to install the skill:
 
-- `~/.kimi-code/config.toml` must carry `[subagent] timeout_ms = 0` and a
-  `[secondary_model] model` alias that exists in `[models]` — `scripts/init-project.sh`
-  merges both for you.
-- Lean toolchain (`lean --version`) only if you want green `[Formalized]` pieces;
-  without it the Formalizer idles gracefully.
-- The exterior reviewer X (workerD's external path) needs no experimental flag: for
-  `api`, export the provider's env var (e.g. `export MOONSHOT_API_KEY=...`); for
-  `codex`, the CLI must be installed.
+> "install the skill https://github.com/zhongganpage/Spell-Explore/"
 
-## 2. Scaffold and start
+the agent clones the repository, merges the protocol config into
+`~/.kimi-code/config.toml` (`[subagent] timeout_ms = 0`, the secondary model), and
+scaffolds a project folder. then start kimi in the project folder; the Coordinator
+handles the round-1 setup from there.
 
-```bash
-scripts/init-project.sh     # scaffold the project folder + merge the config
-scripts/sync-skill.sh       # sync the packaged skill with the user-scope copy
-kimi                        # start in the project folder
-```
-
-## 3. Round 1 — five minutes of interaction, then hands-free
+## 2. Round 1 — five minutes of interaction, then hands-free
 
 The Coordinator (the top agent) asks, in order:
 
@@ -54,7 +42,7 @@ The Coordinator (the top agent) asks, in order:
 After that the round clock starts and the Coordinator runs the pipeline. You do
 not drive it — you supervise it.
 
-## 4. Hands-free operation
+## 3. Hands-free operation
 
 - At round start the Coordinator spawns the **clock watcher** — a background
   `sleep 120` that wakes it every 2 minutes. Each wake: poll the workers, cut
@@ -71,7 +59,7 @@ not drive it — you supervise it.
   - formalization news as it happens (a new green lemma, a new `[Formalized]`
     premise, the goal node's distance shrinking).
 
-## 5. Interruptions and stalls
+## 4. Interruptions and stalls
 
 - Session interrupted? Just prompt "continue" — the round-start check reads
   `runtime/coordinator-state.md` and resumes the exact mid-flight phase,
@@ -83,14 +71,14 @@ not drive it — you supervise it.
   start a third such round on its own. The project never runs autonomously across
   days: rounds end at decision points that are yours.
 
-## 6. Milestone
+## 5. Milestone
 
 The project reaches a milestone when the goal node of `dependency-graph.json` is
 reachable from the established base (kernel axioms + Mathlib + `[Formalized]`
 pieces) with a clean `#print axioms`, and the round closes with full consensus
 (3/3 swarm + 3/3 BCD). The Coordinator then writes the **manuscript** (PDF).
 
-## 7. PDF exposition of an accepted route
+## 6. PDF exposition of an accepted route
 
 As soon as a route is accepted, you can ask for a human-readable PDF of it — no
 milestone needed:
@@ -101,7 +89,7 @@ milestone needed:
 The PI is the route's owner (it holds the route and its authoring context), so the
 Coordinator directs the PI to produce a PDF exposition: the statement, the
 assumptions, the proof outline, and what the route contributes toward the goal.
-The milestone manuscript (section 6) remains the full project report; this is the
+The milestone manuscript (section 5) remains the full project report; this is the
 per-route exposition, on demand.
 
 Expectations: early rounds may deliver zero accepted routes — the unit of progress
