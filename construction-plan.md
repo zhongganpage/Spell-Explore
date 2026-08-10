@@ -212,7 +212,7 @@ unaccepted; user nominations for next-round pairings).
   locked in the qmd → lean code in the reliable idea set → dependency edge added.
 - **Relay drill**: a >10-min job is packaged, handed to a free worker (the relay restarts the
   receiving worker's 10-min clock), and only fragments if no worker is free within 1 min.
-- **Lean runner dispatch drill**: a qmd update produces a forward plan; the lean code runner
+- **Lean runner dispatch drill**: a round-start resumption produces a forward plan; the lean code runner
   spawns exactly the required number of swarm agents (unrelated to the working swarm),
   integrates the green results into the reliable idea set and the dependency graph.
 - **Spawn-broker drill**: a subcoordinator writes a spawn request (labels, profiles, output
@@ -268,6 +268,8 @@ unaccepted; user nominations for next-round pairings).
   config are verified, and the restart caveat is surfaced when either is not in effect;
   the exterior reviewer X's access is re-checked at each round start — the provider env
   var present for api, or the Codex CLI installed for codex, and the provider family
-  still different from the primary's (modules/providers.md).
+  still different from the primary's (modules/providers.md); the lean-runner gate is
+  asked at each round start when pending fragments exist (run now / postpone to the next
+  round).
 - **Sync check**: `protocol/` == the packaged skill copy
   (`skills/spell-explore/references/protocol/`), run `scripts/sync-skill.sh`.

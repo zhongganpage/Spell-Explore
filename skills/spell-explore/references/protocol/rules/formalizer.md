@@ -27,7 +27,10 @@ minute round budget — its decompose workers run per pair of reports at any tim
 critical path of the round timeline (0–20 the Creator's phase 1, 20–45 the Producer's report,
 45–63 the hygiene linter and the examine worker, 63–103 the Selector's panel, 103–118 the PI's
 rebuttal and the promoter, 118–138 the Selector's swarm and the resumed BCD reviewers), and
-the Coordinator resumes the lean code runner on every qmd file update. the reliable idea set and the fragment region
+the Coordinator resumes the lean code runner once per round at the round start — batched,
+never on every qmd file update — subject to the run-or-postpone user gate (the lean code
+runner section below); fragments that land mid-round wait for the next resumption. the
+reliable idea set and the fragment region
 grow continuously across rounds, and a round close never cuts the swarm. the Formalizer has
 no overall time budget: only the decompose workers and the swarm agents carry time limits.
 
@@ -155,7 +158,7 @@ the swarm's rules:
 
 ## the lean code runner (lock this name)
 
-the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator on every qmd file update and restored after a session resume — it does not wake on its own. it plans in advance: on every resumption it examines the qmd
+the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator once per round at the round start — batched, never on every qmd file update — and restored after a session resume; it does not wake on its own. the run-or-postpone gate: at the round start, when landed-but-unintegrated per-fragment files exist under formalizer/fragments/ (or the runner is recorded paused with pending units) and the runner is not already active, the Coordinator asks the user whether to run the runner now or postpone it to the next round; on 'run' the Coordinator clears the pause and resumes the runner in the background — one resumption per round, fragments that land mid-round wait for the next one; on 'postpone' the Coordinator records `paused: round N` in the worker registry and the Formalizer mirrors it in its resume pack (runtime/formalizer-state.md) with the pending units, and the runner is not resumed on any trigger while paused — the Formalizer re-requests it at the next round start, where the Coordinator asks again. it plans in advance: on every resumption it examines the qmd
 file, the generated lean code, the reliable idea set and the dependency graph, and builds a
 forward plan of the mechanical verification jobs — which lean code to run, which pieces to
 green-check, and in what order, preferring the pieces that shrink the goal node's distance

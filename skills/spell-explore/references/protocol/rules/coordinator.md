@@ -183,7 +183,16 @@ mid-round phase — children-in-flight or awaiting-resume at an unclosed window 
 the Coordinator completes that phase first (verifies the artifacts at the pending
 paths, restarts any missing worker from the worker registry, then advances) before
 starting anything new; a resumed prompt therefore always resumes the round instead
-of idling.
+of idling. the check also runs the lean-runner gate: when landed-but-unintegrated
+per-fragment files exist under formalizer/fragments/ (or the runner is recorded
+paused with pending units) and the runner is not already active, the Coordinator
+asks the user — run the lean code runner now, or postpone it to the next round; on
+'run' it clears any pause marker and resumes the runner in the background (once per
+round, batched); on 'postpone' it records `paused: round N` in the worker registry
+and in the Formalizer's resume pack, and the runner is not resumed on any trigger —
+the Formalizer re-requests it at the next round start. the runner is never resumed
+mid-round on a qmd file update: fragments that land during the round wait for the
+next resumption.
 
 ## 4. Solving stalls and conflicts
 
@@ -237,7 +246,7 @@ rounds ≥ 3 variant: the Producer's phase-2 1-minute summary choice adds 1 minu
 
 Off the critical path and in the background: the Creator's second phase, the
 Formalizer (its decompose workers run per pair of reports and feed the working swarm,
-and the lean code runner, resumed by the Coordinator on every qmd update — the Formalizer runs across
+and the lean code runner, resumed once per round at the round start (batched; run-or-postpone gate) — the Formalizer runs across
 rounds and is not bound by the 138-minute budget), and any additional Producer report
 workers.
 

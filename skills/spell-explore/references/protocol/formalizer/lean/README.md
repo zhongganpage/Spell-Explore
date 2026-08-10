@@ -41,7 +41,8 @@ round budget.
   if a fragment resembles ids already in the index it writes its piece to sit
   next to its relatives.
 - the lean code runner (lock this name): an independent, resumable worker that
-  is resumed by the Coordinator on every qmd file update, plans the
+  is resumed by the Coordinator once per round at the round start (batched — never on every qmd
+  file update; run-or-postpone gate), plans the
   verification jobs in advance, and distributes them to its own swarm agents —
   whatever number the plan requires — at most 3 — unrelated to the working swarm. at every
   resumption it first merges the pending per-fragment files into the single qmd
@@ -92,6 +93,7 @@ round budget.
   over — the relay restarts the 10-minute clock on the receiving worker; if no
   such worker appears within 1 minute, you send the packaged partial work to
   the fragment region.
-- the lean code runner is resumable: the Coordinator resumes it per qmd update
-  and restores it after a session resume, like the subcoordinators and the PIs.
+- the lean code runner is resumable: the Coordinator resumes it once per round at the round
+  start — batched, never on every qmd update; a postponed run is recorded paused until the
+  user runs it — and restores it after a session resume, like the subcoordinators and the PIs.
   a round close never cuts the swarm.
