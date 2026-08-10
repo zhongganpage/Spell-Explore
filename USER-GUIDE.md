@@ -59,38 +59,15 @@ not drive it — you supervise it.
   - formalization news as it happens (a new green lemma, a new `[Formalized]`
     premise, the goal node's distance shrinking).
 
-## 4. Interruptions and stalls
-
-- Session interrupted? Just prompt "continue" — the round-start check reads
-  `runtime/coordinator-state.md` and resumes the exact mid-flight phase,
-  re-spawning any lost worker.
-- Status tables stop appearing for more than a couple of minutes? The chain broke
-  — prompt once; the file-based resume takes over.
-- Two consecutive rounds with every route rejected → the Coordinator writes a
-  **steering report** (split the goal / nominate pairings / pause) and will not
-  start a third such round on its own. The project never runs autonomously across
-  days: rounds end at decision points that are yours.
-
-## 5. Milestone
+## 4. Milestone
 
 The project reaches a milestone when the goal node of `dependency-graph.json` is
 reachable from the established base (kernel axioms + Mathlib + `[Formalized]`
 pieces) with a clean `#print axioms`, and the round closes with full consensus
 (3/3 swarm + 3/3 BCD). The Coordinator then writes the **manuscript** (PDF).
 
-## 6. PDF exposition of an accepted route
-
-As soon as a route is accepted, you can ask for a human-readable PDF of it — no
-milestone needed:
-
-> ask the Coordinator to have the route's PI write a human-readable PDF report of
-> the accepted route.
-
-The PI is the route's owner (it holds the route and its authoring context), so the
-Coordinator directs the PI to produce a PDF exposition: the statement, the
-assumptions, the proof outline, and what the route contributes toward the goal.
-The milestone manuscript (section 5) remains the full project report; this is the
-per-route exposition, on demand.
+Want to read before the milestone? Check any accepted routes, and then ask the
+Coordinator to resume the PI to write a human readable report!
 
 Expectations: early rounds may deliver zero accepted routes — the unit of progress
 is a dossier entry, not a route. Nothing is lost; stale material is fragmented and
