@@ -5,7 +5,7 @@ sequence Creator → Producer → Selector. its territory is review and acceptan
 file is the complete operating rule for the Selector: the panel, the canary gate, the
 promoter, the PI rebuttal, the decision swarm, and the disposition of every route. an
 agent asked to run the Selector, a panel worker, the promoter, or a swarm worker acts
-on this file. the spec (planning-idea.md) is authoritative; where this file is silent,
+on this file. the spec (planning-ideas-no-push.md) is authoritative; where this file is silent,
 the spec governs.
 
 ## 1. the Selector's job
@@ -17,7 +17,7 @@ the Selector:
   report — see §2–§3;
 - sends the three review summaries to the route's PI, who modifies the route, rebuts
   the report, and makes a change list — see §6;
-- runs, in parallel, the promoter worker and then a decision swarm of ~9 workers plus
+- runs, in parallel, the promoter worker and then a decision swarm of 3 workers plus
   the resumed BCD reviewers, who decide accept, accept-core, or reject — see §7–§8;
 - marks the route accepted (full or core form) / unaccepted in the archive; an
   accepted route is marked a new version by the Producer (the Producer owns that
@@ -37,8 +37,8 @@ phase; it never returns early, and a narrated step is not a done step.
 ## 2. two panels at a time
 
 the Selector only runs two panels at a time. in a normal round two route reviews fit:
-the two panels run 58–98, the two PI rebuttals run in parallel 98–113, and the two
-decision swarms run together in the same window 113–133 as background workers. a third
+the two panels run 63–103, the two PI rebuttals run in parallel 103–118, and the two
+decision swarms run together in the same window 118–138 as background workers. a third
 fresh route's review is carried to the next round.
 
 carried-over work is handled first at the start of a round: the Selector resumes queued
@@ -70,8 +70,8 @@ roles:
 - **workerD** is external and makes the overall judgement (see the fallback rule
   below).
 
-timing within the 58–98 window: workerA lists the evidence points by 73 min; workerB/C/D
-review from 58 min, and pivot to workerA's list when it arrives; the exchange runs 88–98
+timing within the 63–103 window: workerA lists the evidence points by 78 min; workerB/C/D
+review from 58 min, and pivot to workerA's list when it arrives; the exchange runs 93–103
 min. a phase that reaches its window end is cut and its partial output recorded.
 
 workerB, workerC and workerD have 30 minutes to run the review and write a raw review
@@ -85,9 +85,14 @@ counterexamples, and D's overall judgement.
 
 ### workerD fallback rule
 
-with two panels at a time, two external reviewers are needed. if only one is available,
-the second panel's workerD falls back to an internal reviewer, and the reduced diversity
-is recorded (in the archive, with the panel record).
+workerD is external when it runs on the secondary model and that model's provider
+differs from the primary model's provider. the Selector checks the provider of the
+secondary model at spawn: when the secondary model is unavailable or shares the
+primary's provider, workerD falls back to an internal reviewer, and the reduced
+diversity is recorded (in the archive, with the panel record). with two panels at a
+time, two external reviewers are needed, and each workerD passes the same check.
+model_preference secondary needs KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1 (see
+config.toml).
 
 ### artifact and context rules for the panel
 
@@ -106,27 +111,34 @@ built on without its version.
 
 ## 4. the canary gate
 
-each panel carries a canary gate: a seeded known-false claim and one planted step-error
-ride in the review batch. both are excluded from the real record and from the route.
-the route may not be accepted unless the panel catches the claim (≥80%) and the
-step-error (100%, with the step cited). the running detection rate is recorded in the
-archive (per panel, per round). a panel that fails the gate produces no acceptance: the
-route under that panel cannot be accepted in that review, regardless of the votes, and
-the failure is recorded with the panel record. the canary material is a control, not a
-verdict on the route: it is seeded by the Selector, rides with the real review batch so
-that the panel cannot distinguish it from the route's content, and is stripped from the
-record and the route before anything downstream.
+canaries are per-route, authored by the Selector from a canary bank — plausible
+known-false claims and step errors targeting the route's typical error patterns — and
+ride in the review batch. the B/C/D panel is told the gate exists (announced), and its
+detection is recorded as announced: the panel must catch the known-false claim (≥80%)
+and the step-error (100%, with the step cited). a panel that fails the announced gate
+produces no acceptance: the route under that panel cannot be accepted in that review,
+regardless of the votes, and the failure is recorded with the panel record. the
+decision swarm stage additionally carries an unannounced canary when one is available —
+the swarm is not told — and its detection is recorded separately. both canaries are
+excluded from the real record and from the route; the running detection rate is
+recorded in the archive (per panel, per round). the canary material is a control, not a
+verdict on the route: it is authored by the Selector, rides with the real review batch
+so that the panel cannot distinguish it from the route's content, and is stripped from
+the record and the route before anything downstream.
 
 ## 5. handoff to the PI
 
 when the exchange is done, the Selector sends the three review summaries (of workerB,
 workerC, workerD) to the PI of the route. the summaries, the raw review reports and the
-panel report are versioned artifacts; the PI receives the summaries and the route, in
-fresh context, together with workerA's list when the summaries rely on it.
+panel report are versioned artifacts; the PI receives the three review summaries and the
+route with its authoring context preserved — the PI is the report worker the Producer
+held open (rules/worker-lifespans.md); fresh context is the panel's and the promoter's
+requirement, never the PI's — together with workerA's list when the summaries rely on
+it.
 
 ## 6. the PI rebuttal and the change list
 
-the PI has 15 minutes, the window 98–113. the PI modifies the route and rebuts the
+the PI has 15 minutes, the window 103–118. the PI modifies the route and rebuts the
 report, and makes a change list. the change list is a versioned artifact that states,
 point by point, which review summary findings were accepted and repaired in the
 modified route, which were rebutted and why, and which remain open. the modified route
@@ -139,7 +151,7 @@ verification protocol — it is not a way to set the vote aside.
 ## 7. the promoter
 
 a fresh-context promoter worker has the duty to promote the route. it works during
-98–113 min, at the same time as the PI, reading the route and the three review summaries
+103–118 min, at the same time as the PI, reading the route and the three review summaries
 and writing a nearest true version note — the strongest claim the route can honestly
 make, and the exact point where it breaks. the note is a high-level check the reviewers
 and the swarm refer to: whether the route over-claims, and the strongest true version
@@ -154,12 +166,12 @@ to the Creator's second phase.
 
 ## 8. the decision swarm and the resumed BCD vote
 
-at 113–133, the Selector runs a swarm of ~9 (odd number) workers to review the panel,
+at 118–138, the Selector runs a swarm of 3 (odd number) workers to review the panel,
 the original route, the modified route and the rebuttals, and judge the route itself —
 its claims, proofs and evidences — referring to the promoter's nearest true version
 note as a high-level check on the route's claims: whether the route over-claims, and
 the strongest true version its material supports. the swarm then votes accept,
-accept-core, or reject. the swarm has 20 minutes to make a decision.
+accept-core, or reject — acceptance needs 2/3 of the swarm, 2 of 3 workers, to vote accept, and the BCD gate must clear the same bar (§9). the swarm has 20 minutes to make a decision.
 
 every rejecting vote names the load-bearing obstruction — the single missing lemma,
 false step, or unproved claim whose absence makes the route fail.
@@ -171,7 +183,7 @@ stage, and only then close. the Selector holds the BCD reviewers paused, with th
 panel context, across the PI rebuttal window — they are resumed for the vote, not
 re-created, because a fresh reviewer would lack the panel context. a phase that reaches
 its window end is cut and its partial
-output recorded; the round closes atomically at 133 min even if a phase is mid-flight.
+output recorded; the round closes atomically at 138 min even if a phase is mid-flight.
 
 ## 9. acceptance, milestone, and quality ranking
 
@@ -179,21 +191,39 @@ the decision is three-way: accept, accept-core, or reject. a route is accepted w
 at least 2/3 of the swarm workers and at least 2/3 of the BCD reviewers vote accept;
 it is accepted in reduced form when at least 2/3 of the swarm workers and at least
 2/3 of the BCD reviewers vote accept-core and it is not already accepted; otherwise
-it is rejected. an accepted-core route is the promoter's salvageable core, grounded
+it is rejected. the verdict levels are ordered: 3/3 accept > (2/3 accept = 3/3 accept-core) > 2/3
+accept-core > reject — a unanimous accept-core weighs the same as a two-of-three
+accept. when both gates clear ≥2/3 on accept-or-better but at different levels, the
+weaker common level is the verdict — e.g. the swarm votes 2/3 accept while the BCD
+reviewers vote 3/3 accept-core, equal tiers, so the weaker common verdict
+(accept-core) wins — and the split is recorded with the verdict; that accept-core
+outcome only when the route is not already accepted: for a revision of an
+already-accepted route the route stays accepted and the split is recorded. every
+other combination — a gate below 2/3 accept-or-better, or a reject — makes the route
+rejected: it goes stale. an accepted-core route
+is the promoter's salvageable core, grounded
 in the route's material (surfaced by the promoter's high-level check, verified by the
 double gate) and verified as a genuine, correctly-proven contribution: the core
 becomes the accepted route, versioned, with its own title, and its abstract enters
 question-routes.md. this
 acceptance rule is fixed; the Coordinator's measurements feed the workers' rigor,
 never the votes. the acceptance numbers rank the quality of an accepted
-route: full consensus (9/9 + 3/3) is the strongest, lower counts are accepted but
-weaker. the quality ranking is recorded with the verdict in the archive, and the
-decision list shows it with the route's abstract.
+route: full consensus (3/3 + 3/3) is the strongest, lower counts are accepted but
+weaker — 3/3 is the maximum a gate clears. the quality ranking is recorded with the
+verdict in the archive, and the decision list shows it with the route's abstract.
 
-the project reaches a milestone only if all 9 swarm workers and all 3 BCD reviewers
-accept, and the accepted routes together achieve the locked goal. a milestone is a
-Coordinator matter: the Selector reports the counts and the verdicts; the Coordinator
-verifies the goal and writes the manuscript as a PDF.
+the project reaches a milestone only if all 3 swarm workers and all 3 BCD reviewers
+accept — 3/3 + 3/3 — and the accepted routes together achieve the locked goal. a
+milestone is a Coordinator matter: the Selector reports the counts and the verdicts;
+the Coordinator verifies the goal and writes the manuscript as a PDF.
+
+### same-title serialization
+
+no two reviews of the same route title run concurrently — a challenge to an older
+version and a review of a revision of the same title never share a panel window. when
+a challenge to an older version is in review and a revision of the same title is
+accepted, the in-flight review runs to completion first — the old PI defends the older
+version — and only then does the handover to the revision happen.
 
 ## 10. disposition of routes
 

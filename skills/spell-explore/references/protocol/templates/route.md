@@ -11,7 +11,7 @@ the template the Producer and the PI maintain; the filled file becomes the artif
 - created by: the Producer, from a successful report — the report is renamed a route with a
   title; the Producer archives it properly with versions.
 - the PI: the worker who produced the successful report remains and is called the PI; it
-  defends and modifies the route in the 98–113 window, makes a change list, and stays resumable.
+  defends and modifies the route in the 103–118 window, makes a change list, and stays resumable.
 - where it lives: the project folder (routes/), versioned; once accepted, all its artifacts are
   gathered in the question-routes folder, in a subfolder named by the title of that route.
 - the Selector reviews each fresh route as it becomes ready; an accepted route is marked a new
@@ -42,9 +42,13 @@ are applied here, never silently: every modification after review is a new versi
 ### review record (filled as the route moves)
 
 - review summaries: `<the three review summaries, B/C/D, ids + versions, once produced>`
-- change list + rebuttal: `<version + pointer, after the PI's 98–113 window>`
-- promoter's nearest true version note: `<pointer, written in the same 98–113 window>`
-- verdicts: `<swarm count x/9, BCD count x/3, accepted / not accepted>`
+- canary outcome: `<announced — known-false claim caught? step-error caught with the step
+  cited? · unannounced swarm-stage canary detection when carried>`
+- change list + rebuttal: `<version + pointer, after the PI's 103–118 window>`
+- promoter's nearest true version note: `<pointer, written in the same 103–118 window>`
+- verdicts: `<swarm count x/3, BCD count x/3, accepted / not accepted>`
+- defender: `<current defender PI id>` · superseded versions: `<older versions of this title
+  already handed over>`
 
 ### status
 
@@ -54,10 +58,10 @@ are applied here, never silently: every modification after review is a new versi
 
 - only the Selector's accepted routes are presented to the user, and the user sees the accepted
   route before it is marked a new version.
-- acceptance = ≥2/3 of the swarm workers AND ≥2/3 of the BCD reviewers. the counts rank the
-  quality of an accepted route: full consensus (9/9 + 3/3) is the strongest; lower counts are
-  accepted but weaker. the milestone = 9/9 + 3/3 and the accepted routes together achieving the
-  locked goal.
+- acceptance = ≥2/3 of the swarm workers (2 of 3) AND ≥2/3 of the BCD reviewers. the counts
+  rank the quality of an accepted route: full consensus (3/3 + 3/3) is the strongest; lower
+  counts are accepted but weaker. the milestone = 3/3 + 3/3 and the accepted routes together
+  achieving the locked goal.
 - acceptance is not the end of a route: a route may be challenged or revised in a later round,
   so question-routes.md stays a living map of the main question and the current accepted-route
   abstracts.

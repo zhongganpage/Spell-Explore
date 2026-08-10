@@ -22,20 +22,24 @@ edited>`
 
 - abstract: `<the abstract of the route — what it claims, its assumptions, its promise toward
   the goal>`
-- acceptance: `<swarm x/9, BCD x/3 — full consensus (9/9 + 3/3) is the strongest>`
+- acceptance: `<swarm x/3, BCD x/3 — full consensus (3/3 + 3/3) is the strongest>`
+- current defender PI: `<the PI of the route's latest accepted version — named by its PI id
+  and the route version — who answers every future challenge to the route, any version>`
 - status: `<current | challenged | revised | superseded>`
 - artifacts: `<the subfolder named by the title — summaries, idea reports, route versions,
   review reports>`
 
-`<one entry per accepted route; when a route is revised, the new version is recorded here and
-the older versions' artifacts stay in the subfolder>`
+`<one entry per accepted route, each carrying its current version and its current defender
+PI; when a route is revised, the new version and the new defender are recorded here — the new
+PI (route writer) archives the accepted revision as the new version and marks the older version
+superseded — and the older versions' artifacts stay in the subfolder, recorded, never deleted>`
 
 ## the reliable idea set (copy)
 
 - reliable-idea-set.md: `<a copy of the full reliable idea set — the formalized pieces as lean
-  code, each carrying the [Formalized] marker — kept in this folder and refreshed as the lean code runner
-  locks new green pieces; the canonical reliable idea set lives in the same place as the idea pool in
-  the dossier>`
+  code, each carrying the [Formalized] marker — kept in this folder and regenerated at round close by a
+  file copy from dossier/idea-pool/reliable-idea-set/, never maintained by hand; the canonical reliable
+  idea set lives in the same place as the idea pool in the dossier>`
 
 ## rules that bind this artifact
 
@@ -45,6 +49,6 @@ the older versions' artifacts stay in the subfolder>`
 - this map stays current because acceptance is not the end: a route may be challenged or
   revised in a later round, so the abstracts here are the current ones, and older versions are
   kept in the subfolder, never deleted.
-- when a milestone is reached — all 9 swarm workers and all 3 BCD reviewers accept, and the
+- when a milestone is reached — all 3 swarm workers and all 3 BCD reviewers accept, and the
   accepted routes together achieve the locked goal — the Coordinator writes the manuscript (lock this name),
   a PDF report about the milestone.

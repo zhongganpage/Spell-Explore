@@ -2,5 +2,8 @@
 /protocol/
 
 # the planning spec — kept locally, not published
-/planning-idea.md
-/skills/spell-explore/references/planning-idea.md
+/planning-ideas-no-push.md
+/skills/spell-explore/references/planning-ideas-no-push.md
+
+# the change log — kept locally, not published
+/CHANGELOG.md

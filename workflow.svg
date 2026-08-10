@@ -5,7 +5,7 @@
     </marker>
   </defs>
 
-  <text x="20" y="26" font-size="17" font-weight="bold" fill="#1f3864">Spell-Explore workflow — planning-idea.md · sequential stages: Creator → Producer → Selector · Formalizer (background, across rounds)</text>
+  <text x="20" y="26" font-size="17" font-weight="bold" fill="#1f3864">Spell-Explore workflow — planning-ideas-no-push.md · sequential stages: Creator → Producer → Selector · Formalizer (background, across rounds)</text>
 
   <!-- main chain edges -->
   <g stroke="#555" stroke-width="1.6" fill="none">
@@ -44,10 +44,10 @@
 
   <!-- formalizer column edges -->
   <g stroke="#555" stroke-width="1.6" fill="none">
-    <path d="M 1330 222 L 1330 259" marker-end="url(#arrow)"/>
-    <path d="M 1330 311 L 1330 342" marker-end="url(#arrow)"/>
-    <path d="M 1330 398 L 1330 424" marker-end="url(#arrow)"/>
-    <path d="M 1330 496 L 1330 527" marker-end="url(#arrow)"/>
+    <path d="M 1380 222 L 1380 259" marker-end="url(#arrow)"/>
+    <path d="M 1380 311 L 1380 342" marker-end="url(#arrow)"/>
+    <path d="M 1380 398 L 1380 424" marker-end="url(#arrow)"/>
+    <path d="M 1380 496 L 1380 527" marker-end="url(#arrow)"/>
     <path d="M 1470 603 L 1470 633" marker-end="url(#arrow)"/>
     <path d="M 1190 603 L 1190 633" marker-end="url(#arrow)"/>
   </g>
@@ -99,7 +99,7 @@
     <text x="640" y="515" text-anchor="middle" font-size="12.5" fill="#222">hygiene linter (2 layers)</text>
 
     <rect x="510" y="547" width="260" height="56" rx="8" fill="#e2f0d9"/>
-    <text x="640" y="568" text-anchor="middle" font-size="12.5" fill="#222">examine worker (cap 5 min)</text>
+    <text x="640" y="568" text-anchor="middle" font-size="12.5" fill="#222">examine worker (cap 8 min)</text>
     <text x="640" y="583" text-anchor="middle" font-size="12.5" fill="#222">sufficiency + structural completeness</text>
 
     <rect x="490" y="622" width="300" height="56" rx="8" fill="#2e7d32"/>
@@ -140,25 +140,25 @@
 
     <!-- formalizer column -->
     <rect x="1230" y="178" width="200" height="44" rx="8" fill="#6a329f"/>
-    <text x="1330" y="205" text-anchor="middle" font-size="12.5" fill="#fff">Formalizer</text>
+    <text x="1380" y="205" text-anchor="middle" font-size="12.5" fill="#fff">Formalizer</text>
 
     <rect x="1180" y="259" width="300" height="52" rx="8" fill="#e4d9f0"/>
-    <text x="1330" y="278" text-anchor="middle" font-size="12.5" fill="#222">idea reports — after the hygiene linter</text>
-    <text x="1330" y="295" text-anchor="middle" font-size="12" fill="#555">successful or unsuccessful · no limit on number</text>
+    <text x="1380" y="278" text-anchor="middle" font-size="12.5" fill="#222">idea reports — after the hygiene linter</text>
+    <text x="1380" y="295" text-anchor="middle" font-size="12" fill="#555">successful or unsuccessful · no limit on number</text>
 
     <rect x="1180" y="342" width="300" height="56" rx="8" fill="#e4d9f0"/>
-    <text x="1330" y="362" text-anchor="middle" font-size="12.5" fill="#222">decompose workers — one per pair</text>
-    <text x="1330" y="378" text-anchor="middle" font-size="12" fill="#555">(10 min limit) → decomposed fragments (lock this name)</text>
+    <text x="1380" y="362" text-anchor="middle" font-size="12.5" fill="#222">decompose workers — one per pair</text>
+    <text x="1380" y="378" text-anchor="middle" font-size="12" fill="#555">(10 min limit) → decomposed fragments (lock this name)</text>
 
     <rect x="1175" y="424" width="310" height="72" rx="8" fill="#e4d9f0"/>
-    <text x="1330" y="444" text-anchor="middle" font-size="12.5" fill="#222">working swarm ~8 — purely mechanical</text>
-    <text x="1330" y="460" text-anchor="middle" font-size="12" fill="#444">decomposed fragments → single qmd file · similar lemmas,</text>
-    <text x="1330" y="476" text-anchor="middle" font-size="12" fill="#444">definitions, theorems, propositions placed closely</text>
+    <text x="1380" y="444" text-anchor="middle" font-size="12.5" fill="#222">working swarm ~8 — purely mechanical</text>
+    <text x="1380" y="460" text-anchor="middle" font-size="12" fill="#444">decomposed fragments → single qmd file · similar lemmas,</text>
+    <text x="1380" y="476" text-anchor="middle" font-size="12" fill="#444">definitions, theorems, propositions placed closely</text>
 
     <rect x="1175" y="527" width="310" height="76" rx="8" fill="#d9c3ef"/>
-    <text x="1330" y="547" text-anchor="middle" font-size="12.5" fill="#222">lean code runner (lock this name)</text>
-    <text x="1330" y="563" text-anchor="middle" font-size="12" fill="#444">resumable · never closes while Formalizer active</text>
-    <text x="1330" y="579" text-anchor="middle" font-size="12" fill="#444">wakes on qmd update · plans verification jobs → dispatches to own swarm</text>
+    <text x="1380" y="547" text-anchor="middle" font-size="12.5" fill="#222">lean code runner (lock this name)</text>
+    <text x="1380" y="563" text-anchor="middle" font-size="12" fill="#444">resumable · never closes while Formalizer active</text>
+    <text x="1380" y="579" text-anchor="middle" font-size="12" fill="#444">wakes on qmd update · plans verification jobs → dispatches to own swarm</text>
 
     <rect x="1320" y="633" width="300" height="64" rx="8" fill="#ffd966"/>
     <text x="1470" y="650" text-anchor="middle" font-size="12.5" fill="#333">reliable idea set [Formalized]</text>

@@ -1,7 +1,7 @@
 # idea report — template
 
-an idea report (lock this name) is written by the Producer's report worker from a paired fresh
-summary and its complement — another fresh summary, or an obstruction and its closest technique
+an idea report (lock this name) is written by the Producer's report worker from a triple of three fresh
+summaries and its complement material — another fresh summary, or an obstruction and its closest technique
 from the fragment region — so the report is directed rather than random. it must satisfy the
 format (lock this name) below, which is what the hygiene linter's layer 2 checks: every claim,
 lemma, theorem and proposition carries a uniform structure — a precise statement, its
@@ -12,7 +12,7 @@ and be renamed a route with a title.
 ## who, when, where
 
 - produced by: the Producer's report worker, in the 20–45 window, at most 25 minutes, strictly
-  from the paired summary and its complement — the main core is what is in the pair; other
+  from the triple and its complement material — the main core is what is in the triple; other
   dossier ideas (including the fragments deposited by stale reports, summaries and routes) may
   support it but do not replace the core.
 - before writing: the report worker actively reviews the reliable idea set and the current
@@ -37,9 +37,9 @@ carries the uniform three-part block statement → assumptions → implications.
 ### header
 
 - title: `<a working title for the approach>`
-- paired summary: `<summary-id + version>` · complement: `<summary-id + version, or the fragment
+- triple: `<summary-id + version>` ×3 · complement material: `<fragment
   ids from the fragment region>`
-- goal-frontier context: `<the goal-frontier score of the pair, as given by the Producer>`
+- goal-frontier context: `<the goal-frontier score of the triple, as given by the Producer>`
 - version: `<v1, v2, …>`
 
 ### groups of claims
@@ -99,7 +99,7 @@ reports fail sufficiency>`
   mistakes), whether every claim carries a structurally complete proof attempt — every lemma,
   theorem and proposition has a proof present, no GAP markers, no claim without a proof — clear
   claims about the ultimate goal, and completeness. it never judges
-  correctness. it has a 5-minute cap in the 45–58 window.
+  correctness. it has a 8-minute cap in the 45–63 window.
 - an unsuccessful report is marked stale: the stale entry records the failure reason (including
   the examine's sufficiency finding), a revival trigger, and the fragments — the sub-results
   that still hold, the obstruction, and the closest technique — deposited in the fragment

@@ -3,7 +3,7 @@
 this file specifies the core loop of the round, in the construction plan's build order
 (§5, step 2): the Creator (two independent phases) → the Producer (pairing + report) → the
 hygiene linter (two layers) → the examine worker → the route with its title and PI. it
-covers the first three windows of the 133-minute timeline — 0–20, 20–45, 45–58 — and the
+covers the first three windows of the 138-minute timeline — 0–20, 20–45, 45–63 — and the
 stale loop that feeds the Creator's second phase. the Selector, the Formalizer, and the
 Coordinator's regulation are specified in their own files; this file only defines the
 handoffs into them.
@@ -14,19 +14,19 @@ Selector's rules):
 | window | phase | binding notes |
 |---|---|---|
 | 0–20 | Creator phase 1 | n idea-workers (0 ≤ n ≤ 8) think (≤10 min) + summaries (≤10 min); fresh summaries ready ~20 |
-| 20–45 | Producer report worker (25 min) | paired summary + complement → idea report |
-| 45–58 | hygiene linter (layer 1 ≈2 min, layer 2 ≈6 min) + examine worker (cap 5 min) | linter first, then examine; fail → stale |
-| 58–98 | Selector panel (40 min) | workerA lists by 73; B/C/D review 58–88; exchange 88–98 |
-| 98–113 | PI rebuts + change list; promoter in parallel | both feed the swarm |
-| 113–133 | swarm (20 min) + resumed BCD (20 min) | accept ≥2/3 swarm AND ≥2/3 BCD; milestone = 9/9 + 3/3 + goal achieved |
+| 20–45 | Producer report writers (25 min) | triple of three fresh summaries → idea report |
+| 45–63 | hygiene linter (layer 1 ≈3 min, layer 2 ≈7 min) + examine worker (cap 8 min) | linter first, then examine; fail → stale |
+| 63–103 | Selector panel (40 min) | workerA lists by 78; B/C/D review 63–93; exchange 93–103 |
+| 103–118 | PI rebuts + change list; promoter in parallel | both feed the swarm |
+| 118–138 | swarm (20 min) + resumed BCD (20 min) | accept ≥2/3 swarm AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved |
 
 ## 0. binding rules that apply to the whole loop
 
-- the round clock is hard: 2 hours and 13 minutes (133 minutes) total. the windows above
+- the round clock is hard: 2 hours and 18 minutes (138 minutes) total. the windows above
   are the binding per-phase limits; changing any of them means the 2-hour-and-13-minute
   budget no longer holds.
 - a phase that reaches its window end is cut and its partial output recorded — the same
-  rule as the 10-minute lemma cut — and the round closes atomically at 133 min even if a
+  rule as the 10-minute lemma cut — and the round closes atomically at 138 min even if a
   phase is mid-flight. a cut partial report is recorded, versioned, and does not move on
   to the linter.
 - round timing is mandated: the round start is announced and written in the dossier before
@@ -79,11 +79,12 @@ its territory. it is resumable.
 the Creator has two phases, which are independent and may run at the same time:
 
 - phase 1 — new-idea generation around the locked goal (window 0–20, on the critical path);
-- phase 2 — mining of incoming material (off the critical path, in the background).
+- phase 2 — mining of the pool and the graph (off the critical path, in the background).
 
 in rounds ≥ 2, when the Selector has unfinished work, the Creator runs at the same time:
 it runs phase 1, whose workers look for ideas not in the idea pool, and phase 2 whenever
-there are stale documents (summaries / reports / routes) from the other subcoordinators.
+the idea pool has content — stale documents (summaries / reports / routes) from the other
+subcoordinators, the reliable idea set, or the fragment region.
 
 ### 1.2 phase 1 — the think-and-rotate (window 0–20)
 
@@ -115,18 +116,30 @@ there are stale documents (summaries / reports / routes) from the other subcoord
   pool, and not even ideas similar to the ones already archived. in round 1 there is no
   such constraint: the pool is empty, and the workers are free.
 - handoff: whenever the Creator has a fresh summary ready, it hands it to the Producer as
-  a file (see §2); the Producer pairs it and processes the pair. the Creator never starts
+  a file (see §2); the Producer forms it into a triple and processes it. the Creator never starts
   the handoff on a missing artifact.
 
-### 1.3 phase 2 — the mining phase (off the critical path, in the background)
+### 1.3 phase 2 — the mining and graph phase (off the critical path, in the background)
 
-- trigger: whenever the Creator receives a summary or a report or an unsuccessful route —
-  the corresponding subcoordinators automatically send stale material (see §5) — it runs
-  phase 2.
-- the Creator first makes n idea-workers (0 ≤ n ≤ 8, independent of the workers in
-  phase 1) to search for good ideas / techniques in the received summary / report /
-  route, and also in the reliable idea set and the fragment region in the dossier. this
-  is at most 15 minutes.
+- trigger: from round ≥ 2, phase 2 runs whenever the idea pool has content — the stale
+  material the subcoordinators send automatically (a received summary, a report or an
+  unsuccessful route, see §5), the reliable idea set, or the fragment region. in round 1
+  the pool is empty and no stale material arrives, so phase 2 does not run.
+- the Creator first makes 4 workers (the 0 ≤ n ≤ 8 freedom stays: the Creator may choose
+  fewer when the pool is thin, and n = 0 produces nothing; 4 is the standard phase-2
+  size), independent of the workers in phase 1, split into 2 graph workers and 2 regular
+  miners — the 2-graph/2-miner split is the standard n = 4; for other n the Creator
+  scales it: at most 2 graph workers when dependency-graph.json has nodes, at least 1
+  miner when n > 1, and a single worker mines. the mining is at most 15 minutes.
+- the regular miners search for good ideas / techniques in the received summary /
+  report / route, and in the reliable idea set and the fragment region in the dossier.
+- the graph workers activate when formalizer/dependency-graph.json has nodes; before
+  that — an empty graph — they mine as regular workers. a graph worker proposes bridging
+  lemmas: connections (proofs) between assumption nodes of the dependency graph that
+  shrink the goal node's distance to the acceptable set. it reads dependency-graph.json
+  (the assumption nodes, the green edges, the [Hired] flags, the goal node), the reliable
+  idea set and the formalization status, binds the persistence and verification
+  protocols, and its output is a fresh summary in the normal format.
 - then, as in phase 1, the Creator rotates the n ideas: it hands the ideas of each worker
   to the next worker (idea of worker i goes to worker i+1, wrapping around), and the
   workers learn from the idea they receive and write a summary — at most 10 min, as in
@@ -134,17 +147,18 @@ there are stale documents (summaries / reports / routes) from the other subcoord
 - the Creator then archives the summaries properly in the idea pool in the dossier. these
   summaries are fresh: they are versioned like phase-1 output, live in the same
   `dossier/idea-pool/fresh-summaries/`, and enter the same pairing pool of the Producer.
-- the persistence discipline binds the Creator's phase-2 workers: they read the dossier
-  first, run the exploration loop (load → attack → record → update → next), and leave an
-  attempts-log entry; a worker that cannot produce a good idea still returns a trial idea
-  or a worked example instead of nothing (the minimum-output floor).
+- the persistence discipline binds the Creator's phase-2 workers (the miners and the
+  graph workers alike): they read the dossier first, run the exploration loop (load →
+  attack → record → update → next), and leave an attempts-log entry; a worker that cannot
+  produce a good idea still returns a trial idea or a worked example instead of nothing
+  (the minimum-output floor).
 - failure-tagged summaries: when a report fails the examine, its source summaries are
   tagged with what was missing — the examine's sufficiency finding — so the next pairing
   deliberately fills the gap instead of repeating it. the tag is part of the summary
   record and is read by the Producer at pairing time.
 - phase 2 is off the critical path and in the background: it runs at the same time as the
   Producer's report and the Selector's review, and is not counted inside the 0–20 /
-  20–45 / 45–58 windows. a phase that reaches its own limits (15 min mining, 10 min
+  20–45 / 45–63 windows. a phase that reaches its own limits (15 min mining, 10 min
   summaries) is cut and its partial output recorded, like every other phase.
 
 ## 2. the Producer
@@ -157,43 +171,58 @@ solving issues inside its territory. it is resumable.
 
 - whenever the Creator has a fresh summary ready, the Creator hands it to the Producer.
 - at the start of a round any carried-over work is handled first: the Producer processes
-  queued summary pairs.
+  queued summary triples.
 
 ### 2.2 pairing by complementarity
 
-- the Producer pairs each fresh summary by complementarity — with another fresh summary,
-  or with an obstruction and its closest technique from the fragment region — so the
-  report is directed rather than random, and creates a worker to process the pair.
+- the pairing unit is the triple: the Producer groups three fresh summaries into a triple
+  by complementarity — the ideas of the three fit together, or a summary is completed by
+  an obstruction and its closest technique from the fragment region — so the report is
+  directed rather than random, and creates a worker to process each triple.
 - the Producer maintains a goal-frontier score for every pool idea — how much of the
   locked goal's unproved structure the idea touches, measured by term overlap with the
   goal statement, the number of [Formalized] or [Hired] premises it can cite on the
   dependency tree's path toward the goal, whether the idea would hire new
   assumptions (fragments adjacent to unhired assumption nodes on the dependency
   tree score higher), and its provenance (revival-triggered or obstruction-
-  touching fragments score higher) — and pairs the highest-scoring ideas first.
+  touching fragments score higher) — and forms the triples best-first: the highest-
+  scoring ideas go into the first triple. with a full round of 8 fresh summaries, two
+  triples (6 summaries) feed phase 1 and the 2 lowest-frontier leftovers feed phase 2
+  when it is open (§2.4).
+- the Producer creates and maintains the queue (`reports/queue.md`, a versioned file):
+  partial triples — fewer than 3 summaries — wait here until they can be completed. when
+  fewer than 8 summaries arrive,
+  phase 1 consumes as many complete triples as fit (3 summaries each) and phase 2 takes
+  the remainder when open (§2.4); otherwise the remainder waits in the queue.
+- backpressure: the Producer schedules a report worker on the critical path only while
+  fewer than 2 routes are in review — the Selector runs at most two panels at a time, and
+  a review needs 75 min. surplus complete triples are queued (`reports/queue.md`) and
+  processed in later rounds; the queue depth is reported at round close. rationale: 8
+  fresh summaries make two triples plus a 2-summary remainder per round while the
+  Selector drains at most 2 reviews.
 - when a revival trigger fires, its fragment jumps the pairing queue.
-- the Producer prefers pairings that shrink the goal node's distance to the acceptable set
+- the Producer prefers triples that shrink the goal node's distance to the acceptable set
   on the dependency tree (see the Formalizer rule).
 - the user may nominate which summaries or fragments to pair in the next round through the
   decision list; those nominations steer the pairing.
 
 ### 2.3 the report worker (window 20–45)
 
-- the report-writing worker processes the pair with a time limit of 25 minutes, i.e. the
-  20–45 window. it has full tools to write the report and is spawned with an explicit
+- the report-writing worker processes the triple with a time limit of 25 minutes, i.e.
+  the 20–45 window. it has full tools to write the report and is spawned with an explicit
   output path.
 - the worker itself actively reviews the reliable idea set and the current dependency
   graph, and finds the interesting ideas according to its own reasoning about the
-  summaries it received — the goal-frontier score guides the pairing but does not dictate
-  the worker's synthesis.
-- this worker will think about the ultimate problem strictly according to the paired
-  summary and its complement, and writes an idea report (lock this name).
+  summaries it received — the goal-frontier score guides the grouping but does not
+  dictate the worker's synthesis.
+- this worker will think about the ultimate problem strictly according to the triple and
+  its complement material from the pool, and writes an idea report (lock this name).
 - the idea report should be well-organized with precise citations. it has to make clear
   promise about how to achieve the ultimate goal through its work (with confidence and
   evidence).
 - when writing the report the worker can use whatever ideas archived in the dossier —
   including the fragments deposited by stale reports, summaries and routes (the stale
-  rule, §5) — but the main core should be what's in the paired summary and its complement.
+  rule, §5) — but the main core should be what's in the triple and its complement.
 - the report writer must make sure that the definitions, lemmas and theorems are well
   stated and their assumptions explicitly given — otherwise the report will be difficult
   to pass the hygiene linter.
@@ -206,16 +235,43 @@ solving issues inside its territory. it is resumable.
 - the finished report is a versioned file in `reports/` (project folder, not the dossier).
   if the 20–45 window ends while the worker is mid-flight, the phase is cut and its
   partial output recorded (versioned, in the dossier); a partial report does not move on
-  to the linter.
+  to the linter. a cut report is not lost: the Producer records the partial output
+  (versioned) and re-queues the triple as a background report for the next round.
 
-### 2.4 the gates — the order is fixed
+### 2.4 the route-attached lane (Producer phase 2)
+
+- a second lane opens only when (a) the Creator's phase 2 is on and (b) accepted routes
+  exist; otherwise it stays closed and its share of summaries waits in the queue (§2.2).
+- when open, the Producer creates one route-attached report worker (the route-worker),
+  anchored on one accepted route — older versions of accepted routes are preferred as the
+  anchor, and the champion-route pointer's route is excluded — and hands it the 2
+  lowest-goal-frontier remaining summaries (§2.2).
+- the route-worker treats the accepted route as the main approach: its report is a
+  revision that extends or strengthens the route toward the goal, integrating the two
+  summaries as ideas. it goes through the same gates as the phase-1 writers — the hygiene
+  linter and the examine worker (§2.5) — and its successful report is a new version
+  (revision) of the anchored route, following the normal route path to the Selector.
+- on acceptance this writer is the new PI of the route and performs the handover: the
+  older PI closes and the new PI takes over as the route's defender (see
+  rules/worker-lifespans.md).
+- the lane is off the critical path like the Creator's phase 2: its worker runs in the
+  background, has the same 25-minute report budget as the phase-1 writers, and is not
+  counted inside the 20–45 / 45–63 windows.
+
+### 2.5 the gates — the order is fixed
 
 - when the report is done, the Producer runs the hygiene linter on it before anything
-  else (linter layer 1 ≈ 2 min, layer 2 ≈ 6 min; §3).
+  else (linter layer 1 ≈ 3 min, layer 2 ≈ 7 min; §3).
 - a report that does not pass the quick lint is stale: it does not move on, and the round
   produces no route from it (stale processing, §5).
 - when the report has passed the hygiene linter, the Producer creates another worker — the
   examine worker — to judge sufficiency (§4), with a 5 min cap.
+- gate timing: every report is gated — the two phase-1 triples and the lane revision
+  alike — and the order is always linter first, then examine. the 45–63 window binds only
+  the critical-path report's gates; every other report's gates run in the background with
+  the same per-gate caps (linter layer 1 ≈ 3 min, layer 2 ≈ 7 min, examine cap 8 min) and
+  no window binding. gates for different reports run in parallel: each off-path report
+  gets its own examine worker.
 - if the examine fails: the report is unsuccessful; it is sent back to the Creator
   (processed in phase 2) and the worker who produced it is closed.
 - if the examine passes: the report is successful and is renamed a route with a title (§6).
@@ -227,7 +283,7 @@ solving issues inside its territory. it is resumable.
   Formalizer (the note as scoping metadata); a rejected route's pair is not sent to the
   Formalizer — it enriches the fragment region.
 
-### 2.5 archive duties
+### 2.6 archive duties
 
 - the Producer archives any route properly with versions (in `routes/`, project folder).
 - the Producer deposits the fragments of the items it marks stale into the fragment region
@@ -238,8 +294,9 @@ solving issues inside its territory. it is resumable.
 ## 3. the hygiene linter
 
 - the hygiene linter has two layers. it runs on each idea report before the examine
-  worker, inside the 45–58 window: layer 1 ≈ 2 min, layer 2 ≈ 6 min, then the examine
-  worker (cap 5 min).
+  worker: layer 1 ≈ 3 min, layer 2 ≈ 7 min, then the examine worker (cap 8 min). on the
+  critical path the linter runs inside the 45–63 window; for off-critical-path reports
+  the same per-layer caps apply in the background, with no window binding (§2.5).
 - the linter is not a reviewer: it never judges the correctness of the mathematics, and
   layer 2 is never delegated to a swarm — the swarms are purely mechanical.
 - layer 1 is a deterministic mechanical pass (no AI). it checks:
@@ -258,8 +315,8 @@ solving issues inside its territory. it is resumable.
     them properly into the decomposed fragments (lock this name).
   - layer 2 also has the duty to formalize the arguments and identify the assumptions of
     the claims: the Formalizer's swarms never identify assumptions themselves — they
-    only mechanically transform the reports into the single qmd file and then into lean
-    code, never identifying assumptions or judging the mathematics.
+    only mechanically write the reports' per-fragment files (the .qmd and .lean pieces) — the
+    lean code runner merges them into the single qmd file and converts them to lean code, never identifying assumptions or judging the mathematics.
 - a report that does not pass the quick lint is stale: it does not move on, and the round
   produces no route from it. the linter's finding is recorded as the failure reason in the
   stale marking.
@@ -276,9 +333,12 @@ solving issues inside its territory. it is resumable.
   - whether every claim carries a structurally complete proof attempt — every lemma, theorem and proposition has a proof present, no GAP markers, no claim without a proof;
   - whether it conveys the claims about the ultimate goal clearly;
   - whether the report is complete — without unfinished sentences, equations or diagrams.
-- the examine procedure should be short: it has a 5 min limit, inside the 45–58 window,
-  after the linter's two layers. the examine worker is read-only (Read/Grep) and quality-
-  critical: it gets the primary model in the role mapping.
+- the examine procedure should be short: it has a 5 min limit, after the linter's two
+  layers. on the critical path that cap sits inside the 45–63 window; for off-critical-
+  path reports the 5 min cap applies with no window binding — the examine worker still
+  examines one report per pass, and different reports are examined in parallel by
+  separate examine workers (§2.5). the examine worker is read-only (Read/Grep) and
+  quality-critical: it gets the primary model in the role mapping.
 - this is the first independent review gate of the verification protocol: it checks
   sufficiency only and does not judge correctness — correctness is reviewed later by the
   Selector's panel.
@@ -338,15 +398,15 @@ solving issues inside its territory. it is resumable.
 kept here so the core loop is self-contained; the Selector's rules specify the mechanics.
 
 - the Selector reviews each fresh route as it becomes ready: the adversarial panel
-  (workerA lists the evidence points by 73 min; workerB checks inconsistencies and
+  (workerA lists the evidence points by 78 min; workerB checks inconsistencies and
   readability; workerC hunts counterexamples; workerD is external and makes the overall
-  judgement), the PI's rebuttal with a change list, and the decision swarm of ~9 workers
+  judgement), the PI's rebuttal with a change list, and the decision swarm of 3 workers
   with the resumed BCD reviewers, who each write review summaries (lock this name).
 - the route is accepted if at least 2/3 of the swarm workers and at least 2/3 of the BCD
   reviewers agree — acceptance = ≥2/3 of the swarm workers AND ≥2/3 of the BCD reviewers.
-- the project reaches a milestone only if all 9 swarm workers and all 3 BCD reviewers
+- the project reaches a milestone only if all 3 swarm workers and all 3 BCD reviewers
   accept, and the accepted routes together achieve the locked goal. the milestone
-  condition is exactly: 9/9 + 3/3 + accepted routes achieving the locked goal.
+  condition is exactly: 3/3 + 3/3 + accepted routes achieving the locked goal.
 - at a milestone the Coordinator writes a report about it in PDF, called the manuscript
   (lock this name).
 - only accepted routes are presented to the user; everything before that — fresh summary,
@@ -355,9 +415,35 @@ kept here so the core loop is self-contained; the Selector's rules specify the m
   report or a route as an established premise without further panel review, and cannot be
   overturned by a later round. [Formalized] premises are produced by the Formalizer: its
   decompose workers turn lint-grouped claims into the decomposed fragments, its mechanical
-  swarm turns them into the single qmd file and then into lean code, and the lean code
+  swarm writes their per-fragment files (.qmd and .lean pieces), the lean code runner
+  merges them into the single qmd file and converts them to lean code, and the lean code
   runner (lock this name) locks the green pieces in the qmd file, places their lean code
   in the reliable idea set (green lean codes are the only format in the reliable idea
   set), and marks hired assumptions as [Hired] on the dependency tree. the Producer's
   goal-frontier scoring reads this dependency tree, so the core loop and the Formalizer
   stay coupled.
+
+## 8. file ownership — one writer per path
+
+parallel background agents appending the same file interleave or lose writes, so each
+shared path has one writer/appender:
+
+- `dossier/attempts-log.md` — workers hand their entries in their final message; the
+  owning subcoordinator appends (the Creator for the phase-2 workers, the Producer for
+  the report workers).
+- `dossier/verification-ledger.md` — appended by the subcoordinator whose review
+  resolved: the Producer (examine verdict), the Selector (panel/swarm verdicts), the
+  Formalizer (green/[Formalized] results).
+- `dossier/idea-pool/fresh-summaries/` — the Creator only (single writer): it archives
+  there the summaries its phase-1 and phase-2 workers produce.
+- `dossier/idea-pool/reliable-idea-set/` — the lean code runner only (single writer):
+  green lean codes are the only format in the reliable idea set.
+- `dossier/idea-pool/fragment-region/` — the Producer (stale reports), the Selector
+  (stale routes), the Formalizer (cut decompose work, swarm 5-min tails): each writes
+  only its own entries, subcoordinator-mediated.
+- `formalizer/qmd-index.md` — the lean code runner only.
+- `version-inventory.md` — each owner appends its own rows.
+
+no worker ever appends a shared file directly; a worker that must contribute to a shared
+file hands the entry to its subcoordinator in its final message, and the subcoordinator
+persists it verbatim.

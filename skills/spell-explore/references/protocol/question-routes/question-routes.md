@@ -34,6 +34,10 @@ review reports.
 - Accepted in: (round number, decision-list entry)
 - Abstract: (placeholder — the abstract of the route, written when the route is
   accepted and kept current when the route is revised)
+- Acceptance: swarm x/3, BCD x/3 (full consensus (3/3 + 3/3) is the strongest)
+- Current defender PI: <PI id>, route v<version> — answers every future challenge
+  to the route, any version
+- Status: current
 - Artifacts: question-routes/<Route 1 title>/ (summaries · idea reports · route
   versions · review reports)
 
@@ -41,11 +45,15 @@ review reports.
 
 - Accepted in: (round number)
 - Abstract: (placeholder)
+- Acceptance: swarm x/3, BCD x/3
+- Current defender PI: <PI id>, route v<version>
+- Status: current
 - Artifacts: question-routes/<Route 2 title>/
 
 (Add one entry per accepted route, in the order the routes were accepted. When a route
-is challenged or revised in a later round, update its abstract as a new version of
-this file; do not delete the old entries' history.)
+is challenged or revised in a later round, update its abstract, acceptance counts,
+current defender PI, and status as a new version of this file; do not delete the old
+entries' history.)
 
 ## Reliable idea set copy
 

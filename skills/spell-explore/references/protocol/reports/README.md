@@ -2,7 +2,7 @@
 
 Versioned idea reports live in the project folder (not in the dossier). an idea
 report (lock this name) is what the Producer's report worker writes from a
-paired fresh summary and its complement; it becomes a route only after it passes
+triple of three fresh summaries and its complement material; it becomes a route only after it passes
 the hygiene linter and the examine worker.
 
 ## What lives here
@@ -17,8 +17,8 @@ the hygiene linter and the examine worker.
 
 ## Who writes
 
-- the Producer's report worker: the paired fresh summary and its complement are
-  the main core; archived dossier ideas — including the fragments deposited by
+- the Producer's report worker: the triple of three fresh summaries and its complement
+  material are the main core; archived dossier ideas — including the fragments deposited by
   stale reports, summaries and routes — may be used.
 - the Producer archives reports properly with versions.
 
@@ -35,11 +35,15 @@ the hygiene linter and the examine worker.
   Formalizer can easily process them. the linter never judges correctness. a
   report that does not pass the quick lint is stale: it does not move on, and
   the round produces no route from it.
-- the examine worker (cap 5 min): it decides one thing only — is the material
+- the examine worker (cap 8 min): it decides one thing only — is the material
   sufficient enough to become an approach? it never judges the correctness of
   the idea.
-- the Formalizer: every report that has passed the hygiene linter — successful
-  or unsuccessful — is copied to it by the corresponding subcoordinator.
+- the Formalizer: the input is verdict-aware. an examine-failed lint-passed
+  report is copied to it immediately — its raw form is its final form. a
+  successful report reaches the Formalizer only post-verdict, as an
+  accepted/accepted-core route (full or core form) together with the promoter's
+  nearest true version note. a rejected pair enriches the fragment region
+  instead.
 - the Creator: unsuccessful reports are sent back and processed in its second
   phase; they are marked stale with the failure reason, a revival trigger and
   their fragments (see protocol/stale/).

@@ -17,7 +17,7 @@ versions.
 - the Producer archives each route with versions, and marks an accepted route a
   new version.
 - the PI (lock this name) — the worker who produced the route and remains —
-  modifies the route and rebuts within its 15 minutes (window 98–113); the
+  modifies the route and rebuts within its 15 minutes (window 103–118); the
   change list and the rebuttal are handed to the decision swarm.
 - the Selector marks routes accepted / unaccepted in the archive.
 
@@ -25,15 +25,15 @@ versions.
 
 - the Selector: it reviews each fresh route as it becomes ready with a
   four-worker adversarial review panel — workerA lists the evidence points (by
-  73 min), workerB checks inconsistencies and readability, workerC hunts
+  78 min), workerB checks inconsistencies and readability, workerC hunts
   counterexamples, workerD makes the overall judgement. the BCD reviewers write
   the three review summaries (lock this name), pause, and vote again at the
   swarm stage with their panel context.
 - the promoter: a fresh-context worker that, in the same window as the PI
-  (98–113), reads the route and the three review summaries and writes the
+  (103–118), reads the route and the three review summaries and writes the
   nearest true version note — the strongest claim the route can honestly make
   and the exact point where it breaks.
-- the decision swarm of ~9 workers (window 113–133): it reviews the panel, the
+- the decision swarm of 3 (odd) workers (window 118–138): it reviews the panel, the
   original route, the modified route and the rebuttals.
 - the user: the accepted route is presented before it is marked a new version,
   and the user decides on each unaccepted route — recycle it back to the
@@ -43,8 +43,8 @@ versions.
 
 - a route is accepted iff at least 2/3 of the swarm workers AND at least 2/3 of
   the BCD reviewers agree. acceptance numbers rank quality: full consensus
-  (9/9 + 3/3) is the strongest; lower counts are accepted but weaker.
-- the project reaches a milestone only if all 9 swarm workers and all 3 BCD
+  (3/3 + 3/3) is the strongest; lower counts are accepted but weaker.
+- the project reaches a milestone only if all 3 swarm workers and all 3 BCD
   reviewers accept, and the accepted routes together achieve the locked goal —
   then the Coordinator writes the manuscript (lock this name).
 

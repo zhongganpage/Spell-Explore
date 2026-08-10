@@ -15,7 +15,7 @@ this file is the template for a single row; rows are appended to the ledger as r
 - which reviews write rows: the examine worker's sufficiency verdict, each of the three review
   summaries' judgements, each swarm decision, each canary detection, and the lean code runner's
   green results — a [Formalized] piece enters as accepted-by-lean, and an assumption becomes
-  [Hired] when it is implied through a green lean code by another different assumption.
+  [Hired] when it is implied through a green lean code by an existing assumption (node).
 
 ## the row
 
@@ -51,7 +51,7 @@ this file is the template for a single row; rows are appended to the ledger as r
   whether the evidence really supports them (the claim), workerB checks proofs and
   inconsistencies (the proof), workerC hunts counterexamples (the boundary), workerD makes the
   overall judgement (the verdict); the swarm's ≥2/3 verdict together with the resumed BCD
-  reviewers' ≥2/3 vote outranks the PI's rebuttal. the milestone is 9/9 + 3/3 with the accepted
+  reviewers' ≥2/3 vote outranks the PI's rebuttal. the milestone is 3/3 + 3/3 with the accepted
   routes together achieving the locked goal.
 - a rejection is not a failure entry — it is a normal recorded outcome (R3 of the persistence
   protocol).

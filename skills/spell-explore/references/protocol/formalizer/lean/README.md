@@ -5,7 +5,7 @@ Formalizer is the fourth subcoordinator: its inputs are verdict-aware:
 examine-failed lint-passed reports go immediately; accepted/accepted-core
 routes (full or core form) together with the promoter's note go
 post-verdict from the Selector; rejected pairs go to the fragment region.
-and it runs in the background across rounds, not bound by the 133-minute
+and it runs in the background across rounds, not bound by the 138-minute
 round budget.
 
 ## What lives here
@@ -16,31 +16,46 @@ round budget.
   pieces are locked in place, never removed) and places the corresponding lean
   code in the reliable idea set (lock this name), which lives in the same place
   as the idea pool in the dossier.
+- the sibling directory formalizer/fragments/ — one directory per fragment id,
+  holding the `.qmd` piece and the `.lean` piece that the working swarm writes;
+  the lean code runner merges them into single.qmd at its next resumption,
+  ordered by fragment id.
+- the sibling file formalizer/qmd-index.md — the id list of the lemmas,
+  definitions and theorems in single.qmd: the working swarm reads it for
+  placement, never the whole single.qmd, and the lean code runner maintains it
+  on every merge, appending the ids of the newly merged pieces.
 - the sibling file formalizer/dependency-graph.json holds the dependency tree
   that the lean code runner builds and updates (see below).
 
 ## Who writes
 
 - the working swarm of ~8 workers: it mechanically transforms the decomposed
-  fragments (lock this name) into the single qmd file and then into lean code.
+  fragments (lock this name) into per-fragment files under
+  formalizer/fragments/<fragment-id>/ — the `.qmd` piece and the `.lean` piece
+  — and reports the written paths in its final message. it never merges them.
   the decomposed fragments are individual claims with their assumptions and
   implications, grouped by the linter's layer 2.
-  the swarm does not judge the mathematics and does not run qmd-prover; if it
-  detects that similar lemmas, definitions, theorems or propositions already
-  exist in the qmd file, it places them closely.
+  the swarm does not judge the mathematics and does not run qmd-prover; it
+  reads formalizer/qmd-index.md — the id list of the lemmas, definitions,
+  theorems and propositions already in single.qmd, not the whole qmd file — and
+  if a fragment resembles ids already in the index it writes its piece to sit
+  next to its relatives.
 - the lean code runner (lock this name): an independent, resumable worker that
   is resumed by the Coordinator on every qmd file update, plans the
   verification jobs in advance, and distributes them to its own swarm agents —
-  whatever number the plan requires, unrelated to the working swarm; it
-  integrates the green results, locking green pieces in the qmd file, placing
-  their lean code in the reliable idea set, and updating the dependency graph.
+  whatever number the plan requires, unrelated to the working swarm. at every
+  resumption it first merges the pending per-fragment files into the single qmd
+  file, deterministically ordered by fragment id, and appends the ids of the
+  newly merged pieces to formalizer/qmd-index.md; then it integrates the green
+  results, locking green pieces in the qmd file, placing their lean code in the
+  reliable idea set, and updating the dependency graph.
 
 ## How pieces become established
 
 - the lean code runner builds and updates a dependency tree: every assumption —
   in the lean code format, not qmd — is a node, and every green lean code is a
   directed edge connecting one node to another. an assumption becomes [Hired]
-  when it is implied through a green lean code by another different assumption.
+  when it is implied through a green lean code by an existing assumption (node).
   the graph is updated whenever there is a new green lean code, adding the nodes
   and edges of that green proof.
 - the main goal is a distinguished node of this tree: the best outcome is a
@@ -54,9 +69,10 @@ round budget.
 
 ## Who reads
 
-- the lean code runner; the Producer's report worker (which reviews the reliable
-  idea set and the current dependency graph); and any report or route that cites
-  [Formalized] or [Hired] premises.
+- the lean code runner; the working swarm (which reads formalizer/qmd-index.md,
+  not the whole single.qmd, to decide placement); the Producer's report worker
+  (which reviews the reliable idea set and the current dependency graph); and
+  any report or route that cites [Formalized] or [Hired] premises.
 
 ## Timing rules (the only Formalizer time limits)
 
