@@ -212,7 +212,7 @@ mandated: the operational clock loop — announce the round start, timestamp eac
 boundary, poll at each window end, cut the overrun — is specified in
 rules/timekeeping.md. the clock loop is kept alive mechanically by the clock watcher
 (rules/timekeeping.md §6): at round start the Coordinator spawns a background sleep
-of 5 minutes, and each completion wakes it to poll, cut any passed boundary, and
+of 2 minutes, and each completion wakes it to poll, cut any passed boundary, and
 re-spawn the watcher even when its own turn ended earlier. In short:
 
 - the round start is announced and written in the dossier before any agent spawns;
