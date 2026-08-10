@@ -38,7 +38,7 @@
 
     <!-- 3 working swarm -->
     <rect x="200" y="260" width="400" height="112" rx="8" fill="#e4d9f0"/>
-    <text x="400" y="282" text-anchor="middle" font-size="13" fill="#222">working swarm ~8 — purely mechanical (unrelated to the lean code runner's swarm)</text>
+    <text x="400" y="282" text-anchor="middle" font-size="13" fill="#222">working swarm ~4 — purely mechanical (unrelated to the lean code runner's swarm)</text>
     <text x="400" y="300" text-anchor="middle" font-size="11.5" fill="#444">decomposed fragments → single qmd file → lean code · does not run qmd-prover</text>
     <text x="400" y="316" text-anchor="middle" font-size="11.5" fill="#444">similar lemmas / definitions / theorems / propositions placed closely</text>
     <text x="400" y="332" text-anchor="middle" font-size="11.5" fill="#444">10-min cut: package the partial work → relay to a free worker (1-min wait) → else fragment region</text>

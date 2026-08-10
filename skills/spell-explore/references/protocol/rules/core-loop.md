@@ -22,8 +22,14 @@ Selector's rules):
 
 ## 0. binding rules that apply to the whole loop
 
-- the round clock is hard: 2 hours and 18 minutes (138 minutes) total. the windows above
-  are the binding per-phase limits; changing any of them means the 2-hour-and-13-minute
+- the round clock is hard: 2 hours and 18 minutes (138 minutes) total; rounds ≥ 3 run
+  2 hours and 19 minutes (139 minutes) — the Producer's phase-2 writer spends 1 minute
+  choosing its summary at the round's 20-min mark (§2.2), and the windows after the
+  choice shift +1: 21–46 (report), 46–64 (gates), 64–104 (panel), 104–119 (PI +
+  promoter), 119–139 (swarm + BCD); the panel internals shift with them (workerA's
+  list by 79, B/C/D 64–94, exchange 94–104). rounds 1–2 run the 138-minute
+  two-writer variant in the table above. the windows above
+  are the binding per-phase limits; changing any of them means the 2-hour-and-18-minute
   budget no longer holds.
 - a phase that reaches its window end is cut and its partial output recorded — the same
   rule as the 10-minute lemma cut — and the round closes atomically at 138 min even if a
@@ -89,7 +95,9 @@ subcoordinators, the reliable idea set, or the fragment region.
 ### 1.2 phase 1 — the think-and-rotate (window 0–20)
 
 - at the start of the phase the Creator creates n idea-workers (0 ≤ n ≤ 8; the Creator
-  chooses n per phase, and the two phases are independent) — called workers (lock this
+  chooses n per phase, and the two phases are independent; 4 is the standard phase-1
+  size in rounds 1–2, and from round 3 the standard phase-1 size is n = 2; the
+  freedom stays) — called workers (lock this
   name: every subagent of a subcoordinator is called worker) — to actively think about
   new ideas (with maximal freedom) around the goal — the locked goal file — with maximal
   time length 10 min. the workers read the locked goal file and think; they may follow or
@@ -125,12 +133,14 @@ subcoordinators, the reliable idea set, or the fragment region.
   material the subcoordinators send automatically (a received summary, a report or an
   unsuccessful route, see §5), the reliable idea set, or the fragment region. in round 1
   the pool is empty and no stale material arrives, so phase 2 does not run.
-- the Creator first makes 4 workers (the 0 ≤ n ≤ 8 freedom stays: the Creator may choose
-  fewer when the pool is thin, and n = 0 produces nothing; 4 is the standard phase-2
-  size), independent of the workers in phase 1, split into 2 graph workers and 2 regular
-  miners — the 2-graph/2-miner split is the standard n = 4; for other n the Creator
-  scales it: at most 2 graph workers when dependency-graph.json has nodes, at least 1
-  miner when n > 1, and a single worker mines. the mining is at most 15 minutes.
+- the Creator first makes 4 workers in rounds 1–2 and 2 workers from round 3 (the 0 ≤ n
+  ≤ 8 freedom stays: the Creator may choose fewer when the pool is thin, and n = 0
+  produces nothing; 4 is the standard phase-2 size in rounds 1–2, 2 from round 3),
+  independent of the workers in phase 1: in rounds 1–2 the split is 2 graph workers and
+  2 regular miners — the 2-graph/2-miner split is the standard n = 4 — and from round 3
+  it is 1 graph worker and 1 regular miner. for other n the Creator scales it: at most 2
+  graph workers (1 from round 3) when dependency-graph.json has nodes, at least 1 miner
+  when n > 1, and a single worker mines. the mining is at most 15 minutes.
 - the regular miners search for good ideas / techniques in the received summary /
   report / route, and in the reliable idea set and the fragment region in the dossier.
 - the graph workers activate when formalizer/dependency-graph.json has nodes; before
@@ -200,6 +210,14 @@ solving issues inside its territory. it is resumable.
   processed in later rounds; the queue depth is reported at round close. rationale: 8
   fresh summaries make two triples plus a 2-summary remainder per round while the
   Selector drains at most 2 reviews.
+- rounds ≥ 3 variant — the single-writer Producer: from round 3 the Creator runs 2+2
+  workers, so 4 fresh summaries arrive per round; phase 1 runs exactly one report
+  writer (one triple) and phase 2 runs exactly one route writer. the summary transfer
+  at the Producer's start: the phase-2 writer has 1 minute to choose 0 or 1 summary
+  closest to the accepted route it will work on; after the choice you hand the
+  remaining summaries (3 or 4) to the phase-1 writer, which forms one triple and queues
+  any remainder (reports/queue.md). the 1-minute choice is added to the round's total:
+  rounds ≥ 3 run 139 minutes (see §0, the timeline variant).
 - when a revival trigger fires, its fragment jumps the pairing queue.
 - the Producer prefers triples that shrink the goal node's distance to the acceptable set
   on the dependency tree (see the Formalizer rule).
@@ -244,8 +262,9 @@ solving issues inside its territory. it is resumable.
   exist; otherwise it stays closed and its share of summaries waits in the queue (§2.2).
 - when open, the Producer creates one route-attached report worker (the route-worker),
   anchored on one accepted route — older versions of accepted routes are preferred as the
-  anchor, and the champion-route pointer's route is excluded — and hands it the 2
-  lowest-goal-frontier remaining summaries (§2.2).
+  anchor, and the champion-route pointer's route is excluded — and hands it the remaining summaries per the
+  transfer rule (§2.2): in rounds 1–2 the 2 lowest-goal-frontier leftovers; from
+  round 3 the route-worker's 0-or-1 choice, the rest going to the phase-1 writer.
 - the route-worker treats the accepted route as the main approach: its report is a
   revision that extends or strengthens the route toward the goal, integrating the two
   summaries as ideas. it goes through the same gates as the phase-1 writers — the hygiene
@@ -265,7 +284,7 @@ solving issues inside its territory. it is resumable.
 - a report that does not pass the quick lint is stale: it does not move on, and the round
   produces no route from it (stale processing, §5).
 - when the report has passed the hygiene linter, the Producer creates another worker — the
-  examine worker — to judge sufficiency (§4), with a 5 min cap.
+  examine worker — to judge sufficiency (§4), with an 8 min cap.
 - gate timing: every report is gated — the two phase-1 triples and the lane revision
   alike — and the order is always linter first, then examine. the 45–63 window binds only
   the critical-path report's gates; every other report's gates run in the background with
@@ -333,9 +352,9 @@ solving issues inside its territory. it is resumable.
   - whether every claim carries a structurally complete proof attempt — every lemma, theorem and proposition has a proof present, no GAP markers, no claim without a proof;
   - whether it conveys the claims about the ultimate goal clearly;
   - whether the report is complete — without unfinished sentences, equations or diagrams.
-- the examine procedure should be short: it has a 5 min limit, after the linter's two
+- the examine procedure should be short: it has an 8 min limit, after the linter's two
   layers. on the critical path that cap sits inside the 45–63 window; for off-critical-
-  path reports the 5 min cap applies with no window binding — the examine worker still
+  path reports the 8 min cap applies with no window binding — the examine worker still
   examines one report per pass, and different reports are examined in parallel by
   separate examine workers (§2.5). the examine worker is read-only (Read/Grep) and
   quality-critical: it gets the primary model in the role mapping.

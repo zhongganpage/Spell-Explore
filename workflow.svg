@@ -68,7 +68,7 @@
 
     <rect x="500" y="84" width="280" height="52" rx="8" fill="#1f3864"/>
     <text x="640" y="103" text-anchor="middle" font-size="13" fill="#fff">Coordinator</text>
-    <text x="640" y="118" text-anchor="middle" font-size="12" fill="#dce6f2">runs rounds · 2h13 budget · measures system</text>
+    <text x="640" y="118" text-anchor="middle" font-size="12" fill="#dce6f2">runs rounds · 2h18 budget · measures system</text>
 
     <!-- stage 1 : Creator -->
     <rect x="60" y="163" width="130" height="34" rx="8" fill="#2f5597"/>
@@ -119,7 +119,7 @@
     <text x="640" y="840" text-anchor="middle" font-size="12.5" fill="#222">PI rebuts + change list (15 min)</text>
 
     <rect x="490" y="887" width="300" height="56" rx="8" fill="#fbe5d6"/>
-    <text x="640" y="908" text-anchor="middle" font-size="12.5" fill="#222">swarm ~9 + BCD — accept / accept-core / reject · ≥2/3 + ≥2/3 (20 min)</text>
+    <text x="640" y="908" text-anchor="middle" font-size="12.5" fill="#222">swarm 3 + BCD — accept / accept-core / reject · ≥2/3 + ≥2/3 (20 min)</text>
 
     <rect x="490" y="978" width="300" height="44" rx="8" fill="#ffd966"/>
     <text x="640" y="1005" text-anchor="middle" font-size="12.5" fill="#333">accepted → presented to user → new version</text>
@@ -151,7 +151,7 @@
     <text x="1380" y="378" text-anchor="middle" font-size="12" fill="#555">(10 min limit) → decomposed fragments (lock this name)</text>
 
     <rect x="1175" y="424" width="310" height="72" rx="8" fill="#e4d9f0"/>
-    <text x="1380" y="444" text-anchor="middle" font-size="12.5" fill="#222">working swarm ~8 — purely mechanical</text>
+    <text x="1380" y="444" text-anchor="middle" font-size="12.5" fill="#222">working swarm ~4 — purely mechanical</text>
     <text x="1380" y="460" text-anchor="middle" font-size="12" fill="#444">decomposed fragments → single qmd file · similar lemmas,</text>
     <text x="1380" y="476" text-anchor="middle" font-size="12" fill="#444">definitions, theorems, propositions placed closely</text>
 

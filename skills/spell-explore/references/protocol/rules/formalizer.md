@@ -20,7 +20,7 @@ regulates the Formalizer. every worker it spawns is spawned in the explicit back
 never the blocking foreground. the Formalizer is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. within the Formalizer's territory so does the lean code runner (see
 below).
 
-the Formalizer runs in the background across rounds: it is not bound by the 2-hour-and-13-
+the Formalizer runs in the background across rounds: it is not bound by the 2-hour-and-18-
 minute round budget — its decompose workers run per pair of reports at any time, off the
 critical path of the round timeline (0–20 the Creator's phase 1, 20–45 the Producer's report,
 45–63 the hygiene linter and the examine worker, 63–103 the Selector's panel, 103–118 the PI's
@@ -80,7 +80,7 @@ examine-failed report, or an accepted route with its promoter's note. the decomp
    which worker, in which order, so the swarm works in parallel without duplicating or
    conflicting claims.
 
-the decomposed fragments are thrown to the working swarm of ~8 workers. a unit that waits
+the decomposed fragments are thrown to the working swarm of ~4 workers. a unit that waits
 more than ten minutes without a proper pair moves to the next step on its own: the Formalizer
 holds incoming reports up to 10 minutes for a complement, and if none arrives the unpaired
 report is decomposed singly — the 10-minute unpaired timeout, the same value as the
@@ -88,12 +88,12 @@ decompose worker's own limit.
 
 a decompose worker has 10 minutes per pair of reports. on overrun it is cut and whatever it
 produced is sent to the fragment region: the partial decomposition is recorded there, marked
-unfinished, so nothing is lost and a future worker can pick it up. the decomposed fragments
+unfinished, so nothing is lost and a future worker can pick it up. at most one decompose pair runs at a time. the decomposed fragments
 produced on time are thrown to the working swarm; their distribution plan goes with them.
 
 ## the working swarm (purely mechanical)
 
-the working swarm of ~8 workers is purely mechanical: it does not judge the mathematics, and
+the working swarm of ~4 workers is purely mechanical: it does not judge the mathematics, and
 it never identifies assumptions — that duty belongs to the hygiene linter (layer 2) and to
 the decompose workers. the swarm only mechanically transforms each decomposed fragment into
 its per-fragment files under `formalizer/fragments/<fragment-id>/` — the `.qmd` piece in
@@ -157,7 +157,7 @@ to the acceptable set. its duties, in order, on every resumption:
    `formalizer/lean/` — running qmd-prover on `formalizer/single.qmd` as the mechanical step —
    so the verification jobs run the current lean code.
 3. **plan and distribute.** it distributes the planned verification jobs to its own swarm
-   agents — whatever number the plan requires, with no fixed count. the lean code runner's
+   agents — whatever number the plan requires, at most 3, with no fixed count. the lean code runner's
    swarm is unrelated to the working swarm of the decompose workers: the working swarm
    transforms the decomposed fragments into per-fragment files — the qmd piece and the lean
    piece per fragment; the lean code runner's swarm executes the planned verification jobs

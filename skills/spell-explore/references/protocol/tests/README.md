@@ -13,8 +13,11 @@ drill. run each drill, record the outcome in the last column.
 | partial-acceptance drill | run a near-miss route with a genuine core through the vote | accept-core ≥2/3+2/3; the core banked as a reduced route with its own title in question-routes |
 | lifespan/resume-pack drill | let a long-lived role write runtime/<role>-state.md, restart the process, re-spawn the role fresh with the resume pack | role resumes from the pack; spawned workers' output paths intact |
 | sync check | run scripts/sync-skill.sh | diff -rq clean (exit 0): protocol == packaged skill |
-| triple-pairing drill | run a Producer phase 1 with two report workers; check each report's core is a triple of 3 fresh summaries | triples of 3 observed in both reports |
-| graph-worker drill | run Creator phase 2 with dependency-graph.json holding nodes; check the 2 graph workers write bridging-lemma summaries from the graph | bridging-lemma summaries from the graph; without nodes they fall back to regular mining |
+| triple-pairing drill | run a Producer phase 1 with two report workers (rounds 1–2); check each report's core is a triple of 3 fresh summaries | triples of 3 observed in both reports |
+| graph-worker drill | run Creator phase 2 with dependency-graph.json holding nodes; check the 2 graph workers (rounds 1–2) write bridging-lemma summaries from the graph | bridging-lemma summaries from the graph; without nodes they fall back to regular mining |
 | Producer phase-2 gating | check the route writer runs only when Creator phase 2 is on AND accepted routes exist | gate holds: no run when either condition is false |
 | route-revision + PI-handover drill | accept a revision; check the new PI (the phase-2 route writer) writes the new version and marks the old superseded, the Coordinator TaskStops the old PI, and the current-defender pointer is recorded in question-routes | handover complete: new version + superseded mark + TaskStop + defender pointer recorded |
 | swarm-3 drill | run a decision swarm of 3 (odd); check acceptance needs 2/3 = 2 of 3, milestone 3/3 + 3/3, steering 0/3 + 0/3 | 2 of 3 required; milestone and steering counts read 3/3 + 3/3 and 0/3 + 0/3 |
+
+| formalizer-cut drill | run the working swarm at ~4 with one decompose pair and a lean swarm capped at 3; confirm the relay still completes | recorded swarm size, relay latency |
+| round-3 producer drill | Creator 2+2 → 4 summaries; phase-2 writer's 1-minute choice (0 or 1); phase 1 forms one triple, remainder queued; phase-time table sums to 139 min | recorded choice, triple composition, sum = 139 |

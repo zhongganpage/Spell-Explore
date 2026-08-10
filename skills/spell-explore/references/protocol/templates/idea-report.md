@@ -11,7 +11,7 @@ and be renamed a route with a title.
 
 ## who, when, where
 
-- produced by: the Producer's report worker, in the 20–45 window, at most 25 minutes, strictly
+- produced by: the Producer's report worker, in the 20–45 window (21–46 in rounds ≥ 3), at most 25 minutes, strictly
   from the triple and its complement material — the main core is what is in the triple; other
   dossier ideas (including the fragments deposited by stale reports, summaries and routes) may
   support it but do not replace the core.
@@ -99,7 +99,7 @@ reports fail sufficiency>`
   mistakes), whether every claim carries a structurally complete proof attempt — every lemma,
   theorem and proposition has a proof present, no GAP markers, no claim without a proof — clear
   claims about the ultimate goal, and completeness. it never judges
-  correctness. it has a 8-minute cap in the 45–63 window.
+  correctness. it has an 8-minute cap in the 45–63 window (46–64 in rounds ≥ 3).
 - an unsuccessful report is marked stale: the stale entry records the failure reason (including
   the examine's sufficiency finding), a revival trigger, and the fragments — the sub-results
   that still hold, the obstruction, and the closest technique — deposited in the fragment

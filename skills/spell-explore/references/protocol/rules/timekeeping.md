@@ -34,7 +34,9 @@ keeps the clock. it is written for the Coordinator agent to read and act on.
 
 the table below is moved here from the old config.toml: the binding per-phase limits
 of the 138-minute round (critical path, one route). changing any window means the
-138-minute budget no longer holds.
+138-minute budget no longer holds. rounds ≥ 3 add the Producer's 1-minute
+choice at the 20-min mark: the windows after it shift +1 (21–46, 46–64,
+64–104, 104–119, 119–139) and the total is 139 minutes; rounds 1–2 run 138.
 
 | window | phase | binding notes |
 |---|---|---|

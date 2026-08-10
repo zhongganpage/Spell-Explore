@@ -36,8 +36,8 @@ consistency-checked; this plan says what to build, in what order, and how to val
 | window | phase | binding notes |
 |---|---|---|
 | 0–20 | Creator phase 1 | n idea-workers (0–8) think (≤10) + summaries (≤10); all n fresh summaries ready ~20 |
-| 20–45 | Producer report worker (25) | paired summary + complement → idea report |
-| 45–63 | linter (layer 1 ≈2, layer 2 ≈6) + examine (cap 8) | linter first, then examine; fail → stale |
+| 20–45 | Producer report worker (25) | triple of three fresh summaries + complement material → idea report |
+| 45–63 | linter (layer 1 ≈3, layer 2 ≈7) + examine (cap 8) | linter first, then examine; fail → stale |
 | 63–103 | Selector panel (40) | A lists by 78; B/C/D review 63–93; exchange 93–103; two panels at a time |
 | 103–118 | PI rebuts + change list; promoter's nearest true version note in parallel (a high-level check) | the PI's rebuttal and the note go to the swarm |
 | 118–138 | swarm (20, 3 odd) + resumed BCD (20) | accept / accept-core / reject: accept and accept-core each need ≥2/3 swarm (2 of 3) AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved |
@@ -61,7 +61,7 @@ Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), eac
 | route worker (Producer phase 2 — route writer of accepted revisions) | full (route writing) | secondary | ✗ (becomes the new PI on an accepted revision) |
 | examine worker | Read/Grep | primary (quality-critical) | ✗ |
 | decompose worker | Read/Grep | secondary | ✗ |
-| swarm worker (decision swarm 3, odd — 2/3 = 2 of 3 — and the working swarm ~8) | Read/Grep/Glob/Write/Edit | secondary | ✗ (30-min life) |
+| swarm worker (decision swarm 3, odd — 2/3 = 2 of 3 — and the working swarm ~4) | Read/Grep/Glob/Write/Edit | secondary | ✗ (30-min life) |
 | idea worker | Read/Grep | secondary | ✗ |
 | graph worker (Creator phase 2 — bridging-lemma summaries when dependency-graph.json has nodes) | Read/Grep/Glob/Write | secondary | ✗ |
 | panel B/C/D (BCD: votes at the swarm stage, ≥2/3 of 3 = 2; worker rules: proof-step ledger, assumption audit, counterexample duty, evidence tie-in, boundary sweep, verdict format) | Read/Grep (no write) | primary | ✓ (paused across the PI window, then close after the vote) |
@@ -131,7 +131,7 @@ structural-completeness check: every claim has a proof attempt, no GAP) → rout
    accepted/accepted-core routes' full-or-core form + the promoter's note post-verdict from the
    Selector; rejected pairs → fragment region; the note as scoping metadata, never decomposed) →
    decompose workers (10-min pairs, 10-min unpaired timeout) → mechanical
-   working swarm (~8, 30-min life, 5-min tail; a job running >10 min is packaged and relayed to
+   working swarm (~4, 30-min life, 5-min tail; a job running >10 min is packaged and relayed to
    a free worker, 1-min wait, else fragment region) → single qmd → lean code runner (plans the
    verification jobs in advance, dispatches them to its own swarm of the required number —
    unrelated to the working swarm — and integrates the results: locks green pieces, dependency

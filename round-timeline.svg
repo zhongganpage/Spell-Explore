@@ -5,7 +5,7 @@
     </marker>
   </defs>
 
-  <text x="20" y="28" font-size="17" font-weight="bold" fill="#1f3864">Spell-Explore round timeline — 2h13 budget (138 min) · one route critical path · scale 10 px/min</text>
+  <text x="20" y="28" font-size="17" font-weight="bold" fill="#1f3864">Spell-Explore round timeline — 2h18 budget (138 min) · one route critical path · scale 10 px/min</text>
 
   <!-- critical path bars -->
   <g>
@@ -23,7 +23,7 @@
 
     <rect x="640" y="250" width="400" height="64" rx="6" fill="#fbe5d6" stroke="#c55a11" stroke-width="1.5"/>
     <rect x="648" y="258" width="142" height="18" rx="4" fill="#f7c9a8"/>
-    <text x="719" y="271" text-anchor="middle" font-size="11" fill="#333">A: evidence list (58–73)</text>
+    <text x="719" y="271" text-anchor="middle" font-size="11" fill="#333">A: evidence list (63–78)</text>
     <rect x="648" y="280" width="292" height="18" rx="4" fill="#fbe5d6"/>
     <text x="794" y="293" text-anchor="middle" font-size="11" fill="#333">B/C/D: review (63–93)</text>
     <rect x="948" y="258" width="84" height="18" rx="4" fill="#f4b183"/>

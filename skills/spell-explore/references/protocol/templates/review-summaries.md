@@ -77,7 +77,7 @@ diversity recorded)>` · summary id + version: `<id> <v1, v2, …>`
 - verdict format: `<a 'rejected' verdict names the load-bearing obstruction; a 'gaps found'
   verdict carries specific repair targets>`
 - canary (announced): `<both seeded items caught?>`
-- canary (unannounced, swarm stage): `<when carried — detection recorded separately>`
+- canary (unannounced, swarm stage): `<recorded by the Selector — workerD is not told and does not fill this>`
 
 ## rules that bind this artifact
 

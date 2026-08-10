@@ -7,6 +7,7 @@ the hygiene linter and the examine worker.
 
 ## What lives here
 
+- `reports/queue.md` — the Producer's versioned queue of partial and surplus triples (created and maintained by the Producer).
 - idea reports, each carrying a version (v1, v2, …); nothing is cited or built
   on without its version.
 - a report is well-organized with precise citations and makes a clear promise

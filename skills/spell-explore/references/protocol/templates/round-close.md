@@ -63,16 +63,17 @@ route):
   ≈3 min, layer 2 (the format + assumptions, implications and grouping) ≈7 min, then the
   examine worker (cap 8 min);
 - 63–103 the Selector's panel — workerA lists the evidence points by 78 min, workerB/C/D review
-  from 58 min and pivot to the list when it arrives, exchange reports 93–103;
+  from 63 min and pivot to the list when it arrives, exchange reports 93–103;
 - 103–118 the PI rebuts and modifies the route, with the promoter writing its nearest true
   version note in the same window;
 - 118–138 the swarm decides, with the resumed BCD reviewers voting alongside.
 
+rounds ≥ 3 variant: the Producer's 1-minute summary choice shifts the windows after 20 by +1 (21–46, 46–64, 64–104, 104–119, 119–139), total 139 minutes.
 off the critical path and in the background: the Creator's second phase, the Formalizer (not
 bound by the 138-minute budget — a round close never cuts the swarm), and any additional
 Producer report workers. a phase that reaches its window end is cut and its partial output
 recorded — the same rule as the 10-minute lemma cut. changing any window means the
-2-hour-and-13-minute budget no longer holds.
+2-hour-and-18-minute budget no longer holds.
 
 ### decision list
 
@@ -97,6 +98,8 @@ recorded — the same rule as the 10-minute lemma cut. changing any window means
   kills, and the consistency of the panel verdicts — are recorded in the dossier and may feed
   the examine worker's rigor, never the votes, whose acceptance thresholds are fixed.
 - when the round reaches a milestone — all 3 swarm workers and all 3 BCD reviewers accept, and
-  the accepted routes together achieve the locked goal — the Coordinator writes a report about
+  the accepted routes together achieve the locked goal — operationally, the goal node of
+  dependency-graph.json reachable from the [Formalized] or [Hired] assumptions — the
+  Coordinator writes a report about
   it in PDF, called the manuscript (lock this name), and the project winds down through the
   Formalizer's close.

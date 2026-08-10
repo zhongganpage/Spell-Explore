@@ -8,7 +8,10 @@
 # the 138-minute round now live in rules/timekeeping.md and are enforced
 # operationally by the Coordinator via TaskStop — not by the config.
 #
-# Round budget: 2 hours and 18 minutes (138 minutes) per round. the round-1
+# Round budget: 2 hours and 18 minutes (138 minutes) per round in rounds 1–2;
+# rounds ≥ 3 run 139 minutes — the Producer's phase-2 writer spends 1 minute choosing
+# its summary at the round's 20-min mark (rules/core-loop.md §2.2), and the windows after
+# the choice shift +1 (21–46, 46–64, 64–104, 104–119, 119–139). the round-1
 # setup — the Coordinator asking the user for the rough idea and writing it into
 # the locked goal file (goal.md) — happens before the round clock starts and is
 # not counted in the budget.
@@ -16,7 +19,8 @@
 # Acceptance: a route is accepted iff at least 2/3 of the swarm workers AND at
 # least 2/3 of the BCD reviewers agree. Milestone: all 3 swarm workers and all 3
 # BCD reviewers accept (3/3 + 3/3) and the accepted routes together achieve the
-# locked goal — then the Coordinator writes the manuscript (lock this name), the
+# locked goal — operationally, the goal node of dependency-graph.json reachable from
+# the [Formalized] or [Hired] assumptions — then the Coordinator writes the manuscript (lock this name), the
 # report about the project in PDF.
 #
 # The subcoordinators, the PIs, and the lean code runner are resumable: each

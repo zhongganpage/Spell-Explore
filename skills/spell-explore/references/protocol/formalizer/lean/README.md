@@ -29,7 +29,7 @@ round budget.
 
 ## Who writes
 
-- the working swarm of ~8 workers: it mechanically transforms the decomposed
+- the working swarm of ~4 workers: it mechanically transforms the decomposed
   fragments (lock this name) into per-fragment files under
   formalizer/fragments/<fragment-id>/ — the `.qmd` piece and the `.lean` piece
   — and reports the written paths in its final message. it never merges them.
@@ -43,7 +43,7 @@ round budget.
 - the lean code runner (lock this name): an independent, resumable worker that
   is resumed by the Coordinator on every qmd file update, plans the
   verification jobs in advance, and distributes them to its own swarm agents —
-  whatever number the plan requires, unrelated to the working swarm. at every
+  whatever number the plan requires — at most 3 — unrelated to the working swarm. at every
   resumption it first merges the pending per-fragment files into the single qmd
   file, deterministically ordered by fragment id, and appends the ids of the
   newly merged pieces to formalizer/qmd-index.md; then it integrates the green

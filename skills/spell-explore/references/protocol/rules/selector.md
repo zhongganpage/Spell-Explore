@@ -71,7 +71,7 @@ roles:
   below).
 
 timing within the 63–103 window: workerA lists the evidence points by 78 min; workerB/C/D
-review from 58 min, and pivot to workerA's list when it arrives; the exchange runs 93–103
+review from 63 min, and pivot to workerA's list when it arrives; the exchange runs 93–103
 min. a phase that reaches its window end is cut and its partial output recorded.
 
 workerB, workerC and workerD have 30 minutes to run the review and write a raw review
@@ -245,7 +245,9 @@ every unaccepted route is marked stale, and the stale marking records three thin
 failure reason (the panel findings that rejected it, including the load-bearing
 obstruction named by the rejecting votes), a revival trigger (re-examine
 when <event>), and the fragments of the work — the sub-results that still hold, the
-obstruction, and the closest technique. when the route is rejected, the promoter's note
+obstruction, and the closest technique; the load-bearing obstructions named by the
+rejecting votes are aggregated into the obstructions register (dossier/index.md). when
+the route is rejected, the promoter's note
 enriches the fragments. the fragments are archived in the fragment region of the idea
 pool in the dossier, so the Producer's report worker can use them like
 any other idea in the dossier, and the Creator's second phase mines them directly. a

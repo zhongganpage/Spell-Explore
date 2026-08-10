@@ -1,6 +1,6 @@
 ---
 name: examine-worker
-description: Producer's examine worker — examines a lint-passed report and determines one thing only — is the material sufficient enough to become an approach? It never judges the correctness of the idea. Cap 5 minutes. Read-only; primary model (quality-critical gate).
+description: Producer's examine worker — examines a lint-passed report and determines one thing only — is the material sufficient enough to become an approach? It never judges the correctness of the idea. Cap 8 minutes. Read-only; primary model (quality-critical gate).
 whenToUse: Every lint-passed idea report, before it becomes a route — the sufficiency gate.
 model_preference: primary
 tools:
