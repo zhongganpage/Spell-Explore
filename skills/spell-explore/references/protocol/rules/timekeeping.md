@@ -75,33 +75,41 @@ printf '%s | %s | %s | %s\n' "$(date +%FT%T)" "$phase" "$worker" "$status" \
   >> round-close.md
 ```
 
-## 6. the clock watcher — belt and suspenders
+## 6. the clock watcher — self-arming, never zero
 
 the window-end polls of §3 are executed by the Coordinator when it is active; a
 turn that ends before a window end leaves the round silent until something wakes
 it. the clock watcher guarantees a wake every 2 minutes regardless of turn
-endings:
+endings. the watcher is a recurring scheduled job, not a one-shot background
+task — it is self-arming by construction and cannot be forgotten the way a
+manual re-spawn can:
 
 - at round start, right after the round-start timestamp is recorded, the
-  Coordinator spawns a background sleep of 2 minutes — `sleep 120` via the shell.
-  a pure sleep: no model, no artifact, no context.
-- the sleep's completion wakes the Coordinator every 2 minutes; on each wake it
-  computes the elapsed time from the round-start timestamp, runs the §3 procedure
-  for every window boundary that has passed since the last recorded boundary —
-  poll the live state (TaskList), TaskStop the still-running workers of the phase,
-  record the cut and the partial output path in the phase-time table, timestamp
-  the boundary — and checks for stalls (expected artifacts missing with nothing
-  running → restart per rules/coordinator.md §4), then re-spawns the watcher for
-  the next 2 minutes; at the final boundary (138 / 139) it closes the round
-  atomically instead.
-- a wake that arrives while the Coordinator is mid-turn is held by the runtime and
-  delivered at the next turn boundary — it never interrupts work in progress, and
-  it is never lost: the wake procedure is idempotent, recording only the boundaries
-  not yet present in the phase-time table, so a delayed wake catches up on every
-  boundary that passed meanwhile in a single pass (if the Coordinator's own turn
-  already handled a boundary, the row exists and the wake is a no-op for it), and
-  the watcher is re-spawned on every processed wake — the cadence resets to 5
-  minutes from the wake moment, and drift from long turns is acceptable.
+  Coordinator creates the watcher job on the engine's scheduler: a recurring
+  cron firing every 2 minutes — `CronCreate(cron = "*/2 * * * *", prompt = "clock
+  watcher wake — run the wake procedure of this section for the current round",
+  recurring = true)`. the wake prompt above is the locked string — the
+  Coordinator uses it verbatim and verifies it by CronList; the job id is
+  recorded in runtime/coordinator-state.md as `watcher-cron <job-id>`.
+- each fire is a wake delivered by the runtime: a fire that arrives while the
+  Coordinator is mid-turn is held and delivered at the next turn boundary — it
+  never interrupts work in progress, and it is never lost. the scheduler keeps
+  firing on schedule; there is no re-arm step. at the atomic round close the
+  Coordinator deletes the job (CronDelete) so it stops firing — the next round
+  creates its own (rules/coordinator.md §6).
+- on each wake the Coordinator computes the elapsed time from the round-start
+  timestamp, runs the §3 procedure for every window boundary that has passed
+  since the last recorded boundary — poll the live state (TaskList), TaskStop
+  the still-running workers of the phase, record the cut and the partial output
+  path in the phase-time table, timestamp the boundary — and checks for stalls
+  (expected artifacts missing with nothing running → restart per
+  rules/coordinator.md §4). at the final boundary (138 / 139) it closes the
+  round atomically instead.
+- the wake procedure is idempotent: it records only the boundaries not yet
+  present in the phase-time table, so a delayed or duplicated wake (a stale
+  fallback completing while the scheduled job also fired) catches up on every
+  boundary that passed in a single pass, and a row the Coordinator's own turn
+  already handled makes the wake a no-op for it.
 - every wake opens with a current-status table, shown to the user and mirrored
   into runtime/coordinator-state.md, so the round's live state is always visible
   and always resumes from a file: `round clock` <minute>/<total> · `current
@@ -111,24 +119,33 @@ endings:
   task-ids and output paths · `pending artifacts` <paths> · `last boundary`
   <min>: cut? partial output · `next action` spawn | resume | cut | close. the
   table is compact — one row per item, the details live in the files.
-- the watcher is a registered live worker, not a background assumption:
-  runtime/coordinator-state.md records `watcher-spawned-at <timestamp>`, and
-  every wake and the round-start check verify the watcher task is alive in
-  TaskList, re-spawning it when missing — a missing watcher is a stalled worker
-  like any other (rules/coordinator.md §4).
 - every wake first verifies the previous wake's duty by file before doing its
   own: the boundary rows for the elapsed interval are recorded in the phase-time
   table and the watcher row is present in the registry — anything missing is
   repaired in this wake and recorded in the dossier, never assumed ('verify and
   continue', never redo). a wake that finds the previous wake's outputs absent
   records the gap in the dossier: the audit trail is the files.
+- the watcher's liveness is part of the Coordinator's turn discipline, not only
+  of wakes (rules/coordinator.md §3): before ending any turn that leaves the
+  round mid-flight, the Coordinator verifies the watcher job is live — the
+  `watcher-cron` row present in CronList with the locked wake prompt — and
+  re-creates it in the same turn when missing; the round-start check does the
+  same when a resumed session lost it. a missing watcher is a stalled worker
+  like any other (rules/coordinator.md §4). a watcher job that a long-lived
+  session let go stale (the scheduler's 7-day auto-delete) is re-created by the
+  same guard at the next turn end or round start.
+- fallback: on an engine without a scheduler, or when CronCreate fails, the
+  Coordinator uses the one-shot background `sleep 120` instead — a pure sleep:
+  no model, no artifact, no context — re-spawned on every completion AND by the
+  turn-end liveness guard above; runtime/coordinator-state.md records
+  `watcher-spawned-at <timestamp>` and the task id, and the round-start check
+  re-spawns it whenever a resumed session lost it. the fallback is
+  belt-and-suspenders: the invariant is never zero watchers, enforced by the
+  liveness guard at every mid-round turn end.
 - the status table is the user-visible canary: if the chain breaks, tables stop
   appearing within 2 minutes, and the user's next prompt resumes the round from
   runtime/coordinator-state.md — the files, never the watcher, are the recovery
-  path.
-- the watcher is recorded in the worker registry (runtime/worker-registry.md) and
-  in runtime/coordinator-state.md; the round-start check re-spawns it whenever a
-  resumed session lost it. if the watcher's wake still fails to re-engage the
-  Coordinator (a runtime behavior outside the protocol's control), the round
-  resumes from coordinator-state.md on the next prompt — the watcher is
-  belt-and-suspenders, never the only recovery path.
+  path. if a wake still fails to re-engage the Coordinator (a runtime behavior
+  outside the protocol's control), the round resumes from coordinator-state.md
+  on the next prompt — the watcher is belt-and-suspenders, never the only
+  recovery path.

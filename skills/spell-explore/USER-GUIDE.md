@@ -17,7 +17,7 @@ hands-free.
 | **workerA / B / C / D** | evidence list / inconsistencies / counterexamples / overall judgement (D = the exterior reviewer X) |
 | **swarm worker** | two lives — decision votes (3) or mechanical fragment transformation (working swarm ~4) |
 | **lean code runner + swarm** | plans and dispatches lean verification, merges the single qmd, updates the dependency graph |
-| **clock watcher** | not an agent — a background `sleep 120` that wakes the Coordinator every 2 minutes |
+| **clock watcher** | not an agent — a recurring scheduled job (`*/2 * * * *`) that wakes the Coordinator every 2 minutes (fallback: a background `sleep 120`) |
 
 ## 1. Installation
 
@@ -47,11 +47,13 @@ not drive it — you supervise it.
 
 ## 3. Hands-free operation
 
-- At round start the Coordinator spawns the **clock watcher** — a background
-  `sleep 120` that wakes it every 2 minutes. Each wake: poll the workers, cut
-  overruns at window ends, check for stalls, show you a **status table**, mirror
-  everything to `runtime/coordinator-state.md`, and re-spawn the watcher. A wake
-  that finds the Coordinator busy is held and caught up on — it never interrupts.
+- At round start the Coordinator creates the **clock watcher** — a recurring
+  scheduled job firing every 2 minutes. Each wake: poll the workers, cut
+  overruns at window ends, check for stalls, show you a **status table**, and
+  mirror everything to `runtime/coordinator-state.md`. The watcher is
+  self-arming — there is nothing to re-spawn; the Coordinator only verifies it
+  is still scheduled (and re-creates it when missing). A wake that finds the
+  Coordinator busy is held and caught up on — it never interrupts.
 - **Rounds auto-continue**: at each round close the Coordinator starts the next
   round immediately when the count allows — stopping early only at a milestone,
   the two-consecutive-0/3 steering stop, or when you say stop. your per-close

@@ -142,6 +142,12 @@ Coordinator never ends a turn that leaves the round mid-flight undriven:
 - any worker of the current phase that is neither done (artifact present) nor
   running (TaskList) is a stalled worker: the Coordinator restarts it in the same
   turn, keeping its label (per §4), never leaving the stall for a later window;
+- the clock watcher's presence is part of the turn discipline: before ending any
+  turn that leaves the round mid-flight, the Coordinator verifies the watcher is
+  live — the `watcher-cron` job present in CronList with the locked wake prompt,
+  or the fallback `sleep 120` task in TaskList (rules/timekeeping.md §6) — and
+  re-creates/re-spawns it in the same turn when missing; a missing watcher is a
+  stalled worker per §4 and is never left for a later window;
 - if the round is mid-flight and nothing is in flight, the Coordinator either
   executes the current phase's pending spawn requests now (runtime/requests/ is a
   file queue — spawn before closing the turn) or writes `awaiting-resume at
@@ -229,9 +235,10 @@ Each round has a hard budget of 2 hours and 18 minutes (138 minutes). Round timi
 mandated: the operational clock loop — announce the round start, timestamp each phase
 boundary, poll at each window end, cut the overrun — is specified in
 rules/timekeeping.md. the clock loop is kept alive mechanically by the clock watcher
-(rules/timekeeping.md §6): at round start the Coordinator spawns a background sleep
-of 2 minutes, and each completion wakes it to poll, cut any passed boundary, and
-re-spawn the watcher even when its own turn ended earlier. In short:
+(rules/timekeeping.md §6): at round start the Coordinator creates a recurring
+scheduled job that fires a wake every 2 minutes — self-arming by construction, so
+the chain survives even when its own turn ended earlier or a wake was missed; the
+atomic close deletes the job and the next round creates its own. In short:
 
 - the round start is announced and written in the dossier before any agent spawns;
 - phase start and end timestamps are recorded at each boundary in the phase-time
@@ -277,6 +284,9 @@ Every round ends with a single atomic round close written in one pass, containin
   unaccepted route; the user's nominations for which summaries or fragments to pair
   in the next round.
 
+the round's clock watcher job is deleted as part of the close (CronDelete —
+rules/timekeeping.md §6), so it stops firing; the next round creates its own.
+
 The Coordinator presents to the user, together with the decision list, every accepted
 route; the user sees the accepted route before it is marked a new version (the
 Producer marks it a new version after the user sees it). The Coordinator also keeps
@@ -303,7 +313,7 @@ decision list, updates the ledger, and then continues or stops:
 
 - when rounds remain — `rounds-completed < rounds-chosen` — and no stop condition
   applies, the Coordinator starts the next round in the same turn: it records the
-  round start in the dossier, runs the bounded round-start check (§3), spawns the
+  round start in the dossier, runs the bounded round-start check (§3), creates the
   clock watcher (rules/timekeeping.md §6), and ends the turn with the next round's
   lifecycle line. a close that leaves rounds unrun is never a `round-closed` final
   message — the next round resumes and runs like any other;
