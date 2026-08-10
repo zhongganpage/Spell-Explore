@@ -7,8 +7,8 @@ focusing on whether they really are the evidence of the claim), identifies the i
 that lead to the ultimate goal without criticizing them, and makes a list by 78 min; workerB and
 workerC pivot to that list when it arrives. the Selector sends the three summaries to the PI,
 who modifies the route and rebuts in the 103–118 window. the summaries travel with the PI's
-rebuttal and the promoter's nearest true version note to the swarm and to the resumed BCD
-reviewers when they decide. the summaries judge the route itself — its claims, proofs and
+rebuttal and the promoter's nearest true version note to the swarm and to the BCD
+voters (B/C resumed, workerD re-invoked externally) when they decide. the summaries judge the route itself — its claims, proofs and
 evidences — and may refer to the promoter's high-level check when available. this file is
 the template each of the three workers fills in.
 
@@ -20,12 +20,14 @@ the template each of the three workers fills in.
 - timing, 63–103 window: B/C/D have 30 minutes to run the review and write a raw review report,
   and an additional 10 minutes to exchange the reports (each receives the reports from the other
   two), then each writes its review summary.
-- workerD is external and makes the overall judgement; with two panels at a time two external
-  reviewers are needed — any workerD falls back to an internal reviewer when the secondary model
-  is unavailable or shares the primary's provider, and the reduced diversity is recorded.
-- after writing their summaries, B/C/D do not close: they pause, keep their panel context, wait
+- workerD is external and makes the overall judgement; with two panels at a time two exterior
+  invocations are needed — any workerD falls back to an internal reviewer when the exterior
+  reviewer (X) is unavailable or shares the primary's provider family, and the reduced diversity
+  is recorded (modules/providers.md).
+- after writing their summaries, B and C do not close: they pause, keep their panel context, wait
   for the PI's rebuttal, vote at the swarm stage (20 minutes in the 118–138 window), and only
-  then close.
+  then close; workerD is not held — the Coordinator re-invokes it externally for the vote with a
+  consolidated prompt.
 - the canary gate rides in the review batch: a seeded known-false claim and one planted
   step-error (both excluded from the real record and the route). the gate is announced to the
   B/C/D panel — detection is recorded as announced — and the route may not be accepted unless

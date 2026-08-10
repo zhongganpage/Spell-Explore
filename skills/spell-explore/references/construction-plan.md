@@ -71,9 +71,9 @@ Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), eac
 | swarm worker (decision swarm 3, odd — 2/3 = 2 of 3 — and the working swarm ~4) | its owner (the Selector / the Formalizer) | Read/Grep/Glob/Write/Edit | secondary | ✗ (30-min life) |
 | idea worker | the Coordinator | Read/Grep | secondary | ✗ |
 | graph worker (Creator phase 2 — bridging-lemma summaries when dependency-graph.json has nodes) | the Coordinator | Read/Grep/Glob/Write | secondary | ✗ |
-| panel B/C/D (BCD: votes at the swarm stage, ≥2/3 of 3 = 2; worker rules: proof-step ledger, assumption audit, counterexample duty, evidence tie-in, boundary sweep, verdict format) | the Coordinator | Read/Grep (no write) | primary | ✓ (paused across the PI window, then close after the vote) |
+| panel B/C/D (BCD: votes at the swarm stage, ≥2/3 of 3 = 2; worker rules: proof-step ledger, assumption audit, counterexample duty, evidence tie-in, boundary sweep, verdict format) | the Coordinator | Read/Grep (no write) | primary | B/C: ✓ (paused across the PI window, then close after the vote); D: ✗ (exterior, invoked twice) |
 | workerA | the Coordinator | Read/Grep | secondary | ✗ |
-| workerD | the Coordinator (the external-provider check runs at spawn; the Coordinator reports, the Selector records the fallback) | Read/Grep | secondary — external: a different provider than the panel's primary; fallback = internal reviewer, reduced diversity recorded | ✗ |
+| workerD (exterior reviewer X) | the Coordinator (invokes via the configured exterior access — api / codex, modules/providers.md; captures the reply, reports the actual model; the Selector records the fallback) | Read/Grep (invocation prompt; reply captured from api response / codex stdout) | exterior — a different provider family than the panel's primary; fallback = internal reviewer, reduced diversity recorded with a confidence downgrade | ✗ (invoked twice: review 63–103, vote 118–138) |
 | promoter | the Coordinator | Read/Grep | primary | ✗ |
 
 per-phase timeouts are not config: the runtime exposes only a global `[subagent] timeout_ms`,
@@ -265,6 +265,9 @@ unaccepted; user nominations for next-round pairings).
   discovery all succeed — discovery now resolves every worker profile the Coordinator may spawn,
   not just the four subcoordinators; the secondary-model flag
   (`KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1`) and the `[subagent] timeout_ms = 0`
-  config are verified, and the restart caveat is surfaced when either is not in effect.
+  config are verified, and the restart caveat is surfaced when either is not in effect;
+  the exterior reviewer X's access is re-checked at each round start — the provider env
+  var present for api, or the Codex CLI installed for codex, and the provider family
+  still different from the primary's (modules/providers.md).
 - **Sync check**: `protocol/` == the packaged skill copy
   (`skills/spell-explore/references/protocol/`), run `scripts/sync-skill.sh`.

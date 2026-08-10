@@ -57,9 +57,11 @@ Selector's rules):
   owner for a swarm — with the explicit output path its
   subcoordinator assigns and must write its artifact there and confirm the write in its
   final message; a worker that cannot write — a read-only
-  profile, or the external workerD — includes the complete artifact text in its final
+  profile — includes the complete artifact text in its final
   message and the responsible subcoordinator persists that text verbatim at the assigned
-  path, marked "recovered from agent output". subcoordinators check that every artifact
+  path, marked "recovered from agent output"; the exterior workerD's reply is captured
+  from the api response or codex stdout, delimited by standardized markers
+  (modules/providers.md). subcoordinators check that every artifact
   exists after each worker completes, never start the next phase or handoff on a missing
   artifact, and transfer documents between stages only as files.
 - the idea pool has a fixed well-known location in the dossier (resolved through the

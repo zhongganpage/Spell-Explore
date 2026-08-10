@@ -45,6 +45,7 @@ timeout_ms = 0
 # takes effect when KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1 (or the master flag)
 # is set in the environment, and the alias must exist in the live config's
 # [models]; the secondary model is the cheap worker tier (idea workers, report
-# workers, working swarm) and doubles as the workerD "external" reviewer when
-# its provider differs from the primary's.
+# workers, working swarm). the panel's external reviewer (workerD) does not use
+# this routing — it is the exterior reviewer X, configured once at round 1 and
+# invoked through a provider API or the local Codex CLI (modules/providers.md).
 model = "moonshot-cn/kimi-k2.6"

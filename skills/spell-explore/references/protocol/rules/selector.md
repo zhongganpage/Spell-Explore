@@ -89,31 +89,39 @@ counterexamples, and D's overall judgement.
 
 ### workerD fallback rule
 
-workerD is external when it runs on the secondary model and that model's provider
-differs from the primary model's provider. the Coordinator checks the provider of the
-secondary model at spawn and reports; the Selector records the fallback and the
-reduced diversity: when the secondary model is unavailable or shares the
-primary's provider, workerD falls back to an internal reviewer, and the reduced
-diversity is recorded (in the archive, with the panel record). with two panels at a
-time, two external reviewers are needed, and each workerD passes the same check.
-model_preference secondary needs KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1 (see
-config.toml).
+workerD is external when it runs through the configured exterior access —
+`X_PROVIDER` / `X_MODEL` / `X_ACCESS` (a provider API env var, or the local Codex
+CLI; see modules/providers.md) — chosen once at round 1, on a provider family that
+differs from the primary's. the Coordinator invokes the exterior reviewer itself —
+the api call or `codex exec` with the worker-d-external prompt — captures the reply
+(delimited by standardized markers), persists it verbatim at the assigned path
+marked recovered from agent output, and reports the model identifier the provider
+actually returned; the Selector records it in the panel row — there is no silent
+same-model panel. when the exterior access is unavailable (env var unset, codex
+missing, the call fails) or shares the primary's provider family, workerD falls
+back to an internal reviewer and the reduced diversity is recorded (in the archive,
+with the panel record); a failed invocation is retried once within the window
+before the fallback, and an exterior failure mid-run keeps the artifacts produced
+up to the failure point — `never launched` is recorded as well. with two panels at
+a time, two exterior invocations are needed, and each workerD passes the same check.
 
 ### artifact and context rules for the panel
 
 the panel workers receive the route and the statements of the cited results only, in
 fresh contexts — never the expected outcome and never the author's reasoning. panel
-B/C/D are read-only (Read/Grep, no write); workerD runs on an external provider when
-available. every worker that produces an artifact is spawned by the Coordinator with
-the explicit output path its subcoordinator assigns and must write its artifact there
-and confirm the write in its final message. a
-worker that cannot write — a read-only profile, or the external workerD — includes the
-complete artifact text in its final message, and the Selector persists that text
-verbatim at the assigned path, marked recovered from agent output. the Selector checks
-that every artifact exists after each worker completes and never starts the next phase
-or handoff on a missing artifact; documents move between stages only as files. every
-review summary and every artifact carries a version (v1, v2, …); nothing is cited or
-built on without its version.
+B/C/D are read-only (Read/Grep, no write); workerD runs through the configured
+exterior access when available (modules/providers.md — invoked by the Coordinator,
+never spawned). every worker that produces an artifact is spawned by the Coordinator
+with the explicit output path its subcoordinator assigns and must write its artifact
+there and confirm the write in its final message. a
+worker that cannot write — a read-only profile — includes the complete artifact text
+in its final message; the exterior workerD's reply is captured from the api response
+or codex stdout, delimited by standardized markers, and the Selector persists the
+text verbatim at the assigned path, marked recovered from agent output. the Selector
+checks that every artifact exists after each worker completes and never starts the
+next phase or handoff on a missing artifact; documents move between stages only as
+files. every review summary and every artifact carries a version (v1, v2, …);
+nothing is cited or built on without its version.
 
 ## 4. the canary gate
 
@@ -188,13 +196,19 @@ accept-core, or reject — acceptance needs 2/3 of the swarm, 2 of 3 workers, to
 every rejecting vote names the load-bearing obstruction — the single missing lemma,
 false step, or unproved claim whose absence makes the route fail.
 
-at the same stage the Selector instructs the Coordinator to resume the BCD reviewers — they keep their panel context
-and also have 20 minutes — and they vote as well. the BCD reviewers do not close after
-writing their summaries: they pause to wait for the PI's rebuttals, vote at the swarm
-stage, and only then close. the Selector directs the Coordinator to hold the BCD
-reviewers paused, with their
+at the same stage the Selector instructs the Coordinator to resume workerB and workerC — they keep their panel context
+and also have 20 minutes — and to re-invoke workerD externally with a consolidated
+vote prompt (the route, D's own raw report and review summary, the PI's rebuttal and
+change list, and the promoter's nearest true version note — the modules/providers.md
+access, reply captured as before), and they vote as well. workerB and workerC do not
+close after writing their summaries: they pause to wait for the PI's rebuttals, vote
+at the swarm stage, and only then close. the Selector directs the Coordinator to hold
+workerB and workerC paused, with their
 panel context, across the PI rebuttal window — they are resumed for the vote, not
-re-created, because a fresh reviewer would lack the panel context. a phase that reaches
+re-created, because a fresh reviewer would lack the panel context. workerD is not
+held across the window: its context is reconstructed from files — the Coordinator
+re-invokes it externally with the consolidated prompt, retries a lost vote invocation
+once within the window, then records the vote as absent with the reason. a phase that reaches
 its window end is cut and its partial
 output recorded; the round closes atomically at 138 min even if a phase is mid-flight.
 

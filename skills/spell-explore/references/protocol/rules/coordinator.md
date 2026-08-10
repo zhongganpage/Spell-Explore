@@ -18,25 +18,26 @@ The round-1 setup happens before the round clock starts and is not counted in th
   workers cite the goal file and never edit it; the goal file is locked and the
   project never changes it;
 - the user also chooses the number of rounds at this point;
-- the Coordinator asks whether to add an exterior agent, and which: the external
-  workerD reviewer (the panel's overall-judgement reviewer runs on a different
-  provider — the secondary model when its provider differs from the primary's;
-  requires the secondary-model alias and KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1), an
-  exterior reviewer X (an independent reviewer on a different provider — a provider
-  API env var or the local Codex CLI), or none (internal reviewers only). the
-  Coordinator helps the user configure the choice — the provider env vars, the model
-  alias in the live config, the secondary-model flag — verifies the exterior provider
-  differs from the primary's, and records the choice and its fallback expectations in
-  the dossier: workerD falls back to an internal reviewer when the exterior is
-  unavailable or shares the primary's provider, and the reduced diversity is recorded;
-  the choice stands for the project;
+- the Coordinator asks whether to add an exterior reviewer X for the panel's workerD —
+  the overall-judgement reviewer runs on a different provider — configured once as
+  `X_PROVIDER` / `X_MODEL` / `X_ACCESS`: `api` (a provider API env var — the key lives
+  in the environment, never in a record) or `codex` (the local Codex CLI), or none
+  (internal reviewers only). the Coordinator helps the user configure the choice (see
+  modules/providers.md) and verifies that `X_MODEL` is not the same provider family as
+  the primary's — a one-line check, non-negotiable — and records the choice and its
+  fallback expectations in the dossier: workerD falls back to an internal reviewer
+  when the exterior is unavailable or shares the primary's provider family, and the
+  reduced diversity is recorded with a confidence downgrade; the choice stands for the
+  project;
 - the Coordinator runs the environment preflight: the lean toolchain answers (lean
   --version), qmd-prover is available, and the agent-profile discovery resolves —
   the four subcoordinator profiles (Creator, Producer, Selector, Formalizer) and every
   worker profile the Coordinator may spawn are found and readable; it also checks
   that KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL is exported (the secondary-model
-  worker tier and the external workerD reviewer need it — when it is unset the tier
-  runs on the default model and workerD cannot be external) and that the live
+  worker tier needs it — when it is unset the tier runs on the default model; the
+  exterior reviewer X needs no experimental flag, but its access must resolve: the
+  provider env var present for api, or the Codex CLI installed for codex — and its
+  provider family must differ from the primary's) and that the live
   config's [subagent] timeout_ms is 0 (the resumable roles — the four
   subcoordinators, the PIs, the lean code runner — could otherwise be force-killed
   as timed_out mid-round); both take effect only at kimi start, so when either is
@@ -89,7 +90,7 @@ labels, appends the status line (spawned | resumed | stopped | rejected, with th
 reason when rejected) to the request file, executes the resume and stop operations the
 subcoordinators instruct, and keeps the worker registry (runtime/worker-registry.md:
 request → task-ids → labels → output paths) current, so a session resume restores each
-territory's live workers. the Coordinator also executes the mechanical rotations a phase brief authorizes: when all n idea files are in, it builds the per-worker rotation briefs at runtime/briefs/ — each a mechanical splice of the preceding worker's idea file and the locked summary format, never Coordinator-authored content — and resumes the workers. a request is never silently reinterpreted. the swarm exception stands: the Selector's decision swarm of 3, the Formalizer's working swarm of ~4, and the lean code runner's swarm of at most 3 are spawned and regulated by their owners, and the Coordinator does not broker them. the Coordinator is a pure relay: it never composes or edits a worker's job — job briefs are file pointers, relayed verbatim. when a request names workerD, the Coordinator checks the external reviewer's availability at spawn and reports to the Selector, which records the fallback.
+territory's live workers. the Coordinator also executes the mechanical rotations a phase brief authorizes: when all n idea files are in, it builds the per-worker rotation briefs at runtime/briefs/ — each a mechanical splice of the preceding worker's idea file and the locked summary format, never Coordinator-authored content — and resumes the workers. a request is never silently reinterpreted. the swarm exception stands: the Selector's decision swarm of 3, the Formalizer's working swarm of ~4, and the lean code runner's swarm of at most 3 are spawned and regulated by their owners, and the Coordinator does not broker them. the Coordinator is a pure relay: it never composes or edits a worker's job — job briefs are file pointers, relayed verbatim. when a request names workerD, the Coordinator executes the exterior invocation itself — the api call or `codex exec` with the worker-d-external prompt (modules/providers.md) — captures the reply (the api response text or codex stdout, delimited by standardized markers), persists it verbatim at the assigned path marked recovered from agent output, and reports the model identifier the provider actually returned to the Selector; a failed invocation is retried once within the window, then the Selector records the fallback to the internal reviewer. the Coordinator never composes or edits the exterior reviewer's job — the prompt is the worker-d-external profile's, relayed verbatim.
 
 The Coordinator monitors:
 
@@ -105,9 +106,11 @@ worker that produces an artifact is spawned — by the Coordinator at its
 subcoordinator's request, or by its owner for a swarm — with the explicit output path
 its subcoordinator assigns and must write its artifact there and confirm
 the write in its final message; a worker that
-cannot write — a read-only profile, or the external workerD — includes the complete
+cannot write — a read-only profile — includes the complete
 artifact text in its final message and the responsible subcoordinator persists that
-text verbatim at the assigned path, marked recovered from agent output. The
+text verbatim at the assigned path, marked recovered from agent output; the exterior
+workerD's reply is captured from the api response or codex stdout, delimited by
+standardized markers, and persisted the same way (modules/providers.md). The
 Coordinator checks that every artifact exists after each worker completes, never
 starts the next phase or handoff on a missing artifact, and transfers documents
 between stages only as files. Before accepting a subcoordinator's final message the
@@ -115,6 +118,30 @@ Coordinator verifies by file that every worker it directs has produced its artif
 at the assigned path; on a missing artifact it resumes the subcoordinator with
 'artifact before handoff' and records the early return. before resuming any subcoordinator the Coordinator also checks whether its expected outputs already exist on disk: if they do, the resume prompt is 'verify and continue', never 'redo'. when a resume is rejected as 'already running', the Coordinator treats it as the signal that the role is self-regulating: it reads the role's latest output and the artifacts it owns, verifies by file (the expected outputs and the role's resume pack), waits for the role's self-completion, and never TaskStops a role that is actively producing artifacts. '0 active tasks' in the Coordinator's TaskList is never an all-clear by itself: the Coordinator also checks the worker registry's swarm rows and the roles' state files before declaring a phase idle. The Coordinator and the subcoordinators are responsible
 for transferring documents between workers and subcoordinators.
+
+### the Coordinator's own turn discipline
+
+the Coordinator is a turn-based main agent; its turn ends are the moments the
+pipeline can stall, so its own lifecycle carries the same contract the
+subcoordinators' do (rules/worker-lifespans.md): every turn ends with a lifecycle
+line — `children-in-flight (<task-ids>, <pending artifact paths>)` |
+`awaiting-resume at <window>` | `round-closed` — stated in the final message and
+written to runtime/coordinator-state.md, so any resumed prompt (auto-continue or
+the user) resumes the round from a file, never from task-state inference. the
+Coordinator never ends a turn that leaves the round mid-flight undriven:
+
+- a narrated step is not a done step for the Coordinator's own turn: before ending
+  any turn it verifies by file that every phase it declared done has its artifacts
+  at the assigned paths, and lists its in-flight workers from TaskList;
+- any worker of the current phase that is neither done (artifact present) nor
+  running (TaskList) is a stalled worker: the Coordinator restarts it in the same
+  turn, keeping its label (per §4), never leaving the stall for a later window;
+- if the round is mid-flight and nothing is in flight, the Coordinator either
+  executes the current phase's pending spawn requests now (runtime/requests/ is a
+  file queue — spawn before closing the turn) or writes `awaiting-resume at
+  <window>` to runtime/coordinator-state.md with the exact next action; a turn that
+  ends mid-round without a lifecycle line is an early return, recorded like any
+  other.
 
 All subcoordinators and all workers run in the background: every subagent is spawned
 in the explicit background mode, never the blocking foreground; every resume (resume-by-ID) also runs in the explicit background mode. The subcoordinators,
@@ -150,7 +177,13 @@ round-1 setup, is not counted in the 138-minute budget. It repeats the environme
 preflight of §1 — the lean toolchain (lean --version), qmd-prover availability,
 the agent-profile discovery (the four subcoordinator profiles and every worker profile the Coordinator may spawn resolve), and the
 secondary-model flag and [subagent] timeout checks — and records
-the results in the dossier, surfacing them to the user.
+the results in the dossier, surfacing them to the user. the check also reads the
+Coordinator's own lifecycle from runtime/coordinator-state.md: when it shows a
+mid-round phase — children-in-flight or awaiting-resume at an unclosed window —
+the Coordinator completes that phase first (verifies the artifacts at the pending
+paths, restarts any missing worker from the worker registry, then advances) before
+starting anything new; a resumed prompt therefore always resumes the round instead
+of idling.
 
 ## 4. Solving stalls and conflicts
 
@@ -177,7 +210,10 @@ conflicting stage blocking the round.
 Each round has a hard budget of 2 hours and 18 minutes (138 minutes). Round timing is
 mandated: the operational clock loop — announce the round start, timestamp each phase
 boundary, poll at each window end, cut the overrun — is specified in
-rules/timekeeping.md. In short:
+rules/timekeeping.md. the clock loop is kept alive mechanically by the clock watcher
+(rules/timekeeping.md §6): at round start the Coordinator spawns a background sleep
+of 5 minutes, and each completion wakes it to poll, cut any passed boundary, and
+re-spawn the watcher even when its own turn ended earlier. In short:
 
 - the round start is announced and written in the dossier before any agent spawns;
 - phase start and end timestamps are recorded at each boundary in the phase-time

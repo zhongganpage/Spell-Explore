@@ -6,7 +6,7 @@ drill. run each drill, record the outcome in the last column.
 | drill | how to run | recorded outcome |
 |---|---|---|
 | config parse | `python -c "import tomllib,pathlib; tomllib.loads(pathlib.Path('~/.kimi-code/config.toml').expanduser().read_bytes())"` — also parse protocol/config.toml from the project root | parse ok, or the offending line |
-| environment preflight | `lean --version`; `kimi --version`; `export KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1` in the shell | versions + env flag present |
+| environment preflight | `lean --version`; `kimi --version`; `export KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1` in the shell; exterior reviewer X access resolves (provider env var for api / `codex exec` for codex, provider family ≠ primary's) | versions + env flag present + X access resolves |
 | rotation drill | run a Creator phase with n idea-workers (0 ≤ n ≤ 8); check idea i goes to worker i+1 (wrapping); n = 0 produces nothing; the two phases may use different n | rotation order observed; n = 0 produced nothing |
 | canary gate | seed a known-false claim + one planted step-error into the panel's review batch (both excluded from the real record and the route) | claim caught ≥80%; step-error caught 100% with the step cited; else no route is delivered |
 | dry-run round 1 | run Creator → Producer → linter → examine → panel → PI → swarm within 138 min; sum the phase-time table | phase-time table; window sums = 138 min; overruns cut and recorded |
