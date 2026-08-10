@@ -37,7 +37,10 @@ The Coordinator (the top agent) asks, in order:
 1. your rough idea → written into the locked `goal.md` (never changed afterwards);
 2. the number of rounds;
 3. whether to add the exterior reviewer X for workerD (`X_PROVIDER` / `X_MODEL` /
-   `X_ACCESS`, or none → internal reviewer, reduced diversity recorded).
+   `X_ACCESS`, or none → internal reviewer, reduced diversity recorded);
+4. the runner-mode: auto-run the lean code runner at each round start from round 2
+   (resumed automatically whenever pending lean work exists), or ask run-or-postpone
+   each time (manual — the default).
 
 After that the round clock starts and the Coordinator runs the pipeline. You do
 not drive it — you supervise it.

@@ -29,6 +29,12 @@ The round-1 setup happens before the round clock starts and is not counted in th
   when the exterior is unavailable or shares the primary's provider family, and the
   reduced diversity is recorded with a confidence downgrade; the choice stands for the
   project;
+- the Coordinator asks the runner-mode: whether to automatically run the lean code
+  runner at the beginning of each round starting from round 2 — `auto` (whenever
+  pending lean work exists at a round start and the runner is not already active,
+  the Coordinator resumes it without asking) or `manual` (the Coordinator asks
+  run-or-postpone at each round start — the default; nothing else changes). the
+  choice is recorded in the dossier and stands for the project;
 - the Coordinator runs the environment preflight: the lean toolchain answers (lean
   --version), qmd-prover is available, and the agent-profile discovery resolves —
   the four subcoordinator profiles (Creator, Producer, Selector, Formalizer) and every
@@ -186,11 +192,14 @@ starting anything new; a resumed prompt therefore always resumes the round inste
 of idling. the check also runs the lean-runner gate: when landed-but-unintegrated
 per-fragment files exist under formalizer/fragments/ (or the runner is recorded
 paused with pending units) and the runner is not already active, the Coordinator
-asks the user — run the lean code runner now, or postpone it to the next round; on
-'run' it clears any pause marker and resumes the runner in the background (once per
-round, batched); on 'postpone' it records `paused: round N` in the worker registry
-and in the Formalizer's resume pack, and the runner is not resumed on any trigger —
-the Formalizer re-requests it at the next round start. the runner is never resumed
+decides per the runner-mode chosen at round 1 — in manual mode it asks the user —
+run the lean code runner now, or postpone it to the next round; in auto mode it
+automatically chooses 'run' without asking. on 'run' (manual or auto) it clears any
+pause marker and resumes the runner in the background (once per
+round, batched); on a manual 'postpone' it records `paused: round N` in the worker
+registry and in the Formalizer's resume pack, and the runner is not resumed on any
+trigger — the Formalizer re-requests it at the next round start, where the gate
+applies again. the runner is never resumed
 mid-round on a qmd file update: fragments that land during the round wait for the
 next resumption.
 

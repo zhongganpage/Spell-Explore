@@ -34,7 +34,7 @@ unfinished verification work of a closed lean-runner swarm agent returns to the 
 
 ## the lean code runner across rounds
 
-the lean code runner is resumable across rounds; the Coordinator resumes it once per round at the round start — batched, never on every qmd file update — subject to the run-or-postpone user gate (rules/coordinator.md §1), and restores it — with the four subcoordinators and the PIs — after a session resume. a postponed runner is recorded paused (worker registry + the Formalizer's resume pack) and is not resumed on any trigger until the user runs it.
+the lean code runner is resumable across rounds; the Coordinator resumes it once per round at the round start — batched, never on every qmd file update — subject to the lean-runner gate (rules/coordinator.md §1: manual mode asks run-or-postpone, auto mode resumes automatically per the round-1 runner-mode), and restores it — with the four subcoordinators and the PIs — after a session resume. a postponed runner is recorded paused (worker registry + the Formalizer's resume pack) and is not resumed on any trigger until the user runs it.
 
 ## resume packs and the worker registry — recovery after a process restart
 

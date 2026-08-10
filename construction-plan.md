@@ -269,7 +269,7 @@ unaccepted; user nominations for next-round pairings).
   the exterior reviewer X's access is re-checked at each round start — the provider env
   var present for api, or the Codex CLI installed for codex, and the provider family
   still different from the primary's (modules/providers.md); the lean-runner gate is
-  asked at each round start when pending fragments exist (run now / postpone to the next
-  round).
+  applied at each round start when pending fragments exist — run now / postpone in
+  manual mode, automatic run in auto mode (the round-1 runner-mode choice).
 - **Sync check**: `protocol/` == the packaged skill copy
   (`skills/spell-explore/references/protocol/`), run `scripts/sync-skill.sh`.
