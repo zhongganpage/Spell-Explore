@@ -61,10 +61,8 @@ How agents spawn agents — context isolation, permissions, background execution
   - `references/protocol/dossier/` — Knowledge State index and split-file templates;
   - `references/protocol/config.toml` — real Kimi Code config; the per-phase budgets live in rules/timekeeping.md.
 - `construction-plan.md` — the top-level build plan.
-- `protocol/` — the live protocol: config, agent profiles, rules, templates, dossier skeleton.
-- `protocol/tests/` — validation drills (config parse, preflight, sync check, …).
-- `scripts/` — `init-project.sh` (scaffold) and `sync-skill.sh` (sync the packaged skill copy with `protocol/`).
-- `runtime/` — runtime state: the resume packs (`runtime/<role>-state.md`).
+- `skills/spell-explore/references/protocol/` — the canonical protocol: config, agent profiles, rules, templates, dossier skeleton. the packaged skill copy is the source (the old top-level `protocol/` tree is superseded and gitignored).
+- `scripts/` — `init-project.sh` (scaffold) and `sync-skill.sh` (sync the packaged skill and the user-scope copy Kimi Code discovers).
 - `spec-amendments.md` — implementation clarifications and deviations from the locked spec.
 - `*.svg` — diagrams of the round timeline, workflow, and subagent nesting.
 
@@ -77,6 +75,6 @@ qmd→lean converter the Formalizer runs; the round-start preflight verifies it 
 available (alongside `lean --version`).
 
 0. run `scripts/init-project.sh` to scaffold the project — it copies the agent profiles, the dossier skeleton, and offers to merge the protocol config into `~/.kimi-code/config.toml`.
-1. run `scripts/sync-skill.sh` — it keeps the packaged skill (`skills/spell-explore`) and the user-scope copy Kimi Code discovers (`~/.kimi-code/skills/spell-explore`) identical to `protocol/`. then start a project: the Coordinator asks for the rough idea, locks it as the goal file, and the rounds begin.
+1. run `scripts/sync-skill.sh` — it keeps the packaged skill (`skills/spell-explore`) and the user-scope copy Kimi Code discovers (`~/.kimi-code/skills/spell-explore`) identical to the canonical protocol in `skills/spell-explore/references/protocol/`. then start a project: the Coordinator asks for the rough idea, locks it as the goal file, and the rounds begin.
 
 Set expectations: early rounds may deliver zero accepted routes; the unit of progress is a dossier entry, not a route — routes are rare successes. nothing is lost either way: the dossier and the idea pool grow every round.

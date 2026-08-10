@@ -35,7 +35,7 @@ handles the round-1 setup from there.
 The Coordinator (the top agent) asks, in order:
 
 1. your rough idea → written into the locked `goal.md` (never changed afterwards);
-2. the number of rounds;
+2. the number of rounds — the binding cap: the Coordinator runs that many rounds hands-free, auto-starting each next round at the close;
 3. whether to add the exterior reviewer X for workerD (`X_PROVIDER` / `X_MODEL` /
    `X_ACCESS`, or none → internal reviewer, reduced diversity recorded);
 4. the runner-mode: auto-run the lean code runner at each round start from round 2
@@ -52,6 +52,11 @@ not drive it — you supervise it.
   overruns at window ends, check for stalls, show you a **status table**, mirror
   everything to `runtime/coordinator-state.md`, and re-spawn the watcher. A wake
   that finds the Coordinator busy is held and caught up on — it never interrupts.
+- **Rounds auto-continue**: at each round close the Coordinator starts the next
+  round immediately when the count allows — stopping early only at a milestone,
+  the two-consecutive-0/3 steering stop, or when you say stop. your per-close
+  decisions (recycle/park, pairings) are presented at the close and never block
+  the next round: unaccepted routes default to park until you answer.
 - Subagents run in the background; nothing closes early. The Coordinator's every
   turn ends with a lifecycle line, so the round always resumes from a file.
 - What you actually look at:

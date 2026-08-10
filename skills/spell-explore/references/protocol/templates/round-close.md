@@ -88,12 +88,21 @@ recorded — the same rule as the 10-minute lemma cut. changing any window means
   kept but it is not auto-recycled) — the user decides. a round may deliver none>`
 - user nominations: `<which summaries or fragments the user nominates to pair in the next
   round>`
+- continuation: `<rounds-completed n / rounds-chosen N>`; `<next round n+1 started in the same turn>` or `<final close: count reached | milestone | steering stop | user stop>`; pending user decisions — accepted routes not yet seen, recycle/park unanswered (default park) — are listed here and applied as the user answers>
 
 ## rules that bind this artifact
 
 - the round closes atomically at 138 min in one pass, even when a phase is mid-flight; the
   round-close record with the decision list is delivered even when no route was accepted.
-- the project never runs autonomously across days.
+- the rounds auto-run to the round count chosen at round-1 setup: when the count allows
+  and no stop condition applies — milestone, steering stop, user stop — the Coordinator
+  starts the next round in the same turn as the close; the project ends only when the
+  count is reached or a stop applies. the user's per-close decisions (seeing accepted
+  routes, recycle/park, pairings) never block the next round's start — unaccepted routes
+  default to park until the user decides.
+- the project never runs autonomously across days: the auto-run is bounded by the round
+  count chosen at round-1 setup and the stop conditions above, and the user can stop it
+  at any time.
 - the Coordinator's measurements — idea-yield (routes accepted vs agent-time spent), premature
   kills, and the consistency of the panel verdicts — are recorded in the dossier and may feed
   the examine worker's rigor, never the votes, whose acceptance thresholds are fixed.

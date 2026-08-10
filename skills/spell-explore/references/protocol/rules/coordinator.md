@@ -17,7 +17,7 @@ The round-1 setup happens before the round clock starts and is not counted in th
   at the project root, outside the dossier), with the precise statement and notation;
   workers cite the goal file and never edit it; the goal file is locked and the
   project never changes it;
-- the user also chooses the number of rounds at this point;
+- the user also chooses the number of rounds at this point — the round count (lock this name): the binding cap on the rounds the Coordinator runs, recorded in runtime/coordinator-state.md (`rounds-chosen: N`, `rounds-completed: 0`) and in the dossier; the choice stands for the project and the rounds auto-run per §6a;
 - the Coordinator asks whether to add an exterior reviewer X for the panel's workerD —
   the overall-judgement reviewer runs on a different provider — configured once as
   `X_PROVIDER` / `X_MODEL` / `X_ACCESS`: `api` (a provider API env var — the key lives
@@ -263,7 +263,7 @@ Cut rule: a phase that reaches its window end is cut and its partial output reco
 — the same rule as the 10-minute lemma cut — and the round closes atomically at 138
 min even if a phase is mid-flight. These windows are the binding per-phase limits;
 changing any of them means the 138-minute budget no longer holds. A round close never
-cuts the Formalizer's swarm. The project never runs autonomously across days.
+cuts the Formalizer's swarm. The project never runs autonomously across days: the auto-run is bounded by the round count chosen at round-1 setup and the stop conditions of §6a, and the user can stop it at any time.
 
 ## 6. The atomic round close
 
@@ -285,8 +285,43 @@ close: a new green lemma, a new [Formalized] premise, a change in the goal node'
 distance to the established base, or a significant fragment deposit — routine writes
 are recorded only in the dossier. The user decides on each
 unaccepted route: recycle it back to the Creator, or park it (the fragments are kept
-but it is not auto-recycled). A round may deliver no accepted route; in that case the
+but it is not auto-recycled); the decision is presented at the close and does not
+block the next round's start — until the user decides, the route defaults to park,
+recorded pending in the round-close record and applied as the user answers (a
+recycle feeds the next round's Creator, a park leaves it out of the auto-recycle).
+A round may deliver no accepted route; in that case the
 round delivers the round-close record with the decision list.
+
+### 6a. auto-continuation — the round ledger
+
+The round count chosen at round-1 setup (§1) is the binding cap on the rounds the
+Coordinator runs. The Coordinator keeps the round ledger in
+runtime/coordinator-state.md — `rounds-chosen: N` (set at setup) and
+`rounds-completed: n` (incremented at each atomic close) — and mirrors it in the
+dossier. At each round close the Coordinator writes the close record and the
+decision list, updates the ledger, and then continues or stops:
+
+- when rounds remain — `rounds-completed < rounds-chosen` — and no stop condition
+  applies, the Coordinator starts the next round in the same turn: it records the
+  round start in the dossier, runs the bounded round-start check (§3), spawns the
+  clock watcher (rules/timekeeping.md §6), and ends the turn with the next round's
+  lifecycle line. a close that leaves rounds unrun is never a `round-closed` final
+  message — the next round resumes and runs like any other;
+- a stop condition is one of: (1) the count is reached — the close is the final
+  close and the Coordinator reports the project state to the user (the user may
+  extend the count); (2) a milestone is reached — the Coordinator writes the
+  manuscript and winds down through the Formalizer's close (§11); (3) the steering
+  stop of §8 — two consecutive rounds of full-unanimity rejection, after which the
+  project does not start a third such round on its own; (4) the user says stop at
+  any time — the run ends at the next close.
+
+The user's per-close decisions never block the next round's start: seeing accepted
+routes, recycle/park, and the pairing nominations are presented at the close and
+stay pending. an unaccepted route defaults to park until the user decides (recorded
+pending in the round-close record; a later recycle feeds the next round's Creator, a
+park leaves it out of the auto-recycle); accepted routes the user has not yet seen
+are held — the Producer marks a new version only after the user has seen it, and a
+held route is not revised by the next round's route writer.
 
 ## 7. Round-2+ scheduling — carried work first
 
