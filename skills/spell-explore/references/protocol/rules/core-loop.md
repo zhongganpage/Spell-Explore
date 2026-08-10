@@ -203,9 +203,13 @@ solving issues inside its territory. it is resumable.
   locked goal's unproved structure the idea touches, measured by term overlap with the
   goal statement, the number of [Formalized] or [Hired] premises it can cite on the
   dependency tree's path toward the goal, whether the idea would hire new
-  assumptions (fragments adjacent to unhired assumption nodes on the dependency
-  tree score higher), and its provenance (revival-triggered or obstruction-
-  touching fragments score higher) — and, when the phase-2 lane is open, the 2 lowest-
+  axiom-class nodes (fragments adjacent to unhired axiom-class nodes on the
+  dependency tree score higher), the graph's hired ratio — the hired axiom-class
+  nodes over the total nodes — as a connectivity measure (the more hired, the more
+  of the graph's statements are derived from the established base), and its
+  provenance (revival-triggered or obstruction-
+  touching fragments score higher) — the measured terms enter the score with equal
+  weight. — and, when the phase-2 lane is open, the 2 lowest-
   goal-frontier leftovers feed it (§2.4), and from round 3 the lane's writer chooses 0
   or 1 summary instead.
 - every fresh summary is distributed in its round: the lane (when open) takes its share
