@@ -69,6 +69,10 @@ The locked spec (`planning-ideas-no-push.md`) is maintained separately and is no
 
 ## Running it
 
+Prerequisite: [qmd-prover](https://github.com/powergiant/qmd-prover) — the mechanical
+qmd→lean converter the Formalizer runs; the round-start preflight verifies it is
+available (alongside `lean --version`).
+
 0. run `scripts/init-project.sh` to scaffold the project — it copies the agent profiles, the dossier skeleton, and offers to merge the protocol config into `~/.kimi-code/config.toml`.
 1. run `scripts/sync-skill.sh` — it keeps the packaged skill (`skills/spell-explore`) and the user-scope copy Kimi Code discovers (`~/.kimi-code/skills/spell-explore`) identical to `protocol/`. then start a project: the Coordinator asks for the rough idea, locks it as the goal file, and the rounds begin.
 
