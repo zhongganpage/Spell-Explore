@@ -7,8 +7,18 @@
 # missing keys and never overwrites a present value.
 set -euo pipefail
 
-# --- locate the protocol root from the script's own position ------------------
+# --- locate the script root and the protocol source ---------------------------
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
+# the packaged skill keeps the protocol at references/protocol/; the source-repo
+# layout keeps it at protocol/ (a sibling of scripts/). resolve whichever exists.
+if [ -d "$SRC/references/protocol" ]; then
+  PROTO="$SRC/references/protocol"
+elif [ -d "$SRC/protocol" ]; then
+  PROTO="$SRC/protocol"
+else
+  echo "error: cannot locate the protocol (neither $SRC/references/protocol nor $SRC/protocol)." >&2
+  exit 1
+fi
 
 # --- resolve the target --------------------------------------------------------
 TARGET="${1:-$(pwd)}"
@@ -22,7 +32,7 @@ if [ -e "$TARGET/goal.md" ]; then
   echo "error: $TARGET/goal.md already exists — the project is already scaffolded. refusing." >&2
   exit 1
 fi
-if [ -e "$TARGET/protocol/goal.md" ]; then
+if [ -e "$TARGET/protocol/goal.md" ] || [ -e "$TARGET/references/protocol/goal.md" ]; then
   echo "error: $TARGET is the protocol source itself — scaffold a fresh project directory instead. refusing." >&2
   exit 1
 fi
@@ -39,21 +49,23 @@ mkdir -p \
   "$TARGET/stale" \
   "$TARGET/formalizer/lean" \
   "$TARGET/formalizer/fragments" \
-  "$TARGET/runtime"
+  "$TARGET/runtime" \
+  "$TARGET/runtime/requests" \
+  "$TARGET/runtime/briefs"
 
 # --- (c) copy the protocol files (cp -n: never overwrite) ----------------------
-cp -n "$SRC/protocol/.kimi-code/agents/"*.md "$TARGET/.kimi-code/agents/"
-cp -n "$SRC/protocol/dossier/"*.md "$TARGET/dossier/"
-cp -n "$SRC/protocol/dossier/idea-pool/README.md" "$TARGET/dossier/idea-pool/README.md"
+cp -n "$PROTO/.kimi-code/agents/"*.md "$TARGET/.kimi-code/agents/"
+cp -n "$PROTO/dossier/"*.md "$TARGET/dossier/"
+cp -n "$PROTO/dossier/idea-pool/README.md" "$TARGET/dossier/idea-pool/README.md"
 # both protocol question-routes.md files share the name; cp -n keeps the first
 # (the living-map template from protocol/question-routes/) and skips the second.
-cp -n "$SRC/protocol/question-routes/question-routes.md" "$TARGET/question-routes/"
-cp -n "$SRC/protocol/templates/question-routes.md" "$TARGET/question-routes/"
-cp -n "$SRC/protocol/reports/README.md" "$TARGET/reports/"
-cp -n "$SRC/protocol/routes/README.md" "$TARGET/routes/"
-cp -n "$SRC/protocol/stale/README.md" "$TARGET/stale/"
-cp -n "$SRC/protocol/goal.md" "$TARGET/goal.md"
-cp -n "$SRC/protocol/formalizer/lean/README.md" "$TARGET/formalizer/lean/"
+cp -n "$PROTO/question-routes/question-routes.md" "$TARGET/question-routes/"
+cp -n "$PROTO/templates/question-routes.md" "$TARGET/question-routes/"
+cp -n "$PROTO/reports/README.md" "$TARGET/reports/"
+cp -n "$PROTO/routes/README.md" "$TARGET/routes/"
+cp -n "$PROTO/stale/README.md" "$TARGET/stale/"
+cp -n "$PROTO/goal.md" "$TARGET/goal.md"
+cp -n "$PROTO/formalizer/lean/README.md" "$TARGET/formalizer/lean/"
 
 # --- (d) the placeholders (created only if missing) -----------------------------
 [ -e "$TARGET/formalizer/single.qmd" ] || \
@@ -64,7 +76,7 @@ cp -n "$SRC/protocol/formalizer/lean/README.md" "$TARGET/formalizer/lean/"
     '| id | kind | location in single.qmd | status |' \
     '|---|---|---|---|' > "$TARGET/formalizer/qmd-index.md"
 [ -e "$TARGET/formalizer/dependency-graph.json" ] || \
-  printf '%s\n' '{"nodes":[],"edges":[],"goal_node":null,"version":"v0"}' > "$TARGET/formalizer/dependency-graph.json"
+  printf '%s\n' '{"version":"v2","nodes":[],"edges":[],"goal_node":null,"schema":{"node":{"class":["kernel","mathlib","formalized","axiom","goal"],"status":["formalized","hired","axiom","base","goal"]},"edge":{"source":"lean-axioms"}}}' > "$TARGET/formalizer/dependency-graph.json"
 [ -e "$TARGET/runtime/README.md" ] || cat > "$TARGET/runtime/README.md" <<'EOF'
 # runtime — resume packs
 
@@ -76,6 +88,13 @@ tasks do not survive a process restart, so after a restart the Coordinator
 re-spawns the role fresh and hands it the resume pack instead of resuming it
 by ID. resume packs are versioned like every artifact (see
 protocol/rules/worker-lifespans.md).
+EOF
+[ -e "$TARGET/runtime/worker-registry.md" ] || cat > "$TARGET/runtime/worker-registry.md" <<'EOF'
+# worker registry — request → task-ids → labels → output paths
+
+maintained by the Coordinator: every spawn request it services (runtime/requests/) is
+recorded here with the task-ids it spawned, so a session resume restores each
+territory's live workers (see protocol/rules/worker-lifespans.md).
 EOF
 
 # --- merge helpers (append only the missing keys, never overwrite) ---------------
@@ -159,4 +178,4 @@ echo
 echo "scaffolded $TARGET. next:"
 echo "  1. export KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1"
 echo "  2. verify lean --version (the lean code runner needs a working lean toolchain)"
-echo "  3. run kimi in $TARGET and confirm the four subcoordinator profiles resolve: creator, producer, selector, formalizer"
+echo "  3. run kimi in $TARGET and confirm the four subcoordinator profiles and every worker profile resolve: creator, producer, selector, formalizer, idea-worker, graph-worker, report-worker, route-worker, examine-worker, worker-a, reviewer-bcd, worker-d-external, promoter, swarm-worker, decompose-worker, lean-code-runner, lean-swarm-worker, pi"

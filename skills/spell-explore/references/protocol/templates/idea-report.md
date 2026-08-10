@@ -1,6 +1,6 @@
 # idea report — template
 
-an idea report (lock this name) is written by the Producer's report worker from a triple of three fresh
+an idea report (lock this name) is written by the Producer's report worker from its assigned set of fresh
 summaries and its complement material — another fresh summary, or an obstruction and its closest technique
 from the fragment region — so the report is directed rather than random. it must satisfy the
 format (lock this name) below, which is what the hygiene linter's layer 2 checks: every claim,
@@ -12,7 +12,7 @@ and be renamed a route with a title.
 ## who, when, where
 
 - produced by: the Producer's report worker, in the 20–45 window (21–46 in rounds ≥ 3), at most 25 minutes, strictly
-  from the triple and its complement material — the main core is what is in the triple; other
+  from its assigned summaries and their complement material — the main core is what is in its assigned set; other
   dossier ideas (including the fragments deposited by stale reports, summaries and routes) may
   support it but do not replace the core.
 - before writing: the report worker actively reviews the reliable idea set and the current
@@ -37,9 +37,9 @@ carries the uniform three-part block statement → assumptions → implications.
 ### header
 
 - title: `<a working title for the approach>`
-- triple: `<summary-id + version>` ×3 · complement material: `<fragment
+- assigned summaries: `<summary-id + version>` (the writer's assigned set) · complement material: `<fragment
   ids from the fragment region>`
-- goal-frontier context: `<the goal-frontier score of the triple, as given by the Producer>`
+- goal-frontier context: `<the goal-frontier scores of the assigned summaries, as given by the Producer>`
 - version: `<v1, v2, …>`
 
 ### groups of claims

@@ -23,9 +23,17 @@ keeps the clock. it is written for the Coordinator agent to read and act on.
 
 ## 3. at each window end — poll and cut
 
+- between the window ends the Coordinator services the spawn channel: it polls the
+  spawn-request directory (runtime/requests/), validates each request against the
+  locked format, spawns the requested workers named by their labels, appends the
+  status line, and executes the resume/stop operations the subcoordinators instruct
+  (the spawn broker, Coordinator rule §3).
 - at each window end the Coordinator polls the live state (TaskList); any worker of
   the phase still running is stopped (TaskStop), and the cut is recorded in the
-  phase-time table together with the partial output path. the partial output itself
+  phase-time table together with the partial output path — the Coordinator's
+  TaskList covers only the tasks it spawned; owner-spawned swarms are cut by their
+  owners (the Selector its decision swarm at the window end, the Formalizer its own
+  swarm's limits). the partial output itself
   is recorded per the cut rule of the Coordinator rule (§5).
 - a round close never cuts the Formalizer's swarm: the Formalizer is not bound by
   the round budget.

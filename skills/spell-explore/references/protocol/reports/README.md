@@ -1,13 +1,13 @@
 # idea reports — protocol/reports/
 
 Versioned idea reports live in the project folder (not in the dossier). an idea
-report (lock this name) is what the Producer's report worker writes from a
-triple of three fresh summaries and its complement material; it becomes a route only after it passes
+report (lock this name) is what the Producer's report worker writes from
+the writer's assigned fresh summaries and their complement material; it becomes a route only after it passes
 the hygiene linter and the examine worker.
 
 ## What lives here
 
-- `reports/queue.md` — the Producer's versioned queue of partial and surplus triples (created and maintained by the Producer).
+- `reports/queue.md` — retained for backpressure bookkeeping only; fresh summaries are distributed in their round (there is no partial queue).
 - idea reports, each carrying a version (v1, v2, …); nothing is cited or built
   on without its version.
 - a report is well-organized with precise citations and makes a clear promise
@@ -18,7 +18,7 @@ the hygiene linter and the examine worker.
 
 ## Who writes
 
-- the Producer's report worker: the triple of three fresh summaries and its complement
+- the Producer's report worker: its assigned fresh summaries and their complement
   material are the main core; archived dossier ideas — including the fragments deposited by
   stale reports, summaries and routes — may be used.
 - the Producer archives reports properly with versions.

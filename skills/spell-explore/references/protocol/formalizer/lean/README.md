@@ -52,17 +52,19 @@ round budget.
 
 ## How pieces become established
 
-- the lean code runner builds and updates a dependency tree: every assumption —
-  in the lean code format, not qmd — is a node, and every green lean code is a
-  directed edge connecting one node to another. an assumption becomes [Hired]
-  when it is implied through a green lean code by an existing assumption (node).
+- the lean code runner builds and updates a dependency tree: a node is a statement —
+  in the lean code format, not qmd — carrying a status class (kernel | mathlib |
+  formalized | axiom | goal), and an edge is "the proof of the conclusion references
+  the premise," derived from Lean (`#print axioms`), never from qmd citations. an
+  axiom-class node becomes [Hired] iff some green lean code whose conclusion is that
+  node's statement is implied by the established base.
   the graph is updated whenever there is a new green lean code, adding the nodes
   and edges of that green proof.
 - the main goal is a distinguished node of this tree: the best outcome is a
-  green lean code that connects the goal node to an acceptable assumption — the
-  goal becomes reachable from the [Formalized] or [Hired] assumptions — and the
-  Producer prefers pairings that shrink the goal node's distance to the
-  acceptable set.
+  green lean code that connects the goal node to the established base — kernel
+  axioms + Mathlib theorems + [Formalized] pieces — with `#print axioms
+  goalTheorem` clean of non-kernel axioms; the Producer prefers pairings that
+  shrink the goal node's distance to the established base.
 - a [Formalized] idea may be cited by a report or a route as an established
   premise without further panel review; it cannot be overturned by a later
   round. green lean codes are the only format in the reliable idea set.

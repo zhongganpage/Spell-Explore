@@ -14,7 +14,7 @@ Selector's rules):
 | window | phase | binding notes |
 |---|---|---|
 | 0–20 | Creator phase 1 | n idea-workers (0 ≤ n ≤ 8) think (≤10 min) + summaries (≤10 min); fresh summaries ready ~20 |
-| 20–45 | Producer report writers (25 min) | triple of three fresh summaries → idea report |
+| 20–45 | Producer report writers (25 min) | assigned fresh summaries → idea report |
 | 45–63 | hygiene linter (layer 1 ≈3 min, layer 2 ≈7 min) + examine worker (cap 8 min) | linter first, then examine; fail → stale |
 | 63–103 | Selector panel (40 min) | workerA lists by 78; B/C/D review 63–93; exchange 93–103 |
 | 103–118 | PI rebuts + change list; promoter in parallel | both feed the swarm |
@@ -45,7 +45,7 @@ Selector's rules):
 - the subcoordinators, the PIs, and the lean code runner are resumable: each runs its
   phase to completion in one run and is resumed by the Coordinator for the next phase; a
   subcoordinator never returns early — its final message comes only after every worker it
-  spawned has produced its artifact at the assigned path and the subcoordinator has
+  directs has produced its artifact at the assigned path and the subcoordinator has
   verified the write. every other worker closes once its job is done. see
   rules/worker-lifespans.md for the hold-open connections.
 - everything is versioned: every fresh summary, idea report, route, stale entry, reliable
@@ -53,8 +53,10 @@ Selector's rules):
   cited or built on without its version. the locked goal file is the exception: it is
   locked and the project never changes it.
 - artifacts are files, and the subcoordinators guarantee them: every worker that produces
-  an artifact is spawned with an explicit output path and must write its artifact there
-  and confirm the write in its final message; a worker that cannot write — a read-only
+  an artifact is spawned — by the Coordinator at its subcoordinator's request, or by its
+  owner for a swarm — with the explicit output path its
+  subcoordinator assigns and must write its artifact there and confirm the write in its
+  final message; a worker that cannot write — a read-only
   profile, or the external workerD — includes the complete artifact text in its final
   message and the responsible subcoordinator persists that text verbatim at the assigned
   path, marked "recovered from agent output". subcoordinators check that every artifact
@@ -78,9 +80,9 @@ files in the project folder, not the dossier.
 ### 1.1 the subcoordinator
 
 the Creator's job is to create ideas and archive. it does not create new ideas itself: it
-regulates its own workers within its domain — idea generation and archiving — monitoring
-their status, enforcing the time limits and the artifact rules, and solving issues inside
-its territory. it is resumable.
+regulates its own workers within its domain — idea generation and archiving — requesting
+them from the Coordinator, monitoring their status, enforcing the time limits and the
+artifact rules, and solving issues inside its territory. it is resumable.
 
 the Creator has two phases, which are independent and may run at the same time:
 
@@ -94,24 +96,25 @@ subcoordinators, the reliable idea set, or the fragment region.
 
 ### 1.2 phase 1 — the think-and-rotate (window 0–20)
 
-- at the start of the phase the Creator creates n idea-workers (0 ≤ n ≤ 8; the Creator
+- at the start of the phase the Creator requests n idea-workers (0 ≤ n ≤ 8; the Creator
   chooses n per phase, and the two phases are independent; 4 is the standard phase-1
   size in rounds 1–2, and from round 3 the standard phase-1 size is n = 2; the
-  freedom stays) — called workers (lock this
+  freedom stays) from the Coordinator — called workers (lock this
   name: every subagent of a subcoordinator is called worker) — to actively think about
   new ideas (with maximal freedom) around the goal — the locked goal file — with maximal
-  time length 10 min. the workers read the locked goal file and think; they may follow or
+  time length 10 min. the request is a file at runtime/requests/ naming the workers by their labels (c-1 idea-worker, c-2 miner, c-3 graph-worker), with their output paths and a pointer to each one's job brief at runtime/briefs/, which the Creator writes. the workers read the locked goal file and think; they may follow or
   not follow the persistence and verification protocols: their exploration is free-form,
   bound only by the time limits and the summary format.
-- when the Creator receives all the ideas from the workers, it does not close the
-  workers: it rotates the n ideas — the Creator holds all n idea-workers open from
-  thinking through the rotation to the summaries: it waits for all n ideas before
-  rotating and for all n summaries before archiving; no idea-worker closes mid-rotation
-  — it hands the ideas of each worker to the next worker (idea of worker i goes to
-  worker i+1, wrapping around; with n = 4 this is idea of worker 1234 given to worker
-  4123) — and the workers learn from the idea they receive and write a summary. the rotation hands all n ideas at once and the workers write in
-  parallel, so all n fresh summaries are ready by ~20 min. with n = 0 the phase produces
-  nothing.
+- when all n idea files are in, the rotation is Coordinator-owned and mechanical: the
+  Coordinator builds the per-worker rotation briefs at runtime/briefs/ — each carrying
+  the preceding worker's idea (the idea of worker i goes to worker i+1, wrapping
+  around; with n = 4 this is idea of worker 1234 given to worker 4123) — and resumes
+  the workers (resume-by-ID, context preserved), who learn from the idea they receive
+  and write a summary. the Coordinator holds all n idea-workers open from thinking
+  through the rotation to the summaries — no idea-worker closes mid-rotation — and the
+  Creator, resumed after the summaries land, verifies them before archiving. the rotation hands all n ideas
+  at once and the workers write in parallel, so all n fresh summaries are ready by ~20
+  min. with n = 0 the phase produces nothing.
 - the workers have at most 10 min to write their summaries down. in the idea summaries,
   the workers point out the connection, the conflicts and the possible directions.
 - the Creator then archives the summaries properly in the idea pool in the dossier, and
@@ -124,7 +127,7 @@ subcoordinators, the reliable idea set, or the fragment region.
   pool, and not even ideas similar to the ones already archived. in round 1 there is no
   such constraint: the pool is empty, and the workers are free.
 - handoff: whenever the Creator has a fresh summary ready, it hands it to the Producer as
-  a file (see §2); the Producer forms it into a triple and processes it. the Creator never starts
+  a file (see §2); the Producer distributes it with the round's split and processes it. the Creator never starts
   the handoff on a missing artifact.
 
 ### 1.3 phase 2 — the mining and graph phase (off the critical path, in the background)
@@ -133,9 +136,10 @@ subcoordinators, the reliable idea set, or the fragment region.
   material the subcoordinators send automatically (a received summary, a report or an
   unsuccessful route, see §5), the reliable idea set, or the fragment region. in round 1
   the pool is empty and no stale material arrives, so phase 2 does not run.
-- the Creator first makes 4 workers in rounds 1–2 and 2 workers from round 3 (the 0 ≤ n
-  ≤ 8 freedom stays: the Creator may choose fewer when the pool is thin, and n = 0
-  produces nothing; 4 is the standard phase-2 size in rounds 1–2, 2 from round 3),
+- the Creator first requests 4 workers in rounds 1–2 and 2 workers from round 3 from
+  the Coordinator (the 0 ≤ n ≤ 8 freedom stays: the Creator may choose fewer when the
+  pool is thin, and n = 0 produces nothing; 4 is the standard phase-2 size in rounds
+  1–2, 2 from round 3),
   independent of the workers in phase 1: in rounds 1–2 the split is 2 graph workers and
   2 regular miners — the 2-graph/2-miner split is the standard n = 4 — and from round 3
   it is 1 graph worker and 1 regular miner. for other n the Creator scales it: at most 2
@@ -146,14 +150,18 @@ subcoordinators, the reliable idea set, or the fragment region.
 - the graph workers activate when formalizer/dependency-graph.json has nodes; before
   that — an empty graph — they mine as regular workers. a graph worker proposes bridging
   lemmas: connections (proofs) between assumption nodes of the dependency graph that
-  shrink the goal node's distance to the acceptable set. it reads dependency-graph.json
+  shrink the goal node's distance to the established base. it reads dependency-graph.json
   (the assumption nodes, the green edges, the [Hired] flags, the goal node), the reliable
   idea set and the formalization status, binds the persistence and verification
   protocols, and its output is a fresh summary in the normal format.
-- then, as in phase 1, the Creator rotates the n ideas: it hands the ideas of each worker
-  to the next worker (idea of worker i goes to worker i+1, wrapping around), and the
-  workers learn from the idea they receive and write a summary — at most 10 min, as in
-  phase 1. with n = 0 the phase produces nothing.
+- then, as in phase 1, the rotation is Coordinator-owned: when all n idea files are in,
+  the Coordinator builds the per-worker rotation briefs (each carrying the preceding
+  worker's idea — the idea of worker i goes to worker i+1, wrapping around) and resumes
+  the n workers (resume-by-ID, context preserved), who learn from the idea they receive
+  and write a summary — at most 10 min, as in phase 1. the Coordinator holds the n
+  phase-2 workers open through the rotation, as in phase 1; the Creator is resumed after
+  the summaries land. with n = 0 the phase produces
+  nothing.
 - the Creator then archives the summaries properly in the idea pool in the dossier. these
   summaries are fresh: they are versioned like phase-1 output, live in the same
   `dossier/idea-pool/fresh-summaries/`, and enter the same pairing pool of the Producer.
@@ -180,67 +188,64 @@ its domain — monitoring the report workers, enforcing time limits and artifact
 solving issues inside its territory. it is resumable.
 
 - whenever the Creator has a fresh summary ready, the Creator hands it to the Producer.
-- at the start of a round any carried-over work is handled first: the Producer processes
-  queued summary triples.
+- at the start of a round any carried-over work is handled first: the Producer distributes
+  the round's fresh summaries.
 
 ### 2.2 pairing by complementarity
 
-- the pairing unit is the triple: the Producer groups three fresh summaries into a triple
-  by complementarity — the ideas of the three fit together, or a summary is completed by
-  an obstruction and its closest technique from the fragment region — so the report is
-  directed rather than random, and creates a worker to process each triple.
+- the Producer distributes the fresh summaries to its report writers — two in rounds 1–2
+  and whenever the phase-2 lane is closed, one from round 3 when the lane is open —
+  splitting them as evenly as possible (differing by at most one): a writer's assigned set
+  may be completed by an obstruction and its closest technique from the fragment region,
+  so the report is directed rather than random, and the Producer requests a report worker
+  from the Coordinator for each writer's assigned set.
 - the Producer maintains a goal-frontier score for every pool idea — how much of the
   locked goal's unproved structure the idea touches, measured by term overlap with the
   goal statement, the number of [Formalized] or [Hired] premises it can cite on the
   dependency tree's path toward the goal, whether the idea would hire new
   assumptions (fragments adjacent to unhired assumption nodes on the dependency
   tree score higher), and its provenance (revival-triggered or obstruction-
-  touching fragments score higher) — and forms the triples best-first: the highest-
-  scoring ideas go into the first triple. with a full round of 8 fresh summaries, two
-  triples (6 summaries) feed phase 1 and the 2 lowest-frontier leftovers feed phase 2
-  when it is open (§2.4).
-- the Producer creates and maintains the queue (`reports/queue.md`, a versioned file):
-  partial triples — fewer than 3 summaries — wait here until they can be completed. when
-  fewer than 8 summaries arrive,
-  phase 1 consumes as many complete triples as fit (3 summaries each) and phase 2 takes
-  the remainder when open (§2.4); otherwise the remainder waits in the queue.
-- backpressure: the Producer schedules a report worker on the critical path only while
+  touching fragments score higher) — and, when the phase-2 lane is open, the 2 lowest-
+  goal-frontier leftovers feed it (§2.4), and from round 3 the lane's writer chooses 0
+  or 1 summary instead.
+- every fresh summary is distributed in its round: the lane (when open) takes its share
+  first, and the phase-1 writers split the rest as evenly as possible (differing by at
+  most one); there is no queue for partials.
+- backpressure: the Producer schedules a report writer on the critical path only while
   fewer than 2 routes are in review — the Selector runs at most two panels at a time, and
-  a review needs 75 min. surplus complete triples are queued (`reports/queue.md`) and
-  processed in later rounds; the queue depth is reported at round close. rationale: 8
-  fresh summaries make two triples plus a 2-summary remainder per round while the
-  Selector drains at most 2 reviews.
-- rounds ≥ 3 variant — the single-writer Producer: from round 3 the Creator runs 2+2
-  workers, so 4 fresh summaries arrive per round; phase 1 runs exactly one report
-  writer (one triple) and phase 2 runs exactly one route writer. the summary transfer
-  at the Producer's start: the phase-2 writer has 1 minute to choose 0 or 1 summary
-  closest to the accepted route it will work on; after the choice you hand the
-  remaining summaries (3 or 4) to the phase-1 writer, which forms one triple and queues
-  any remainder (reports/queue.md). the 1-minute choice is added to the round's total:
+  a review needs 75 min; additional writers run off the critical path in the background.
+  rationale: the Selector drains at most 2 reviews per round, so a critical-path
+  writer is scheduled only while fewer than 2 routes are in review.
+- rounds ≥ 3 variant: from round 3, 4 fresh summaries arrive per round: when the lane is
+  open, phase 1 runs exactly one report writer and phase 2 runs exactly one route
+  writer — the route writer has 1 minute to choose 0 or 1 summary closest to its
+  accepted route, and the phase-1 writer takes the rest (4 or 3); when the lane is
+  closed, the two phase-1 writers split the 4 summaries (2 each). the 1-minute choice is
+  added to the round's total:
   rounds ≥ 3 run 139 minutes (see §0, the timeline variant).
 - when a revival trigger fires, its fragment jumps the pairing queue.
-- the Producer prefers triples that shrink the goal node's distance to the acceptable set
+- the Producer prefers assigned sets that shrink the goal node's distance to the established base
   on the dependency tree (see the Formalizer rule).
 - the user may nominate which summaries or fragments to pair in the next round through the
   decision list; those nominations steer the pairing.
 
 ### 2.3 the report worker (window 20–45)
 
-- the report-writing worker processes the triple with a time limit of 25 minutes, i.e.
-  the 20–45 window. it has full tools to write the report and is spawned with an explicit
-  output path.
+- a phase-1 report writer processes its assigned summaries with a time limit of 25 minutes, i.e.
+  the 20–45 window. it has full tools to write the report and is spawned by the
+  Coordinator with the explicit output path its subcoordinator assigns.
 - the worker itself actively reviews the reliable idea set and the current dependency
   graph, and finds the interesting ideas according to its own reasoning about the
   summaries it received — the goal-frontier score guides the grouping but does not
   dictate the worker's synthesis.
-- this worker will think about the ultimate problem strictly according to the triple and
-  its complement material from the pool, and writes an idea report (lock this name).
+- this worker will think about the ultimate problem strictly according to its assigned summaries and
+  their complement material from the pool, and writes an idea report (lock this name).
 - the idea report should be well-organized with precise citations. it has to make clear
   promise about how to achieve the ultimate goal through its work (with confidence and
   evidence).
 - when writing the report the worker can use whatever ideas archived in the dossier —
   including the fragments deposited by stale reports, summaries and routes (the stale
-  rule, §5) — but the main core should be what's in the triple and its complement.
+  rule, §5) — but the main core should be what's in its assigned summaries and their complement.
 - the report writer must make sure that the definitions, lemmas and theorems are well
   stated and their assumptions explicitly given — otherwise the report will be difficult
   to pass the hygiene linter.
@@ -254,13 +259,14 @@ solving issues inside its territory. it is resumable.
   if the 20–45 window ends while the worker is mid-flight, the phase is cut and its
   partial output recorded (versioned, in the dossier); a partial report does not move on
   to the linter. a cut report is not lost: the Producer records the partial output
-  (versioned) and re-queues the triple as a background report for the next round.
+  (versioned) and the report is re-attempted as a background report.
 
 ### 2.4 the route-attached lane (Producer phase 2)
 
 - a second lane opens only when (a) the Creator's phase 2 is on and (b) accepted routes
-  exist; otherwise it stays closed and its share of summaries waits in the queue (§2.2).
-- when open, the Producer creates one route-attached report worker (the route-worker),
+  exist; otherwise it stays closed and its share of summaries goes to the phase-1 writers with the round's split (§2.2).
+- when open, the Producer requests one route-attached report worker from the Coordinator
+  (the route-worker),
   anchored on one accepted route — older versions of accepted routes are preferred as the
   anchor, and the champion-route pointer's route is excluded — and hands it the remaining summaries per the
   transfer rule (§2.2): in rounds 1–2 the 2 lowest-goal-frontier leftovers; from
@@ -283,9 +289,9 @@ solving issues inside its territory. it is resumable.
   else (linter layer 1 ≈ 3 min, layer 2 ≈ 7 min; §3).
 - a report that does not pass the quick lint is stale: it does not move on, and the round
   produces no route from it (stale processing, §5).
-- when the report has passed the hygiene linter, the Producer creates another worker — the
-  examine worker — to judge sufficiency (§4), with an 8 min cap.
-- gate timing: every report is gated — the two phase-1 triples and the lane revision
+- when the report has passed the hygiene linter, the Producer requests an examine worker
+  from the Coordinator to judge sufficiency (§4), with an 8 min cap.
+- gate timing: every report is gated — the phase-1 reports and the lane revision
   alike — and the order is always linter first, then examine. the 45–63 window binds only
   the critical-path report's gates; every other report's gates run in the background with
   the same per-gate caps (linter layer 1 ≈ 3 min, layer 2 ≈ 7 min, examine cap 8 min) and
@@ -307,7 +313,8 @@ solving issues inside its territory. it is resumable.
 - the Producer archives any route properly with versions (in `routes/`, project folder).
 - the Producer deposits the fragments of the items it marks stale into the fragment region
   of the idea pool (§5).
-- the Producer marks an accepted route a new version when the Selector accepts it (this
+- the Producer marks an accepted route a new version once the user has seen it, after
+  the Selector accepts it (this
   happens after the Selector's verdict; see the Selector rule).
 
 ## 3. the hygiene linter
@@ -342,8 +349,9 @@ solving issues inside its territory. it is resumable.
 
 ## 4. the examine worker
 
-- when the report is done and has passed the hygiene linter, the Producer creates another
-  worker to examine the quality of this report and determine just one thing: is the
+- when the report is done and has passed the hygiene linter, the Producer requests an
+  examine worker from the Coordinator to examine the quality of this report and
+  determine just one thing: is the
   material sufficient enough to become an approach? it does not judge the correctness of
   the idea.
 - specifically it only checks:
@@ -399,8 +407,9 @@ solving issues inside its territory. it is resumable.
   route (lock this name) with a title (lock this name: title — to distinguish it from
   other routes). the route is a versioned file in `routes/`.
 - the worker who produced a successful route will remain and be called the PI (lock this
-  name). the PI is resumable: the Producer holds it open when the report succeeds, and
-  the Coordinator or the Selector re-invokes it (resume-by-ID) if the route is
+  name). the PI is resumable: the Producer directs the Coordinator to hold it open when
+  the report succeeds, and the Coordinator re-invokes it (resume-by-ID, on the Selector's instruction)
+  if the route is
   challenged or revised in a later round — it defends the route in the review, rebuts
   the panel, and modifies the route (see the Selector rule).
 - the Producer will archive any route properly with versions, and whenever the Producer

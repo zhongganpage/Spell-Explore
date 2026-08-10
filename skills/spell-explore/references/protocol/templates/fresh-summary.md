@@ -63,7 +63,7 @@ why this is not the same and not even similar to them>`
 - the worker writes the summary in at most 10 minutes and confirms the write in its final
   message; the Creator archives it in the idea pool before the next handoff.
 - phase-2 summaries are produced the same way: the Creator receives a summary, report, or
-  unsuccessful route, makes n idea-workers (0 ≤ n ≤ 8) search for good ideas and techniques in it and in the
+  unsuccessful route, requests n idea-workers (0 ≤ n ≤ 8) from the Coordinator to search for good ideas and techniques in it and in the
   reliable idea set and the fragment region (at most 15 minutes), runs the same rotation, and
   the summaries are archived as fresh.
 - a fresh summary is never treated as established: only an accepted route is presented to the

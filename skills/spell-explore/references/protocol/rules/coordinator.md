@@ -18,10 +18,30 @@ The round-1 setup happens before the round clock starts and is not counted in th
   workers cite the goal file and never edit it; the goal file is locked and the
   project never changes it;
 - the user also chooses the number of rounds at this point;
+- the Coordinator asks whether to add an exterior agent, and which: the external
+  workerD reviewer (the panel's overall-judgement reviewer runs on a different
+  provider — the secondary model when its provider differs from the primary's;
+  requires the secondary-model alias and KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1), an
+  exterior reviewer X (an independent reviewer on a different provider — a provider
+  API env var or the local Codex CLI), or none (internal reviewers only). the
+  Coordinator helps the user configure the choice — the provider env vars, the model
+  alias in the live config, the secondary-model flag — verifies the exterior provider
+  differs from the primary's, and records the choice and its fallback expectations in
+  the dossier: workerD falls back to an internal reviewer when the exterior is
+  unavailable or shares the primary's provider, and the reduced diversity is recorded;
+  the choice stands for the project;
 - the Coordinator runs the environment preflight: the lean toolchain answers (lean
   --version), qmd-prover is available, and the agent-profile discovery resolves —
-  the four subcoordinator profiles (Creator, Producer, Selector, Formalizer) are
-  found and readable. the results are recorded in the dossier and surfaced to the
+  the four subcoordinator profiles (Creator, Producer, Selector, Formalizer) and every
+  worker profile the Coordinator may spawn are found and readable; it also checks
+  that KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL is exported (the secondary-model
+  worker tier and the external workerD reviewer need it — when it is unset the tier
+  runs on the default model and workerD cannot be external) and that the live
+  config's [subagent] timeout_ms is 0 (the resumable roles — the four
+  subcoordinators, the PIs, the lean code runner — could otherwise be force-killed
+  as timed_out mid-round); both take effect only at kimi start, so when either is
+  not in effect the Coordinator tells the user to restart kimi with the flag
+  exported and the config applied. the results are recorded in the dossier and surfaced to the
   user; the Formalizer idles gracefully when the toolchain is missing — it stays
   alive and produces no green pieces and no error;
 - the Coordinator instantiates the question-routes folder: question-routes.md, the
@@ -29,7 +49,8 @@ The round-1 setup happens before the round clock starts and is not counted in th
   §10), and writes the main question entry mirroring the locked goal.
 
 The Coordinator does not create anything in this setup — no summaries, no reports, no
-routes. It writes the goal and starts the machinery.
+routes: it creates no content; it spawns only what the subcoordinators request. It
+writes the goal and starts the machinery.
 
 ## 2. The fixed sequence the Coordinator enforces
 
@@ -38,7 +59,7 @@ The standard procedure of the project is a fixed sequence of stages:
     Creator → Producer → Selector
 
 - the Creator produces the fresh summaries;
-- the Producer turns triples of fresh summaries into idea reports and then into routes;
+- the Producer turns fresh summaries into idea reports and then into routes;
 - the Selector reviews each fresh route and decides whether it is accepted;
 - each stage hands its output to the next stage, and only the Selector's accepted
   routes are presented to the user;
@@ -55,9 +76,20 @@ The Coordinator regulates the subcoordinators (Creator, Producer, Selector,
 Formalizer). Each subcoordinator regulates its own workers within its own territory —
 the Creator within idea generation and archiving, the Producer within report and route
 production, the Selector within review and acceptance, the Formalizer within
-formalization — monitoring its workers' status, enforcing the time limits and the
-artifact rules, and solving issues inside its territory. The Coordinator regulates the
+formalization — requesting its workers from the Coordinator, monitoring its workers'
+status, enforcing the time limits and the artifact rules, and solving issues inside its
+territory. The Coordinator regulates the
 subcoordinators themselves.
+
+The Coordinator is the spawn broker: it polls runtime/requests/, validates each
+request against the locked format (kind: spawn | resume | stop; requester: the
+territory letter; round; per worker: label, profile, output path, and a pointer to its
+job brief — never inline brief text), spawns the requested workers named by their
+labels, appends the status line (spawned | resumed | stopped | rejected, with the
+reason when rejected) to the request file, executes the resume and stop operations the
+subcoordinators instruct, and keeps the worker registry (runtime/worker-registry.md:
+request → task-ids → labels → output paths) current, so a session resume restores each
+territory's live workers. the Coordinator also executes the mechanical rotations a phase brief authorizes: when all n idea files are in, it builds the per-worker rotation briefs at runtime/briefs/ — each a mechanical splice of the preceding worker's idea file and the locked summary format, never Coordinator-authored content — and resumes the workers. a request is never silently reinterpreted. the swarm exception stands: the Selector's decision swarm of 3, the Formalizer's working swarm of ~4, and the lean code runner's swarm of at most 3 are spawned and regulated by their owners, and the Coordinator does not broker them. the Coordinator is a pure relay: it never composes or edits a worker's job — job briefs are file pointers, relayed verbatim. when a request names workerD, the Coordinator checks the external reviewer's availability at spawn and reports to the Selector, which records the fallback.
 
 The Coordinator monitors:
 
@@ -66,25 +98,29 @@ The Coordinator monitors:
   - a fresh summary with its complement ready before the Producer starts;
   - a route ready before the Selector starts;
 - whether any subcoordinator is stalled or conflicting;
-- the queue depth: the number of queued summary triples (reports/queue.md) and the
-  number of queued route reviews, reported in the round close.
+- the queue depth: the number of queued route reviews, reported in the round close.
 
 Artifact guarantees the Coordinator enforces (shared with the subcoordinators): every
-worker that produces an artifact is spawned with an explicit output path and must
-write its artifact there and confirm the write in its final message; a worker that
+worker that produces an artifact is spawned — by the Coordinator at its
+subcoordinator's request, or by its owner for a swarm — with the explicit output path
+its subcoordinator assigns and must write its artifact there and confirm
+the write in its final message; a worker that
 cannot write — a read-only profile, or the external workerD — includes the complete
 artifact text in its final message and the responsible subcoordinator persists that
 text verbatim at the assigned path, marked recovered from agent output. The
 Coordinator checks that every artifact exists after each worker completes, never
 starts the next phase or handoff on a missing artifact, and transfers documents
-between stages only as files. The Coordinator and the subcoordinators are responsible
+between stages only as files. Before accepting a subcoordinator's final message the
+Coordinator verifies by file that every worker it directs has produced its artifact
+at the assigned path; on a missing artifact it resumes the subcoordinator with
+'artifact before handoff' and records the early return. before resuming any subcoordinator the Coordinator also checks whether its expected outputs already exist on disk: if they do, the resume prompt is 'verify and continue', never 'redo'. when a resume is rejected as 'already running', the Coordinator treats it as the signal that the role is self-regulating: it reads the role's latest output and the artifacts it owns, verifies by file (the expected outputs and the role's resume pack), waits for the role's self-completion, and never TaskStops a role that is actively producing artifacts. '0 active tasks' in the Coordinator's TaskList is never an all-clear by itself: the Coordinator also checks the worker registry's swarm rows and the roles' state files before declaring a phase idle. The Coordinator and the subcoordinators are responsible
 for transferring documents between workers and subcoordinators.
 
 All subcoordinators and all workers run in the background: every subagent is spawned
-in the explicit background mode, never the blocking foreground. The subcoordinators,
+in the explicit background mode, never the blocking foreground; every resume (resume-by-ID) also runs in the explicit background mode. The subcoordinators,
 the PIs, and the lean code runner are resumable: each runs its phase to completion
 in one run and is resumed by the Coordinator for the next phase; a subcoordinator
-never returns early — its final message comes only after every worker it spawned has
+never returns early — its final message comes only after every worker it directs has
 produced its artifact at the assigned path and the subcoordinator has verified the
 write. Every other worker closes once its job is done. see rules/worker-lifespans.md
 for the hold-open connections.
@@ -105,11 +141,15 @@ clock starts: it reads the formalization status line in the Knowledge State inde
 the live background state, verifies that the resumable workers are present and
 working — the four subcoordinators (Creator, Producer, Selector, Formalizer), the
 PIs, and the lean code runner — re-spawning any that a resumed session lost with its
-runtime/<role>-state.md resume pack (rules/worker-lifespans.md) — and
-resolves any stall or conflict it finds; the check is a bounded read that, like the
+runtime/<role>-state.md resume pack (rules/worker-lifespans.md), and restoring each
+territory's live workers from the worker registry — and it sweeps
+formalizer/fragments/ for landed-but-unintegrated per-fragment files, handing them to
+the lean code runner's next merge — and resolves any stall or conflict
+it finds; the check is a bounded read that, like the
 round-1 setup, is not counted in the 138-minute budget. It repeats the environment
-preflight of §1 — the lean toolchain (lean --version), qmd-prover availability, and
-the agent-profile discovery (the four subcoordinator profiles resolve) — and records
+preflight of §1 — the lean toolchain (lean --version), qmd-prover availability,
+the agent-profile discovery (the four subcoordinator profiles and every worker profile the Coordinator may spawn resolve), and the
+secondary-model flag and [subagent] timeout checks — and records
 the results in the dossier, surfacing them to the user.
 
 ## 4. Solving stalls and conflicts
@@ -117,7 +157,7 @@ the results in the dossier, surfacing them to the user.
 When the Coordinator finds inconsistencies in the status, it solves them, in this
 order:
 
-1. restarting a stalled worker;
+1. restarting a stalled worker (the Coordinator re-spawns it, keeping its label);
 2. reordering handoffs;
 3. arbitrating between subcoordinators;
 4. escalating to the user.
@@ -188,7 +228,7 @@ route; the user sees the accepted route before it is marked a new version (the
 Producer marks it a new version after the user sees it). The Coordinator also keeps
 the user informed of substantive formalization news as it happens and at each round
 close: a new green lemma, a new [Formalized] premise, a change in the goal node's
-distance to the acceptable set, or a significant fragment deposit — routine writes
+distance to the established base, or a significant fragment deposit — routine writes
 are recorded only in the dossier. The user decides on each
 unaccepted route: recycle it back to the Creator, or park it (the fragments are kept
 but it is not auto-recycled). A round may deliver no accepted route; in that case the
@@ -197,10 +237,10 @@ round delivers the round-close record with the decision list.
 ## 7. Round-2+ scheduling — carried work first
 
 At the start of a round, any carried-over work is handled first: the Selector resumes
-queued route reviews and the Producer processes queued summary triples.
+queued route reviews and the Producer distributes the round's fresh summaries.
 
-The Coordinator tracks the queue depth — the queued summary triples (reports/queue.md)
-and the queued route reviews — reports it in the round close, and may hint the
+The Coordinator tracks the queue depth — the number of queued route reviews —
+reports it in the round close, and may hint the
 Creator to lower n for the next round when the queue is deep, so the pipeline drains
 before new material arrives. The depth is a measurement and a hint, never into the
 votes.
@@ -258,7 +298,10 @@ The acceptance numbers rank the quality of an accepted route: full consensus (3/
 3/3) is the strongest, lower counts are accepted but weaker.
 
 Milestone: the milestone is Lean-led — the required condition is the goal node of
-dependency-graph.json reachable from the [Formalized] or [Hired] assumptions. The
+dependency-graph.json reachable from the established base (kernel axioms + Mathlib
+theorems + [Formalized] pieces), with `#print axioms goalTheorem` containing no
+non-kernel axiom, and a full manuscript claim requires the hired set empty and the
+reachability proven in Lean. The
 3/3 swarm + 3/3 BCD unanimity is the presentation bar for the manuscript, not the
 reachability condition.
 

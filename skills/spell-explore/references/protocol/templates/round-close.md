@@ -38,7 +38,7 @@ the review sequence>`
   ≥2/3 of the swarm workers AND ≥2/3 of the BCD reviewers; the counts rank the route — full
   consensus (3/3 + 3/3) is the strongest>`
 - unaccepted: `<title + version, with the counts and the failure reason>`
-- carried over: `<queued route reviews and queued summary triples that carry to the next round —
+- carried over: `<queued route reviews that carry to the next round —
   handled first at the next round's start; a new route's review starts only if the remaining
   budget fits a full review (75 min: panel 40 + PI 15 + swarm 20)>`
 
@@ -99,7 +99,7 @@ recorded — the same rule as the 10-minute lemma cut. changing any window means
   the examine worker's rigor, never the votes, whose acceptance thresholds are fixed.
 - when the round reaches a milestone — all 3 swarm workers and all 3 BCD reviewers accept, and
   the accepted routes together achieve the locked goal — operationally, the goal node of
-  dependency-graph.json reachable from the [Formalized] or [Hired] assumptions — the
+  dependency-graph.json reachable from the established base — kernel axioms + Mathlib theorems + [Formalized] pieces — with `#print axioms goalTheorem` clean of non-kernel axioms — the
   Coordinator writes a report about
   it in PDF, called the manuscript (lock this name), and the project winds down through the
   Formalizer's close.

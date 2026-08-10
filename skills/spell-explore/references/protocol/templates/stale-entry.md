@@ -15,8 +15,8 @@ directly. this file is the template each stale marking fills in.
   agent), the Coordinator (phases cut at their window end).
 - where it lives: the project folder (stale/), versioned; the fragments it carries are
   deposited into the fragment region in the idea pool in the dossier.
-- the Creator's second phase picks the stale document up: it makes n idea-workers (0 ≤ n ≤ 8,
-  independent of the phase-1 workers) search for good ideas and techniques in the summary, report, or route,
+- the Creator's second phase picks the stale document up: it requests n idea-workers (0 ≤ n ≤ 8,
+  independent of the phase-1 workers) from the Coordinator to search for good ideas and techniques in the summary, report, or route,
   and in the reliable idea set and the fragment region (at most 15 minutes), runs the same
   rotation as phase 1, and archives fresh summaries in the idea pool.
 

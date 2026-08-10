@@ -16,8 +16,10 @@ the Formalizer is a subcoordinator. like the other subcoordinators it does not d
 itself: it regulates its own workers within formalization — the decompose workers, the
 working swarm, and the lean code runner — monitoring their status, enforcing the time limits
 and the artifact rules, and solving issues inside its territory, while the Coordinator
-regulates the Formalizer. every worker it spawns is spawned in the explicit background mode,
-never the blocking foreground. the Formalizer is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. within the Formalizer's territory so does the lean code runner (see
+regulates the Formalizer. every worker it directs is spawned by the Coordinator in the
+explicit background mode, never the blocking foreground; the working swarm is the
+Formalizer's own and is spawned by it in the explicit background mode. the Formalizer
+is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. within the Formalizer's territory so does the lean code runner (see
 below).
 
 the Formalizer runs in the background across rounds: it is not bound by the 2-hour-and-18-
@@ -35,9 +37,10 @@ remaining qmd pieces — before it closes. the project ends when it reaches a mi
 swarm workers and all 3 BCD reviewers accept and the accepted routes together achieve the
 locked goal (see the Selector rule for the acceptance thresholds: a route is accepted with at
 least 2/3 of the swarm workers and at least 2/3 of the BCD reviewers agreeing; full consensus
-3/3 + 3/3 is the milestone). on the formalization side, the locked goal being achieved means
-the goal node of the dependency tree is reachable from the [Formalized] or [Hired]
-assumptions; when the milestone is reached the Coordinator writes a report in PDF, called the
+3/3 + 3/3 is the milestone). on the formalization side, the locked goal being achieved means the goal node is reachable from
+the established base — kernel + mathlib + formalized — and `#print axioms goalTheorem` contains
+no non-kernel axiom; a full manuscript claim requires the hired set empty and the reachability
+proven in lean. when the milestone is reached the Coordinator writes a report in PDF, called the
 manuscript, and maintains the question-routes folder, which holds a copy of the full reliable
 idea set.
 
@@ -53,7 +56,8 @@ promoter's note is scoping metadata for the decompose workers: it marks the hone
 formalize and the exact breaking point (an obstruction in the fragment region and the
 obstructions register), and the note itself is never decomposed. there is no limit on the
 number of inputs the Formalizer can take: every two units — a lint-passed examine-failed
-report, or an accepted route with its note — make a new worker that decomposes them.
+report, or an accepted route with its note — the Formalizer requests a decompose worker
+from the Coordinator.
 
 the Formalizer relies on the linter's layer 2, which produces the format: every claim, lemma,
 theorem and proposition has a uniform structure — a precise statement, its assumptions
@@ -67,8 +71,9 @@ identifying assumptions or judging the mathematics.
 
 ## the decompose workers
 
-every two units make a new worker that decomposes them — a unit being a lint-passed
-examine-failed report, or an accepted route with its promoter's note. the decompose worker:
+the Formalizer requests a decompose worker from the Coordinator for every two units — a
+unit being a lint-passed examine-failed report, or an accepted route with its
+promoter's note. the decompose worker:
 
 1. identifies the groups of claims with their assumptions and implications, as grouped by the
    linter's layer 2 — the format already gives each claim its statement, its explicit
@@ -78,9 +83,13 @@ examine-failed report, or an accepted route with its promoter's note. the decomp
    pieces small enough for a swarm worker to formalize in the 10-minute lemma cut;
 3. plans how to distribute the work to the swarm workers — which decomposed fragment goes to
    which worker, in which order, so the swarm works in parallel without duplicating or
-   conflicting claims.
+   conflicting claims;
+4. classifies every assumption it names — mathlib vs axiom — preferring the mathlib statement
+   when one exists, and records a documented "no Mathlib equivalent" justification for every
+   declared axiom; the Formalizer files those justifications in the hireable registry.
 
-the decomposed fragments are thrown to the working swarm of ~4 workers. a unit that waits
+the decomposed fragments are thrown to the working swarm of ~4 workers — the
+Formalizer's own swarm, spawned and regulated by it. a unit that waits
 more than ten minutes without a proper pair moves to the next step on its own: the Formalizer
 holds incoming reports up to 10 minutes for a complement, and if none arrives the unpaired
 report is decomposed singly — the 10-minute unpaired timeout, the same value as the
@@ -121,9 +130,13 @@ the swarm's rules:
   then into the lean piece, both written as per-fragment files under
   `formalizer/fragments/<fragment-id>/`, and reports the written paths in its final message;
   the lean code runner picks them up and runs them (see the artifact layout below).
+- **prefer mathlib over declared axioms.** the swarm writes the lean pieces importing mathlib
+  for any classical result that exists there — it never declares an axiom for something mathlib
+  proves; an unavoidable declared axiom sits in a clearly flagged section with its "no Mathlib
+  equivalent" justification comment, which the Formalizer files in the hireable registry.
 - **10-minute lemma cut with relay.** whenever a swarm worker's job runs more than 10 minutes, it
   packages the partial work and waits for another swarm worker that has already done its job to
-  take it over — the relay restarts the 10-minute clock on the receiving worker; if no such
+  take it over — the relay restarts the 10-minute clock on the receiving worker; the Formalizer enforces the 1-minute timeout: if no such
   worker appears within 1 minute, the packaged partial work is sent to the fragment region. a
   phase that reaches its window end is cut and its partial output recorded — the same
   cut-and-record rule.
@@ -142,11 +155,11 @@ the swarm's rules:
 
 ## the lean code runner (lock this name)
 
-the lean code runner is an independent, resumable worker. like the subcoordinators and the PIs it is resumed by the Coordinator on every qmd file update and restored after a session resume — it does not wake on its own. it plans in advance: on every resumption it examines the qmd
+the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator on every qmd file update and restored after a session resume — it does not wake on its own. it plans in advance: on every resumption it examines the qmd
 file, the generated lean code, the reliable idea set and the dependency graph, and builds a
 forward plan of the mechanical verification jobs — which lean code to run, which pieces to
 green-check, and in what order, preferring the pieces that shrink the goal node's distance
-to the acceptable set. its duties, in order, on every resumption:
+to the established base. its duties, in order, on every resumption:
 
 1. **merge the per-fragment pieces.** it merges only the completed per-fragment files under
    `formalizer/fragments/` — packaged partial work under `<id>/partial/` is not merged — into
@@ -157,38 +170,54 @@ to the acceptable set. its duties, in order, on every resumption:
    `formalizer/lean/` — running qmd-prover on `formalizer/single.qmd` as the mechanical step —
    so the verification jobs run the current lean code.
 3. **plan and distribute.** it distributes the planned verification jobs to its own swarm
-   agents — whatever number the plan requires, at most 3, with no fixed count. the lean code runner's
+   agents — whatever number the plan requires, at most 3. its swarm is
+   its own: the lean code runner spawns and regulates it, and the Coordinator does not
+   intervene. the lean code runner's
    swarm is unrelated to the working swarm of the decompose workers: the working swarm
    transforms the decomposed fragments into per-fragment files — the qmd piece and the lean
    piece per fragment; the lean code runner's swarm executes the planned verification jobs
-   (running the assigned lean code, counting the green theorems) and reports the green pieces
-   with their lean code and their dependency edges.
+   (running the assigned lean code, counting the green theorems, and running
+   `#print axioms <theoremName>` on each green theorem) and reports the green pieces with their
+   lean code, their axiom footprint and their dependency edges.
 4. **lock green pieces.** whenever a qmd piece is lean-green, the lean code runner locks that
    piece in the qmd file — green pieces are locked in place, never removed — and places the
    corresponding lean code in the reliable idea set (lock this name), which lives in the same
-   place as the idea pool in the dossier (`dossier/idea-pool/`). so the reliable idea set
-   holds the formalized pieces as lean code, and the qmd file keeps the green pieces locked in
+   place as the idea pool in the dossier (`dossier/idea-pool/`), recording the piece's
+   `#print axioms` footprint in its reliable idea set entry. so the reliable idea set holds
+   the formalized pieces as lean code, and the qmd file keeps the green pieces locked in
    place.
 5. **build and update the dependency tree.** the lean code runner is responsible for building
    and updating a dependency tree, stored as the dependency graph in the project folder at
-   `formalizer/dependency-graph.json`:
-   - every assumption — in the lean code format, not qmd — is a node;
-   - every green lean code is a directed edge connecting one node to another;
-   - an assumption becomes [Hired] when it is implied through a green lean code by another
-     different assumption;
+   `formalizer/dependency-graph.json` (schema v2):
+   - every statement — in the lean code format, not qmd — is a node, carrying a status class
+     (`kernel` | `mathlib` | `formalized` | `axiom` | `goal`) and a status (`formalized` |
+     `hired` | `axiom` | `base` | `goal`);
+   - every green lean code contributes a directed edge — "the proof of the conclusion
+     references the premise" — extracted from lean, not from qmd `@id` citations: the runner
+     runs `#print axioms <theoremName>` on every green piece and classifies each name in the
+     result — kernel axiom names are acceptable base; mathlib theorem names resolve
+     transitively to kernel axioms and are acceptable (established by compilation — never to
+     be hired); declared axiom names must exist in the project's hireable registry, and the
+     piece is green modulo that axiom; each edge carries `source: lean-axioms`;
+   - an axiom-class node becomes [Hired] iff some green lean code whose conclusion is that
+     node's statement is implied by the established nodes — i.e. the axiom is now derivable
+     and could be replaced by a proof, and `#print axioms` on the new proof no longer lists
+     it; axiom-class nodes are never [Formalized];
    - the main goal is a distinguished node of this tree;
    - the dependency graph is updated whenever there is a new green lean code, adding the nodes
-     and edges of that green proof.
+     and edges of that green proof, with the piece's `#print axioms` footprint recorded in the
+     graph.
 
 the lean code runner is not the judge of the mathematics either: it plans, distributes and
 integrates — its swarm agents run the code and green-count, and it locks what is green and
 records the edges; its swarm agents are purely mechanical as well. the best outcome for the
 project is a green lean
-code that connects the goal node to an acceptable assumption — the goal becomes reachable from
-the [Formalized] or [Hired] assumptions — and the Producer prefers pairings that shrink the
-goal node's distance to the acceptable set (the Producer's goal-frontier score counts the
-[Formalized] or [Hired] premises an idea can cite on the dependency tree's path
-toward the goal, and rewards ideas that would hire new assumptions).
+code that connects the goal node to the established base — the goal is reachable from kernel +
+mathlib + formalized, with `#print axioms goalTheorem` containing no non-kernel axiom — and the
+Producer prefers pairings that shrink the goal node's distance to the established base (the
+Producer's goal-frontier score counts the established premises an idea can cite on the
+dependency tree's path toward the goal — kernel, mathlib, formalized, and hired axioms — and
+rewards ideas that would hire a declared axiom: derive it from the established base).
 
 ## outputs
 
@@ -207,8 +236,16 @@ toward the goal, and rewards ideas that would hire new assumptions).
 - the reliable idea set lives in the same place as the idea pool in the dossier
   (`dossier/idea-pool/`); the lean code runner places it there. the Coordinator keeps a copy of
   the full reliable idea set as a file in the question-routes folder.
-- the lean formalization does not have to be fully based on mathlib: what matters is that the
-  piece is green under the lean code runner and the assumptions are explicit.
+- each [Formalized] idea's entry records its `#print axioms` footprint: the names its green
+  lean code depends on beyond the kernel, each classified as mathlib (acceptable, established
+  by compilation — never to be hired) or a declared axiom (green modulo that axiom, filed in
+  the hireable registry); the same footprint is recorded in the dependency graph.
+- the lean formalization does not have to be fully based on mathlib — a declared axiom is
+  allowed only with a documented "no Mathlib equivalent" justification filed in the hireable
+  registry, and mathlib imports are preferred for any classical result that exists there:
+  what matters is that the piece is green under the lean code runner — it compiles and its
+  `#print axioms` footprint contains only kernel axioms, mathlib names and hireable-registry
+  names.
 
 ### the fragment region (lock this name)
 
@@ -235,12 +272,13 @@ the green count, the [Formalized] count, the fragment deposits and the dependenc
 delta, so the index always reflects the current formalization state and the Coordinator's
 round-start check reads a live number. the formalization status block holds the green
 count, the [Formalized] count, and the dependency-graph summary — nodes, edges, and the
-goal node's distance to the acceptable set.
+goal node's distance to the established base.
 
 ## artifact rules and versioning
 
-- artifacts are files, and the Formalizer guarantees them: every worker it spawns that
-  produces an artifact is spawned with an explicit output path and must write its artifact
+- artifacts are files, and the Formalizer guarantees them: every worker it directs that
+  produces an artifact is spawned — by the Coordinator at its request, or by its owner
+  for a swarm — with the explicit output path its subcoordinator assigns and must write its artifact
   there and confirm the write in its final message — the working swarm, for instance, writes
   its per-fragment files under `formalizer/fragments/` and reports the written paths. the
   'recovered from agent output' pattern — a worker that cannot write includes the complete
@@ -262,9 +300,13 @@ goal node's distance to the acceptable set.
   - `formalizer/qmd-index.md` — the id list of the lemmas, definitions and theorems in
     single.qmd: read by the working swarm for placement, maintained by the lean code runner
     on every merge;
-  - `formalizer/dependency-graph.json` — the dependency tree: assumption nodes · green edges ·
-    [Hired] flags · the goal node;
-  - `formalizer/lean/` — the lean code generated from the qmd file;
+  - `formalizer/dependency-graph.json` — the dependency tree (schema v2): statement nodes with
+    their class (`kernel` | `mathlib` | `formalized` | `axiom` | `goal`) and status
+    (`formalized` | `hired` | `axiom` | `base` | `goal`) · green edges with `source:
+    lean-axioms` · [Hired] flags · the goal node;
+  - `formalizer/lean/` — the lean code generated from the qmd file, the per-green-piece
+    `#print axioms` footprints (`axioms-<piece>.txt`), and the hireable registry
+    (`hireable-registry.md`);
   - `dossier/idea-pool/` — the reliable idea set ([Formalized] green lean) and the fragment
     region (append-only for workers).
 
@@ -274,7 +316,7 @@ goal node's distance to the acceptable set.
   feeds it post-verdict (accepted routes — full or core form — with the promoter's note as
   scoping metadata); the Producer consumes its outputs (the [Formalized] premises and the
   dependency tree, via the goal-frontier score; the fragment region as pairing material).
-  the Producer prefers pairings that shrink the goal node's distance to the acceptable set.
+  the Producer prefers pairings that shrink the goal node's distance to the established base.
 - the Creator's second phase consumes its outputs: its phase-2 workers search for good ideas
   and techniques in the reliable idea set and the fragment region in the dossier.
 - the Selector's acceptance decisions are orthogonal to formalization: acceptance of a route
@@ -293,7 +335,8 @@ goal node's distance to the acceptable set.
   thresholds. at the start of each round it performs the bounded Formalizer check before
   the round clock starts: it reads the formalization status line in the Knowledge State
   index that the Formalizer keeps current, and the live background state, verifies that
-  the Formalizer and the lean code runner are present and working — re-spawning them if a
+  the four subcoordinators (Creator, Producer, Selector, Formalizer), the PIs, and the
+  lean code runner are present and working — re-spawning them if a
   resumed session lost them — and resolves any stall or conflict it finds; the check is
   a bounded read that, like the round-1 setup, is not counted in the 138-minute budget.
 - the Formalizer is a mandated part of the project: it always runs across rounds and winds

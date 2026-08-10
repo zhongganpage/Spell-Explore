@@ -13,11 +13,13 @@ the spec governs.
 whenever the Producer has a fresh route, the Producer sends the route to the Selector.
 the Selector:
 
-- runs a multi-worker adversarial review panel to process the fresh route and make a
+- requests an adversarial review panel of four workers from the Coordinator to process
+  the fresh route and make a
   report — see §2–§3;
 - sends the three review summaries to the route's PI, who modifies the route, rebuts
   the report, and makes a change list — see §6;
-- runs, in parallel, the promoter worker and then a decision swarm of 3 workers plus
+- requests a fresh-context promoter worker from the Coordinator and runs, in parallel,
+  its own decision swarm of 3 workers plus
   the resumed BCD reviewers, who decide accept, accept-core, or reject — see §7–§8;
 - marks the route accepted (full or core form) / unaccepted in the archive; an
   accepted route is marked a new version by the Producer (the Producer owns that
@@ -28,8 +30,10 @@ the Selector:
 
 as a subcoordinator the Selector regulates its own workers within its domain: it
 monitors their status, enforces the time limits and the artifact rules, and solves
-issues inside its territory, subject to the Coordinator. every worker it spawns is
-spawned in the explicit background mode, never the blocking foreground. the Selector
+issues inside its territory, subject to the Coordinator. every worker it directs is
+spawned by the Coordinator in the explicit background mode, never the blocking
+foreground; the decision swarm is the Selector's own and is spawned by it in the
+explicit background mode. the Selector
 is resumable: it runs each review phase to completion in one run — waiting for every
 worker's artifact before returning — and is resumed by the Coordinator for the next
 phase; it never returns early, and a narrated step is not a done step.
@@ -86,8 +90,9 @@ counterexamples, and D's overall judgement.
 ### workerD fallback rule
 
 workerD is external when it runs on the secondary model and that model's provider
-differs from the primary model's provider. the Selector checks the provider of the
-secondary model at spawn: when the secondary model is unavailable or shares the
+differs from the primary model's provider. the Coordinator checks the provider of the
+secondary model at spawn and reports; the Selector records the fallback and the
+reduced diversity: when the secondary model is unavailable or shares the
 primary's provider, workerD falls back to an internal reviewer, and the reduced
 diversity is recorded (in the archive, with the panel record). with two panels at a
 time, two external reviewers are needed, and each workerD passes the same check.
@@ -99,8 +104,9 @@ config.toml).
 the panel workers receive the route and the statements of the cited results only, in
 fresh contexts — never the expected outcome and never the author's reasoning. panel
 B/C/D are read-only (Read/Grep, no write); workerD runs on an external provider when
-available. every worker that produces an artifact is spawned with an explicit output
-path and must write its artifact there and confirm the write in its final message. a
+available. every worker that produces an artifact is spawned by the Coordinator with
+the explicit output path its subcoordinator assigns and must write its artifact there
+and confirm the write in its final message. a
 worker that cannot write — a read-only profile, or the external workerD — includes the
 complete artifact text in its final message, and the Selector persists that text
 verbatim at the assigned path, marked recovered from agent output. the Selector checks
@@ -113,7 +119,12 @@ built on without its version.
 
 canaries are per-route, authored by the Selector from a canary bank — plausible
 known-false claims and step errors targeting the route's typical error patterns — and
-ride in the review batch. the B/C/D panel is told the gate exists (announced), and its
+ride in the review batch. before planting, the Selector verifies the seed is actually false by the same proof method the
+reviewers will use — a seed that turns out sound is voided, recorded separately, and
+never counts; optionally a second fresh context checks the seed's falsity before
+planting. the review batch — canary included — is authored by the
+Selector and relayed verbatim by the Coordinator to each panel worker; the Coordinator
+never composes or edits it. the B/C/D panel is told the gate exists (announced), and its
 detection is recorded as announced: the panel must catch the known-false claim (≥80%)
 and the step-error (100%, with the step cited). a panel that fails the announced gate
 produces no acceptance: the route under that panel cannot be accepted in that review,
@@ -132,7 +143,8 @@ when the exchange is done, the Selector sends the three review summaries (of wor
 workerC, workerD) to the PI of the route. the summaries, the raw review reports and the
 panel report are versioned artifacts; the PI receives the three review summaries and the
 route with its authoring context preserved — the PI is the report worker the Producer
-held open (rules/worker-lifespans.md); fresh context is the panel's and the promoter's
+directed the Coordinator to hold open (rules/worker-lifespans.md); fresh context is the
+panel's and the promoter's
 requirement, never the PI's — together with workerA's list when the summaries rely on
 it.
 
@@ -166,7 +178,7 @@ to the Creator's second phase.
 
 ## 8. the decision swarm and the resumed BCD vote
 
-at 118–138, the Selector runs a swarm of 3 (odd number) workers to review the panel,
+at 118–138, the Selector runs its own swarm of 3 (odd number) workers to review the panel,
 the original route, the modified route and the rebuttals, and judge the route itself —
 its claims, proofs and evidences — referring to the promoter's nearest true version
 note as a high-level check on the route's claims: whether the route over-claims, and
@@ -176,10 +188,11 @@ accept-core, or reject — acceptance needs 2/3 of the swarm, 2 of 3 workers, to
 every rejecting vote names the load-bearing obstruction — the single missing lemma,
 false step, or unproved claim whose absence makes the route fail.
 
-at the same stage the Selector resumes the BCD reviewers — they keep their panel context
+at the same stage the Selector instructs the Coordinator to resume the BCD reviewers — they keep their panel context
 and also have 20 minutes — and they vote as well. the BCD reviewers do not close after
 writing their summaries: they pause to wait for the PI's rebuttals, vote at the swarm
-stage, and only then close. the Selector holds the BCD reviewers paused, with their
+stage, and only then close. the Selector directs the Coordinator to hold the BCD
+reviewers paused, with their
 panel context, across the PI rebuttal window — they are resumed for the vote, not
 re-created, because a fresh reviewer would lack the panel context. a phase that reaches
 its window end is cut and its partial

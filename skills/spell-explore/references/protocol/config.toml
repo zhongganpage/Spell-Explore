@@ -19,8 +19,7 @@
 # Acceptance: a route is accepted iff at least 2/3 of the swarm workers AND at
 # least 2/3 of the BCD reviewers agree. Milestone: all 3 swarm workers and all 3
 # BCD reviewers accept (3/3 + 3/3) and the accepted routes together achieve the
-# locked goal — operationally, the goal node of dependency-graph.json reachable from
-# the [Formalized] or [Hired] assumptions — then the Coordinator writes the manuscript (lock this name), the
+# locked goal — operationally, the goal node of dependency-graph.json reachable from the established base — kernel axioms + Mathlib theorems + [Formalized] pieces — with `#print axioms goalTheorem` clean of non-kernel axioms — then the Coordinator writes the manuscript (lock this name), the
 # report about the project in PDF.
 #
 # The subcoordinators, the PIs, and the lean code runner are resumable: each
