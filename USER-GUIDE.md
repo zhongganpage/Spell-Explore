@@ -17,7 +17,7 @@ hands-free.
 | **workerA / B / C / D** | evidence list / inconsistencies / counterexamples / overall judgement (D = the exterior reviewer X) |
 | **swarm worker** | two lives — decision votes (3) or mechanical fragment transformation (working swarm ~4) |
 | **lean code runner + swarm** | plans and dispatches lean verification, merges the single qmd, updates the dependency graph |
-| **clock watcher** | not an agent — a recurring scheduled job (`*/2 * * * *`) that wakes the Coordinator every 2 minutes (fallback: a background `sleep 120`) |
+| **clock watcher** | not an agent — a recurring scheduled job (`*/2 * * * *`) that wakes the Coordinator every 2 minutes, quietly unless it cut a boundary, fixed a stall, or closed the round (fallback: a background `sleep 120`) |
 
 ## 1. Installation
 
@@ -49,8 +49,11 @@ not drive it — you supervise it.
 
 - At round start the Coordinator creates the **clock watcher** — a recurring
   scheduled job firing every 2 minutes. Each wake: poll the workers, cut
-  overruns at window ends, check for stalls, show you a **status table**, and
-  mirror everything to `runtime/coordinator-state.md`. The watcher is
+  overruns at window ends, check for stalls, and mirror everything to
+  `runtime/coordinator-state.md`. Wakes are **quiet by default** — a
+  **status table** is shown to you only when the wake cut a boundary, repaired
+  a stall, saw a worker complete, or closed the round; otherwise it logs a
+  `no-op` line and stays out of the way. The watcher is
   self-arming — there is nothing to re-spawn; the Coordinator only verifies it
   is still scheduled (and re-creates it when missing). A wake that finds the
   Coordinator busy is held and caught up on — it never interrupts.
@@ -62,8 +65,9 @@ not drive it — you supervise it.
 - Subagents run in the background; nothing closes early. The Coordinator's every
   turn ends with a lifecycle line, so the round always resumes from a file.
 - What you actually look at:
-  - the 2-minute status table (round clock, phases, live workers, pending
-    artifacts, next action);
+  - the status table — shown only when a wake cut a boundary, repaired a
+    stall, saw a worker complete, or closed the round (round clock, phases,
+    live workers, pending artifacts, next action);
   - at round close, the **decision list** — abstracts of accepted routes; for each
     unaccepted route, **recycle or park**; your nominations for next-round pairings;
   - formalization news as it happens (a new green lemma, a new `[Formalized]`

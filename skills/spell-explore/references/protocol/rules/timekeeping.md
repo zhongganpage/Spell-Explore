@@ -110,15 +110,21 @@ manual re-spawn can:
   fallback completing while the scheduled job also fired) catches up on every
   boundary that passed in a single pass, and a row the Coordinator's own turn
   already handled makes the wake a no-op for it.
-- every wake opens with a current-status table, shown to the user and mirrored
-  into runtime/coordinator-state.md, so the round's live state is always visible
-  and always resumes from a file: `round clock` <minute>/<total> · `current
-  phase` <window> · `subcoordinators` the Creator / Producer / Selector /
-  Formalizer stages (the Formalizer's status line: green count, [Formalized]
-  count, goal distance) · `live workers` <label> — running | done | cut, with
-  task-ids and output paths · `pending artifacts` <paths> · `last boundary`
-  <min>: cut? partial output · `next action` spawn | resume | cut | close. the
-  table is compact — one row per item, the details live in the files.
+- wakes are quiet by default: the current-status table — `round clock`
+  <minute>/<total> · `current phase` <window> · `subcoordinators` the Creator /
+  Producer / Selector / Formalizer stages (the Formalizer's status line: green
+  count, [Formalized] count, goal distance) · `live workers` <label> — running
+  | done | cut, with task-ids and output paths · `pending artifacts` <paths> ·
+  `last boundary` <min>: cut? partial output · `next action` spawn | resume |
+  cut | close — is shown to the user only when the wake did something real: it
+  cut a boundary (a new row in the phase-time table), repaired a stall, saw a
+  worker complete since the last wake, or closed the round. the table is always
+  mirrored into runtime/coordinator-state.md, so the round's live state always
+  resumes from a file. a wake with nothing new to report writes one line `wake
+  <ts> no-op` to runtime/coordinator-state.md and ends without a user-visible
+  table — a no-op wake still ran the §3 procedure and the verify-and-continue
+  duty check above. the table is compact — one row per item, the details live
+  in the files.
 - every wake first verifies the previous wake's duty by file before doing its
   own: the boundary rows for the elapsed interval are recorded in the phase-time
   table and the watcher row is present in the registry — anything missing is
@@ -142,10 +148,11 @@ manual re-spawn can:
   re-spawns it whenever a resumed session lost it. the fallback is
   belt-and-suspenders: the invariant is never zero watchers, enforced by the
   liveness guard at every mid-round turn end.
-- the status table is the user-visible canary: if the chain breaks, tables stop
-  appearing within 2 minutes, and the user's next prompt resumes the round from
-  runtime/coordinator-state.md — the files, never the watcher, are the recovery
-  path. if a wake still fails to re-engage the Coordinator (a runtime behavior
-  outside the protocol's control), the round resumes from coordinator-state.md
-  on the next prompt — the watcher is belt-and-suspenders, never the only
-  recovery path.
+- the status table is the user-visible canary, now event-driven: quiet wakes
+  show nothing, so a broken chain surfaces at the next event wake (a boundary
+  cut, a stall repair, a worker completion, the close) or at the user's next
+  prompt, and the round resumes from runtime/coordinator-state.md — the files,
+  never the watcher, are the recovery path. if a wake still fails to re-engage
+  the Coordinator (a runtime behavior outside the protocol's control), the
+  round resumes from coordinator-state.md on the next prompt — the watcher is
+  belt-and-suspenders, never the only recovery path.
