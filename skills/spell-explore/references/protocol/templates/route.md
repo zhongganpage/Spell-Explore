@@ -49,10 +49,14 @@ are applied here, never silently: every modification after review is a new versi
 - verdicts: `<swarm count x/3, BCD count x/3, accepted / not accepted>`
 - defender: `<current defender PI id>` · superseded versions: `<older versions of this title
   already handed over>`
+- formalization watch: `<acceptedR pieces: green/total · watch state: none | no-green>`
 
 ### status
 
-`<under review | accepted | unaccepted | stale>`
+`<under review | accepted | unaccepted | stale>` — an accepted route may additionally carry
+the transient watch marker [no-green] (no [acceptedR] piece green in the latest lean-runner
+batch — the status stays `accepted` until a second consecutive no-green batch,
+rules/formalizer.md); a staled accepted route is demoted like any stale route.
 
 ## rules that bind this artifact
 

@@ -54,7 +54,7 @@ worker is copied to it by the Producer as soon as it is stale — its raw form i
 form. a lint-passed report that becomes a route is not copied at linter time: after the
 Selector's verdict, the Selector sends the accepted route — full form (the PI's modified
 route) or core form (the accepted salvageable core) — together with the promoter's nearest
-true version note; a rejected route's pair enriches the fragment region instead. the
+true version note; a rejected route's pair enriches the fragment region instead. a unit that is an accepted route — full or core form — is decomposed with every piece marked [acceptedR] (lock this name): the piece-provenance marker the decompose plan carries and the working swarm writes on the qmd piece, so the lean code runner can trace every piece back to its accepted route (the accepted-route watch below). the
 promoter's note is scoping metadata for the decompose workers: it marks the honest core to
 formalize and the exact breaking point (an obstruction in the fragment region and the
 obstructions register), and the note itself is never decomposed. there is no limit on the
@@ -86,7 +86,9 @@ promoter's note. the decompose worker:
    pieces small enough for a swarm worker to formalize in the 10-minute lemma cut;
 3. plans how to distribute the work to the swarm workers — which decomposed fragment goes to
    which worker, in which order, so the swarm works in parallel without duplicating or
-   conflicting claims;
+   conflicting claims; when the unit is an accepted route (full or core form), the plan marks
+   every piece [acceptedR: <route title> v<n>] — the piece-provenance marker the swarm writes
+   on the qmd piece;
 4. classifies every assumption it names — mathlib vs axiom — preferring the mathlib statement
    when one exists, and records a documented "no Mathlib equivalent" justification for every
    declared axiom; the Formalizer files those justifications in the hireable registry.
@@ -133,6 +135,7 @@ the swarm's rules:
   then into the lean piece, both written as per-fragment files under
   `formalizer/fragments/<fragment-id>/`, and reports the written paths in its final message;
   the lean code runner picks them up and runs them (see the artifact layout below).
+- **writes the [acceptedR] marker.** when the decomposition plan marks a piece [acceptedR: <route title> v<n>], the swarm writes that marker as a metadata line in the per-fragment `.qmd` piece (the `.lean` piece is unchanged, so it keeps compiling); the marker is provenance, never content — it does not change the mathematics.
 - **prefer mathlib over declared axioms.** the swarm writes the lean pieces importing mathlib
   for any classical result that exists there — it never declares an axiom for something mathlib
   proves; an unavoidable declared axiom sits in a clearly flagged section with its "no Mathlib
@@ -168,7 +171,9 @@ to the established base. its duties, in order, on every resumption:
    `formalizer/fragments/` — packaged partial work under `<id>/partial/` is not merged — into
    the single qmd file, deterministically ordered by fragment id, so `formalizer/single.qmd`
    stays the one qmd file of the project, and appends the ids of the newly merged pieces to
-   `formalizer/qmd-index.md`.
+   `formalizer/qmd-index.md`; it reads the [acceptedR] marker from each merged qmd piece and
+   records the piece id under its accepted route in `formalizer/accepted-routes.md` (the
+   accepted-route watch below).
 2. **refresh the lean code.** it converts the merged single qmd file into the lean code under
    `formalizer/lean/` — running qmd-prover on `formalizer/single.qmd` as the mechanical step —
    so the verification jobs run the current lean code.
@@ -210,6 +215,11 @@ to the established base. its duties, in order, on every resumption:
    - the dependency graph is updated whenever there is a new green lean code, adding the nodes
      and edges of that green proof, with the piece's `#print axioms` footprint recorded in the
      graph.
+6. **update the accepted-route watch.** at the end of each batch it updates
+   `formalizer/accepted-routes.md` with the per-route green counts of the [acceptedR] pieces
+   and applies the [no-green] transitions of the watch (below): a first no-green batch marks
+   the route [no-green], a batch with any green piece clears the marker, and a second
+   consecutive no-green batch is the stale trigger the Formalizer turns into the stale signal.
 
 the lean code runner is not the judge of the mathematics either: it plans, distributes and
 integrates — its swarm agents run the code and green-count, and it locks what is green and
@@ -221,6 +231,42 @@ Producer prefers pairings that shrink the goal node's distance to the establishe
 Producer's goal-frontier score counts the established premises an idea can cite on the
 dependency tree's path toward the goal — kernel, mathlib, formalized, and hired axioms — and
 rewards ideas that would hire a declared axiom: derive it from the established base).
+
+## the accepted-route watch and the stale signal (lock this name)
+
+the Formalizer watches the lean formalization of every accepted route (full or core form).
+the watch registry is `formalizer/accepted-routes.md` (versioned): per accepted route —
+title and version — the ids of its [acceptedR] pieces merged into single.qmd, the green
+count over the total, the watch state (`none | no-green`), and whether the route's writer
+was warned. a route enters the watch when its first [acceptedR] piece is merged.
+
+at the end of every lean code runner batch — after the merge, the verification and the
+green-locking — the Formalizer tallies: for each accepted route in the watch, the number of
+[acceptedR] pieces whose lean code is green. the tally joins the formalization status line
+(status reporting below). the transitions, per route:
+
+- **≥1 piece green** → clear the [no-green] marker if set; the route remains accepted; the
+  consecutive counter resets — a green batch in between saves the route;
+- **0 pieces green and no [no-green] marker** → first no-green batch: mark the route
+  [no-green] (lock this name) in the watch registry and the status line, and the Coordinator
+  tells the Producer to warn the route's writer — the Producer writes a dated warning note
+  into question-routes/<title>/ and flags it in the route PI's resume pack
+  (runtime/<title>-pi-state.md); the Coordinator surfaces the marker to the user. the route
+  remains accepted;
+- **0 pieces green and the [no-green] marker already set** → second consecutive no-green
+  batch: the route is stale. the Formalizer writes the stale signal to
+  runtime/stale-signals/<route-title>.md in the locked format (kind: stale-signal ·
+  requester: formalizer · route and version · the tally: total [acceptedR] pieces, green
+  count, the two batch dates · the piece ids), **before it ends** — the signal is written and
+  stated in its final message, never left for a later run.
+
+the Coordinator receives the signal, delegates the stale marking (rules/coordinator.md §3),
+and completes the demotion by the end of the round; the stale-signal file carries the status
+line (received | delegated | done) the Coordinator appends as it processes it. a staled
+accepted route is no different from a stale route: the stale entry (templates/stale-entry.md)
+with its fragments archived in the fragment region, its abstract superseded in
+question-routes.md, its defender PI retired — and revivable only through the stale entry's
+revival trigger.
 
 ## outputs
 
@@ -273,7 +319,9 @@ a lean code runner resumption that merges pieces, greens a piece or deposits fra
 writes one dated line recording
 the green count, the [Formalized] count, the fragment deposits and the dependency graph
 delta, so the index always reflects the current formalization state and the Coordinator's
-round-start check reads a live number. the formalization status block holds the green
+round-start check reads a live number. the same line carries the [acceptedR] tally — the
+green [acceptedR] pieces over the total, per accepted route — and any [no-green] markers of
+the accepted-route watch, so the round-start check reads the watch state live. the formalization status block holds the green
 count, the [Formalized] count, and the dependency-graph summary — nodes, edges, and the
 goal node's distance to the established base.
 
@@ -311,7 +359,11 @@ goal node's distance to the established base.
     `#print axioms` footprints (`axioms-<piece>.txt`), and the hireable registry
     (`hireable-registry.md`);
   - `dossier/idea-pool/` — the reliable idea set ([Formalized] green lean) and the fragment
-    region (append-only for workers).
+    region (append-only for workers);
+  - `formalizer/accepted-routes.md` — the accepted-route watch registry (versioned;
+    maintained by the lean code runner at merge and batch end);
+  - `runtime/stale-signals/` — the stale-signal channel (<route-title>.md in the locked
+    format; the Formalizer writes it before ending, the Coordinator appends the status line).
 
 ## relationship to the other subcoordinators
 

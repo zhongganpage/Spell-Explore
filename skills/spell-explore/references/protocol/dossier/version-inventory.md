@@ -3,7 +3,7 @@
 the goal file is excluded from this rule: it is locked and the project never changes it. every other artifact carries a version (v1, v2, …); nothing is cited or built on without its version. this file is the split-out version-inventory section of the dossier (see the ~30 KB split rule and the Knowledge State navigation index in ./index.md). append-only: a new version is a new row, never an edit of history.
 
 ## artifacts that carry versions (the full list)
-every fresh summary · idea report · route · review summary · change list · stale entry · qmd file update · reliable idea set entry · fragment region update · dependency graph update · question-routes.md · the manuscript.
+every fresh summary · idea report · route · review summary · change list · stale entry · qmd file update · reliable idea set entry · fragment region update · dependency graph update · the accepted-route watch (formalizer/accepted-routes.md) · stale signal (runtime/stale-signals/) · question-routes.md · the manuscript.
 
 ## who versions what
 - the Creator archives the fresh summaries in the idea pool in the dossier (append-only for workers — no worker may delete anything in the idea pool; the Creator's phase-2 summaries are fresh too).
@@ -30,7 +30,8 @@ rules:
 | route | <title> | v1 | v1 → v2 … | Producer / PI | round 1 | accepted → marked a new version by the Producer; artifacts live in question-routes/<title>/ |
 | review summary | <route> B/C/D | v1 | v1 → … | Selector | 63–103 | three summaries per panel |
 | change list | <route> | v1 | v1 → … | PI | 103–118 | with the rebuttal; feeds the swarm decision |
-| stale entry | <id> | v1 | v1 → … | Producer / Selector | round close | fragments → fragment region, with revival trigger |
+| stale entry | <id> | v1 | v1 → … | Producer / Selector / stale-worker (on instruction) | round close | fragments → fragment region, with revival trigger |
+| accepted-route watch | formalizer/accepted-routes.md | v1 | v1 → … | lean code runner / Formalizer | any round | [acceptedR] pieces · green counts · [no-green] markers |
 | qmd file update | single.qmd | v1 | v1 → … | Formalizer | any round | green pieces LOCKED in place, never removed |
 | reliable idea set entry | <formalized id> | v1 | v1 → … | lean code runner | on green | lean code carrying the [Formalized] marker |
 | fragment region update | <fragment id> | v1 | v1 → … | swarm / stale rule | any round | unformalized bits, partial work, unclustered material |

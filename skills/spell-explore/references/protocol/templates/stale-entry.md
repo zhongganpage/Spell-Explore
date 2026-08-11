@@ -12,7 +12,10 @@ directly. this file is the template each stale marking fills in.
 
 - marked by: the Producer (reports that failed the linter or the examine), the Selector
   (unaccepted routes), the Formalizer (cut decompose work, and the 5-minute tail of a swarm
-  agent), the Coordinator (phases cut at their window end).
+  agent), the Coordinator (phases cut at their window end). an accepted route whose
+  formalization failed is marked stale by the Selector or a dedicated stale-worker on the
+  Coordinator's instruction (the accepted-route watch — two consecutive lean-runner batches
+  with no green [acceptedR] piece; rules/formalizer.md).
 - where it lives: the project folder (stale/), versioned; the fragments it carries are
   deposited into the fragment region in the idea pool in the dossier.
 - the Creator's second phase picks the stale document up: it requests n idea-workers (0 ≤ n ≤ 8,
@@ -62,6 +65,11 @@ gap instead of repeating it>`
 - no worker may delete anything in the idea pool: for workers it is append-only. the fragment
   region collects anything that is not well formatted — unformalized bits, partial work, and
   unclustered material.
+- a stale accepted route (formalization failed — no green [acceptedR] piece in two
+  consecutive lean-runner batches, rules/formalizer.md) records the failure reason
+  `formalization failed — none of the accepted route's lean codes is green after two
+  consecutive lean-runner batches (killed by evidence: lean)`, the fragments are the route's
+  unproved pieces, and the revival trigger names the event that could formalize them.
 - a stale marking is a storage state, never a verdict: the fragments carry the resume point,
   and when a revival trigger fires, its fragment jumps the pairing queue.
 - rejection and counterexample are ordinary recorded outcomes, not failures — R3 of the
