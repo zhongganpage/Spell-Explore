@@ -35,6 +35,7 @@ The round-1 setup happens before the round clock starts and is not counted in th
   the Coordinator resumes it without asking) or `manual` (the Coordinator asks
   run-or-postpone at each round start — the default; nothing else changes). the
   choice is recorded in the dossier and stands for the project;
+- the Coordinator asks the user for the source-repository path — the local clone of the Spell-Explore repository that holds the canonical protocol — records it in runtime/coordinator-state.md (`protocol-src: <path>`) and in the dossier, and runs the protocol-integrity check: the repository's scripts/check-skill.sh with that path (a bounded read, not counted in the budget). when the installed protocol differs from the repository's, the Coordinator aligns the installed copy with the repository — running the repository's scripts/sync-skill.sh, re-running the check to verify it is clean, recording the aligned files in the dossier — and surfaces the drift and the alignment to the user;
 - the Coordinator runs the environment preflight: the lean toolchain answers (lean
   --version), qmd-prover is available, and the agent-profile discovery resolves —
   the four subcoordinator profiles (Creator, Producer, Selector, Formalizer) and every
@@ -189,7 +190,7 @@ round-1 setup, is not counted in the 138-minute budget. It repeats the environme
 preflight of §1 — the lean toolchain (lean --version), qmd-prover availability,
 the agent-profile discovery (the four subcoordinator profiles and every worker profile the Coordinator may spawn resolve), and the
 secondary-model flag and [subagent] timeout checks — and records
-the results in the dossier, surfacing them to the user. the check also reads the
+the results in the dossier, surfacing them to the user. It also repeats the protocol-integrity check of §1: running the recorded protocol-src through the repository's scripts/check-skill.sh (when protocol-src is missing — a project started before this check existed — the Coordinator asks the user for the path at this round start and records it), aligning the installed protocol with the repository — the repository's scripts/sync-skill.sh — when drift is found, re-running the check to verify it is clean, and recording the drifted and aligned files in the dossier. the check also reads the
 Coordinator's own lifecycle from runtime/coordinator-state.md: when it shows a
 mid-round phase — children-in-flight or awaiting-resume at an unclosed window —
 the Coordinator completes that phase first (verifies the artifacts at the pending
