@@ -38,6 +38,13 @@ the template each of the three workers fills in.
 
 ## the three summaries
 
+each of the three summaries carries a "questions for the PI" section: every doubt the
+reviewer has about any aspect of the route — a claim, a proof step, an evidence, a
+definition, an assumption, an edge case, the link to the goal — asked as a concrete
+question with a stable id (`Q-B<n>` / `Q-C<n>` / `Q-D<n>` by reviewer); a reviewer with
+no doubt records `no doubts found`. the PI must answer every question when modifying
+the route (the change list), and the BCD vote weighs the quality of the answers.
+
 ### workerB — inconsistencies and readability
 
 route: `<route title + version>` · reviewer: `B` · summary id + version: `<id> <v1, v2, …>`
@@ -85,6 +92,13 @@ diversity recorded)>` · summary id + version: `<id> <v1, v2, …>`
 
 - the three summaries are separate, versioned artifacts; the Selector transfers them to the PI
   as files, and the PI receives them before the 103–118 window.
+- every reviewer actively asks questions about any doubtful aspect of the route (the §3
+  questioning duty, id'd `Q-B/C/D<n>`); the PI must answer every question in the change list
+  when modifying the route — `repaired` (embodied in the modified route, section cited) /
+  `rebutted` (justified) / `open` (stated reason). at the vote the BCD reviewers weigh the
+  quality of the PI's answers as an important point of the verdict: a weak, evasive or missing
+  answer to a material question forbids that reviewer's accept vote and is recorded with the
+  vote.
 - the reviewer's verdict outranks the PI's confidence: the PI may repair and resubmit (change
   list + rebuttal) but may not overrule; if the PI believes a reviewer erred, that objection is
   itself a new claim sent to an independent review.

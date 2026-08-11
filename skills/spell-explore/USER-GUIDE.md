@@ -11,10 +11,10 @@ hands-free.
 | **Coordinator** | top agent — runs each round, enforces the timeline, regulates the four subcoordinators, measures the system, writes the manuscript at a milestone |
 | **Creator** | idea generation — phase-1 idea-workers think around the goal and write fresh summaries; phase-2 miners + graph workers mine stale material and bridging lemmas |
 | **Producer** | pairing and reports — report workers write idea reports from summary triples; the route writer revises accepted routes; the hygiene linter + examine worker gate them |
-| **Selector** | adversarial review — workerA evidence list, B/C/D reviews, the promoter's nearest-true-version note, the PI rebuttal, then the decision swarm + BCD vote: accept / accept-core / reject |
+| **Selector** | adversarial review — workerA evidence list, B/C/D reviews (each also asks questions about any doubtful aspect), the promoter's nearest-true-version note, the PI rebuttal (answers the questions), then the decision swarm + BCD vote (answer quality weighs in): accept / accept-core / reject |
 | **Formalizer** | Lean formalization — decompose workers split reports into fragments; the working swarm writes .qmd/.lean pieces; the lean code runner merges, verifies, and locks green pieces |
-| **PI** | route owner — defends and modifies its route, rebuts the panel, writes the change list |
-| **workerA / B / C / D** | evidence list / inconsistencies / counterexamples / overall judgement (D = the exterior reviewer X) |
+| **PI** | route owner — defends and modifies its route, rebuts the panel, writes the change list answering the reviewers' questions |
+| **workerA / B / C / D** | evidence list / inconsistencies / counterexamples / overall judgement (D = the exterior reviewer X) — B/C/D also raise questions about any doubtful aspect |
 | **swarm worker** | two lives — decision votes (3) or mechanical fragment transformation (working swarm ~4) |
 | **lean code runner + swarm** | plans and dispatches lean verification, merges the single qmd, updates the dependency graph |
 | **clock watcher** | not an agent — a recurring scheduled job (`*/2 * * * *`) that wakes the Coordinator every 2 minutes, quietly unless it cut a boundary, fixed a stall, or closed the round (fallback: a background `sleep 120`) |

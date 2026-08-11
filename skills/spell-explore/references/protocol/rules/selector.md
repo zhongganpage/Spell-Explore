@@ -74,6 +74,16 @@ roles:
 - **workerD** is external and makes the overall judgement (see the fallback rule
   below).
 
+beyond these specializations, workerB, workerC and workerD are all actively doubtful:
+each of them asks questions about any aspect of the route that raises doubt — a claim,
+a proof step, an evidence, a definition, an assumption, an edge case, a citation, or
+the link to the locked goal. a question is concrete and tied to the route (a specific
+claim, step or evidence), carries a stable id (`Q-B<n>` / `Q-C<n>` / `Q-D<n>` by
+reviewer), and is listed in the raw review report and repeated in the review summary.
+asking is a duty: a reviewer that read the route and found no doubt says so explicitly
+(`no doubts found`) rather than staying silent, and the PI must answer every question
+raised (§6).
+
 timing within the 63–103 window: workerA lists the evidence points by 78 min; workerB/C/D
 review from 63 min, and pivot to workerA's list when it arrives; the exchange runs 93–103
 min. a phase that reaches its window end is cut and its partial output recorded.
@@ -154,14 +164,22 @@ route with its authoring context preserved — the PI is the report worker the P
 directed the Coordinator to hold open (rules/worker-lifespans.md); fresh context is the
 panel's and the promoter's
 requirement, never the PI's — together with workerA's list when the summaries rely on
-it.
+it. the summaries carry the reviewers' questions for the PI (the §3 questioning duty,
+id'd `Q-B<n>` / `Q-C<n>` / `Q-D<n>`); the PI answers every one of them in §6.
 
 ## 6. the PI rebuttal and the change list
 
 the PI has 15 minutes, the window 103–118. the PI modifies the route and rebuts the
 report, and makes a change list. the change list is a versioned artifact that states,
 point by point, which review summary findings were accepted and repaired in the
-modified route, which were rebutted and why, and which remain open. the modified route
+modified route, which were rebutted and why, and which remain open. the change list
+answers every question the reviewers raised (the §3 questioning duty, `Q-B<n>` /
+`Q-C<n>` / `Q-D<n>`): each question gets one of three statuses — `repaired` (the answer
+is embodied in the modified route, with the section and route version cited),
+`rebutted` (the doubt is answered with a justification), or `open` (left unresolved
+with a stated reason — an explicit negative at the vote). the PI answers the questions
+when modifying the route: a question whose answer changes the route must be resolved
+in the modified route itself, not in prose alone. the modified route
 is a new version of the route; the change list cites the review summaries and the route
 versions it responds to. the PI may repair and resubmit (change list + rebuttal) but may
 not overrule: the reviewers' verdicts outrank the PI's confidence, and if the PI
@@ -200,7 +218,7 @@ at the same stage the Selector instructs the Coordinator to resume workerB and w
 and also have 20 minutes — and to re-invoke workerD externally with a consolidated
 vote prompt (the route, D's own raw report and review summary, the PI's rebuttal and
 change list, and the promoter's nearest true version note — the modules/providers.md
-access, reply captured as before), and they vote as well. workerB and workerC do not
+access, reply captured as before), and they vote as well. when the BCD reviewers vote, the quality of the PI's answers to their questions is an important point of the verdict: each reviewer evaluates, for every question it raised, whether the answer resolves the doubt — by repair in the modified route or by a sound rebuttal — or leaves it hanging. a weak, evasive or missing answer to a material question (one whose answer determines whether the route establishes its claim) is treated like a blocking gap: it forbids that reviewer's accept vote and is recorded with the vote; questions resolved by repair or sound rebuttal support the accept vote. the answer-quality assessment is part of each BCD vote's reasons. workerB and workerC do not
 close after writing their summaries: they pause to wait for the PI's rebuttals, vote
 at the swarm stage, and only then close. the Selector directs the Coordinator to hold
 workerB and workerC paused, with their
@@ -268,7 +286,7 @@ route) or core form (the accepted salvageable core) — together with the promot
 nearest true version note to the Formalizer, the note as scoping metadata; a rejected
 route's pair enriches the fragment region instead.
 
-every unaccepted route is marked stale, and the stale marking records three things: the
+on the Coordinator's instruction the Selector also executes the stale marking of an accepted route whose formalization failed — the accepted-route watch of rules/formalizer.md, the Formalizer's stale signal: two consecutive lean-runner batches with no green [acceptedR] piece — using the same mechanics as an unaccepted route: the stale entry per the stale-entry template (source item `route <title> v<n>`; failure reason `formalization failed — none of the accepted route's lean codes is green after two consecutive lean-runner batches (killed by evidence: lean)`; revival trigger; fragments), the fragments archived in the fragment region; the Coordinator handles the question-routes superseding and the PI retirement. when the Selector is mid-panel or in a window, the Coordinator spawns a dedicated stale-worker for the marking instead, so the demotion completes by the end of the round. every unaccepted route is marked stale, and the stale marking records three things: the
 failure reason (the panel findings that rejected it, including the load-bearing
 obstruction named by the rejecting votes), a revival trigger (re-examine
 when <event>), and the fragments of the work — the sub-results that still hold, the
