@@ -33,6 +33,15 @@ runner section below); fragments that land mid-round wait for the next resumptio
 reliable idea set and the fragment region
 grow continuously across rounds, and a round close never cuts the swarm. the Formalizer has
 no overall time budget: only the decompose workers and the swarm agents carry time limits.
+across round boundaries the Formalizer's context is bounded like the other
+subcoordinators' (rules/coordinator.md §3, the round-boundary bounded context), with
+the in-flight exception: it requests the round-boundary fresh spawn only when its
+territory is idle — no worker in flight (the working swarm complete, the lean code
+runner not mid-batch) and no pending decompose units — otherwise it yields
+children-in-flight and requests the close at the next natural boundary; the Coordinator
+never TaskStops it mid-flight. a round close never cuts the swarm, and the reliable
+idea set, the fragment region, the qmd file and the dependency graph live in the files,
+so a fresh context loses nothing.
 
 the Formalizer winds down only when the project ends: it finishes its existing work — no new
 reports come in, the working swarm completes, and the lean code runner processes the
@@ -342,6 +351,35 @@ green [acceptedR] pieces over the total, per accepted route — and any [no-gree
 the accepted-route watch, so the round-start check reads the watch state live. the formalization status block holds the green
 count, the [Formalized] count, and the dependency-graph summary — nodes, edges, and the
 goal node's distance to the established base.
+
+## bounded resumption reads — the delta, not the whole state
+
+the Formalizer's territory state is large and mostly unchanged between batches —
+formalizer/single.qmd, the generated lean code under formalizer/lean/,
+formalizer/dependency-graph.json and the fragment region grow piece by piece. on
+resumption the Formalizer reads only the delta since its last batch, never the
+whole files (the context economy rule, rules/coordinator.md §3):
+
+- its resume pack (runtime/formalizer-state.md) carries the delta markers: a
+  pointer to the latest formalization status-line entry, the last merged fragment
+  id (the qmd-index.md tail since that id), the last dependency-graph update
+  reference, the last fragment-region deposit reference, and the pending units;
+- on resumption it reads the resume pack, the formalization status line in the
+  Knowledge State index, the qmd-index.md tail, the new fragment-region deposits
+  and the lean code runner's latest batch report — and verifies artifact
+  existence by file (paths), never full contents;
+- the whole single.qmd, the whole lean/ tree and the whole dependency graph are
+  read only when a specific duty needs them (e.g. the goal-distance check the
+  Coordinator requests) — never as a resumption habit.
+
+the delta reads replace only the way the Formalizer re-reads unchanged state; every
+duty stays exactly as specified — the decompose regulation, the swarm regulation,
+the lean-runner gate re-request, the status reporting, and the accepted-route
+watch: the watch is unchanged and stays cheap because it reads the small registry
+formalizer/accepted-routes.md (never the qmd file) at each batch end, tallies the
+[acceptedR] green counts per accepted route, applies the [no-green] transitions,
+and writes the stale signal to runtime/stale-signals/ before it ends (the
+accepted-route watch and the stale signal above).
 
 ## artifact rules and versioning
 

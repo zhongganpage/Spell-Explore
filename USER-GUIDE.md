@@ -65,7 +65,10 @@ not drive it — you supervise it.
   the next round: unaccepted routes default to park until you answer.
 - At each round close the Coordinator also asks you to run **`/compact`** with a
   given instruction — it frees the session's context so later rounds re-read a
-  bounded history; it never blocks the next round if you skip it.
+  bounded history; it never blocks the next round if you skip it. the
+  subcoordinators are bounded the same way: at each round boundary each closes
+  and is spawned fresh from its resume pack, so the pipeline's contexts stop
+  growing across rounds.
 - Subagents run in the background; nothing closes early. The Coordinator's every
   turn ends with a lifecycle line, so the round always resumes from a file.
 - What you actually look at:

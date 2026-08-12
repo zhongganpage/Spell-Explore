@@ -77,7 +77,12 @@ roles:
 beyond these specializations, workerB, workerC and workerD are all actively doubtful:
 each of them asks questions about any aspect of the route that raises doubt — a claim,
 a proof step, an evidence, a definition, an assumption, an edge case, a citation, or
-the link to the locked goal. a question is concrete and tied to the route (a specific
+the link to the locked goal. asking is a duty of clarification, not only of suspicion:
+a reviewer questions not just what raises a specific doubt, but every statement that is
+non-trivial and not well clarified — a statement whose hypotheses, terms, definitions
+or well-posedness are not made explicit — because the lack of clarification is itself
+the doubt, and this includes the rougher statements of early rounds, which are
+questioned like any other. a question is concrete and tied to the route (a specific
 claim, step or evidence), carries a stable id (`Q-B<n>` / `Q-C<n>` / `Q-D<n>` by
 reviewer), and is listed in the raw review report and repeated in the review summary.
 asking is a duty: a reviewer that read the route and found no doubt says so explicitly
@@ -118,7 +123,14 @@ a time, two exterior invocations are needed, and each workerD passes the same ch
 ### artifact and context rules for the panel
 
 the panel workers receive the route and the statements of the cited results only, in
-fresh contexts — never the expected outcome and never the author's reasoning. panel
+fresh contexts — never the expected outcome and never the author's reasoning. the
+panel's brief is scoped: each B/C/D reviewer receives the route, the statements of
+the cited results, workerA's evidence-point list (when it is ready), the examine
+worker's sufficiency verdict (when one exists), and one-line abstracts of the related
+prior routes — never the full report body and never the full dossier index. a
+reviewer that needs more pulls the specific file on demand (Read) only when a claim's
+support is in question; the scoped brief is a cost rule, never a content rule —
+nothing is skipped because it was not included. panel
 B/C/D are read-only (Read/Grep, no write); workerD runs through the configured
 exterior access when available (modules/providers.md — invoked by the Coordinator,
 never spawned). every worker that produces an artifact is spawned by the Coordinator
@@ -309,3 +321,9 @@ the phase-time table; timestamps are never reconstructed after the fact. the Sel
 running records — the panel records (with the workerD fallback notes), the canary
 detection rates, the acceptance numbers, and the quality ranking — are kept in the
 archive as versioned artifacts.
+
+at the round close the Selector closes once its reviews and verdicts are recorded; the next round
+spawns it fresh from its resume pack — never resume-by-ID across rounds (rules/coordinator.md §3,
+the round-boundary bounded context). resume-by-ID stays the within-round fast path: the
+phase-to-phase resumption (raw reports → exchange → swarm) and the held B/C/D panel pause across
+the PI window.

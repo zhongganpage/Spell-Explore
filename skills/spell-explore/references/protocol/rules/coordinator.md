@@ -128,6 +128,19 @@ Coordinator enforces the economy rule on every subcoordinator:
   whole reports into its context when a pointer would do — is corrected and the
   read pattern recorded in the dossier; the discipline is a cost rule, never a
   content rule: nothing may be skipped because it was not read.
+- round-boundary bounded contexts: across round boundaries a subcoordinator's
+  context is bounded like the Coordinator's (the round-close /compact of
+  rules/timekeeping.md §7): at each round close a subcoordinator whose round duty
+  is complete and that has no in-flight worker closes, and the Coordinator spawns
+  it fresh at the next round's bounded start check from its resume pack
+  (runtime/<role>-state.md, file pointers only) — never resume-by-ID across
+  rounds. resume-by-ID stays the within-round fast path (e.g. the Selector's
+  phase-to-phase resumption and the B/C/D panel pause). the in-flight exception:
+  a subcoordinator with owned children in flight (the Formalizer's working swarm)
+  does not close at the boundary — it yields children-in-flight and closes at the
+  next natural boundary, and the Coordinator never TaskStops it. the fresh spawn
+  loses nothing: the territory state lives in the files and the resume pack, and
+  later turns stop re-reading the whole prior conversation.
 
 Artifact guarantees the Coordinator enforces (shared with the subcoordinators): every
 worker that produces an artifact is spawned — by the Coordinator at its
@@ -202,7 +215,9 @@ At the start of each round it performs the bounded Formalizer check before the r
 clock starts: it reads the formalization status line in the Knowledge State index and
 the live background state, verifies that the resumable workers are present and
 working — the four subcoordinators (Creator, Producer, Selector, Formalizer), the
-PIs, and the lean code runner — re-spawning any that a resumed session lost with its
+PIs, and the lean code runner — re-spawning any that a resumed session lost — and any subcoordinator that
+closed at the previous round's close per the round-boundary bounded context of
+this §3 — with its
 runtime/<role>-state.md resume pack (rules/worker-lifespans.md), and restoring each
 territory's live workers from the worker registry — and it sweeps
 formalizer/fragments/ for landed-but-unintegrated per-fragment files, handing them to

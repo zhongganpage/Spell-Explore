@@ -84,7 +84,7 @@ files in the project folder, not the dossier.
 the Creator's job is to create ideas and archive. it does not create new ideas itself: it
 regulates its own workers within its domain — idea generation and archiving — requesting
 them from the Coordinator, monitoring their status, enforcing the time limits and the
-artifact rules, and solving issues inside its territory. it is resumable.
+artifact rules, and solving issues inside its territory. it is resumable. across round boundaries its context is bounded like the Coordinator's (rules/coordinator.md §3, the round-boundary bounded context): it closes at the round close and is spawned fresh at the next round from its resume pack (runtime/creator-state.md, file pointers only) — never resume-by-ID across rounds; resume-by-ID stays the within-round rotation path.
 
 the Creator has two phases, which are independent and may run at the same time:
 
@@ -187,7 +187,7 @@ subcoordinators, the reliable idea set, or the fragment region.
 
 the Producer does not produce anything: it regulates report and route production within
 its domain — monitoring the report workers, enforcing time limits and artifact rules, and
-solving issues inside its territory. it is resumable.
+solving issues inside its territory. it is resumable. across round boundaries its context is bounded like the Coordinator's (rules/coordinator.md §3, the round-boundary bounded context): it closes at the round close and is spawned fresh at the next round from its resume pack (runtime/producer-state.md, file pointers only) — never resume-by-ID across rounds.
 
 - whenever the Creator has a fresh summary ready, the Creator hands it to the Producer.
 - at the start of a round any carried-over work is handled first: the Producer distributes
