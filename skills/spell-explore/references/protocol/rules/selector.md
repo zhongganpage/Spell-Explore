@@ -40,18 +40,22 @@ phase; it never returns early, and a narrated step is not a done step.
 
 ## 2. two panels at a time
 
-the Selector only runs two panels at a time. in a normal round two route reviews fit:
-the two panels run 63–103, the two PI rebuttals run in parallel 103–118, and the two
-decision swarms run together in the same window 118–138 as background workers. a third
-fresh route's review is carried to the next round.
+the Selector only runs two panels at a time. in rounds 1–3 the two panels run 63–103
+(40 min), the two PI rebuttals run in parallel 103–118 (15 min), and the two decision
+swarms run together in the same window 118–138 as background workers (20 min). from
+round 4 the round is extended +10 min and the panels run 63–108 (45 min), the PI
+rebuttals 108–126 (18 min), and the swarms 126–148 (22 min) — 85 min per review. a
+third fresh route's review is carried to the next round.
 
 carried-over work is handled first at the start of a round: the Selector resumes queued
 route reviews. in rounds ≥ 2, when the Selector has unfinished work, the carried review
 owns the critical path — its panel, PI rebuttal and swarm run in their windows first,
 while the Creator's phase 1 and the Producer's report run in the background alongside.
-a new route's review starts only if the remaining budget fits a full review (75 min:
-panel 40 + PI 15 + swarm 20); otherwise the round closes with the carried verdict and
-the new report queued.
+a new route's review starts only if the remaining budget fits a full review (75 min in
+rounds 1–3 — panel 40 + PI 15 + swarm 20; 85 min from round 4 — panel 45 + PI 18 +
+swarm 22); otherwise the round closes with the carried verdict and the new report
+queued. from round 4, a round with two named routes must run both panels regardless of
+the remaining budget.
 
 ## 3. the adversarial review panel
 
@@ -89,10 +93,14 @@ asking is a duty: a reviewer that read the route and found no doubt says so expl
 (`no doubts found`) rather than staying silent, and the PI must answer every question
 raised (§6).
 
-timing within the 63–103 window: workerA lists the evidence points by 78 min; workerB/C/D
-review from 63 min, and pivot to workerA's list when it arrives; the exchange runs 93–103
-min. in rounds ≥ 3 all these windows shift +1 (panel 64–104, workerA list by 79, exchange
-94–104, PI 104–119, swarm 119–139 — rules/timekeeping.md §4). a phase that reaches its window end is cut and its partial output recorded.
+timing: in rounds 1–2 the panel runs 63–103 (40 min) — workerA lists the evidence
+points by 78 min, workerB/C/D review from 63 min and pivot to workerA's list when it
+arrives, and the exchange runs 93–103 min. in round 3 these windows shift +1 (panel
+64–104, workerA list by 79, exchange 94–104, PI 104–119, swarm 119–139 —
+rules/timekeeping.md §4). from round 4 the panel is extended to 45 min: base windows
+63–108 (workerA by 83, exchange 98–108), shifting +1 for the Producer's summary choice
+(panel 64–109, workerA by 84, exchange 99–109, PI 109–127, swarm 127–149 —
+rules/timekeeping.md §4). a phase that reaches its window end is cut and its partial output recorded.
 
 workerB, workerC and workerD have 30 minutes to run the review and write a raw review
 report, and an additional 10 minutes to exchange the reports — each of the three
@@ -183,7 +191,8 @@ id'd `Q-B<n>` / `Q-C<n>` / `Q-D<n>`); the PI answers every one of them in §6.
 
 ## 6. the PI rebuttal and the change list
 
-the PI has 15 minutes, the window 103–118. the PI modifies the route and rebuts the
+the PI has 15 minutes in rounds 1–3 (window 103–118; round 3 shifts +1 to 104–119),
+18 minutes from round 4 (window 108–126). the PI modifies the route and rebuts the
 report, and makes a change list. the change list is a versioned artifact that states,
 point by point, which review summary findings were accepted and repaired in the
 modified route, which were rebutted and why, and which remain open. the change list
@@ -203,7 +212,8 @@ verification protocol — it is not a way to set the vote aside.
 ## 7. the promoter
 
 a fresh-context promoter worker has the duty to promote the route. it works during
-103–118 min, at the same time as the PI, reading the route and the three review summaries
+103–118 min in rounds 1–3 (round 3 shifts +1 to 104–119), and during 108–126 min from
+round 4, at the same time as the PI, reading the route and the three review summaries
 and writing a nearest true version note — the strongest claim the route can honestly
 make, and the exact point where it breaks. the note is a high-level check the reviewers
 and the swarm refer to: whether the route over-claims, and the strongest true version
@@ -217,9 +227,10 @@ written at an assigned output path (recovered from agent output if the promoter
 cannot write). if the route is rejected, the note also enriches the fragments sent
 to the Creator's second phase.
 
-### 7.1 the promoter's connection marking (118–138, parallel to the swarm and the BCD vote)
+### 7.1 the promoter's connection marking (118–138 in rounds 1–3, 126–148 from round 4, parallel to the swarm and the BCD vote)
 
-the promoter has a second duty in the 118–138 window, at the same time as the decision
+the promoter has a second duty in the 118–138 window in rounds 1–3 and the 126–148
+window from round 4, at the same time as the decision
 swarm and the resumed BCD vote. the promoter does not resume in this period: it is not
 held across the PI window (like workerD, its context is reconstructed from files), so
 the Selector re-invokes it in a fresh context — one fresh invocation per route under
@@ -276,14 +287,18 @@ record — instead of closing "complete" without it (§12).
 
 ## 8. the decision swarm and the resumed BCD vote
 
-at 118–138, the Selector runs its own swarm of 3 (odd number) workers to review the panel,
-the original route, the modified route and the rebuttals, and judge the route itself —
-its claims, proofs and evidences — referring to the promoter's nearest true version
-note as a high-level check on the route's claims: whether the route over-claims, and
-the strongest true version its material supports. the swarm then votes accept,
-accept-core, or reject — acceptance needs 2/3 of the swarm, 2 of 3 workers, to vote accept, and the BCD gate must clear the same bar (§9). the swarm has 20 minutes to make a decision.
+at 118–138 in rounds 1–3 (126–148 from round 4), the Selector runs its own swarm of
+3 (odd number) workers to review the panel, the original route, the modified route
+and the rebuttals, and judge the route itself — its claims, proofs and evidences —
+referring to the promoter's nearest true version note as a high-level check on the
+route's claims: whether the route over-claims, and the strongest true version its
+material supports. the swarm then votes accept, accept-core, or reject — acceptance
+needs 2/3 of the swarm, 2 of 3 workers, to vote accept, and the BCD gate must clear
+the same bar (§9). the swarm has 20 minutes in rounds 1–3 and 22 minutes from round 4
+to make a decision.
 
-in the same 118–138 window the Selector re-invokes the promoter in a fresh context
+in the same window (118–138 rounds 1–3, 126–148 from round 4) the Selector re-invokes
+the promoter in a fresh context
 for the connection marking of §7.1 — the promoter reads the revised route, the change
 list and the BCD review reports, inspects the single qmd file, and marks every
 statement-pair the route's results or techniques bridge, so the vote runs in parallel
@@ -293,7 +308,7 @@ every rejecting vote names the load-bearing obstruction — the single missing l
 false step, or unproved claim whose absence makes the route fail.
 
 at the same stage the Selector instructs the Coordinator to resume workerB and workerC — they keep their panel context
-and also have 20 minutes — and to re-invoke workerD externally with a consolidated
+and also have 20 minutes in rounds 1–3 and 22 minutes from round 4 — and to re-invoke workerD externally with a consolidated
 vote prompt (the route, D's own raw report and review summary, the PI's rebuttal and
 change list, and the promoter's nearest true version note — the modules/providers.md
 access, reply captured as before), and they vote as well. when the BCD reviewers vote, the quality of the PI's answers to their questions is an important point of the verdict: each reviewer evaluates, for every question it raised, whether the answer resolves the doubt — by repair in the modified route or by a sound rebuttal — or leaves it hanging. a weak, evasive or missing answer to a material question (one whose answer determines whether the route establishes its claim) is treated like a blocking gap: it forbids that reviewer's accept vote and is recorded with the vote; questions resolved by repair or sound rebuttal support the accept vote. the answer-quality assessment is part of each BCD vote's reasons. workerB and workerC do not
@@ -306,7 +321,9 @@ held across the window: its context is reconstructed from files — the Coordina
 re-invokes it externally with the consolidated prompt, retries a lost vote invocation
 once within the window, then records the vote as absent with the reason. a phase that reaches
 its window end is cut and its partial
-output recorded; the round closes atomically at 138 min (rounds ≥ 3: 139) even if a phase is mid-flight.
+output recorded; the round closes atomically at 138 min in rounds 1–2, 139 min in round 3, and 149 min
+from round 4 (148-min base + the Producer's 1-minute summary choice persisting from
+round 3) even if a phase is mid-flight.
 
 ## 9. acceptance, milestone, and quality ranking
 

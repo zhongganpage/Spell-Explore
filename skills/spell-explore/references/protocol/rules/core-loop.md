@@ -3,7 +3,7 @@
 this file specifies the core loop of the round, in the construction plan's build order
 (§5, step 2): the Creator (two independent phases) → the Producer (pairing + report) → the
 hygiene linter (two layers) → the examine worker → the route with its title and PI. it
-covers the first three windows of the 138-minute timeline — 0–20, 20–45, 45–63 — and the
+covers the first three windows of the 138-minute timeline (148 minutes from round 4) — 0–20, 20–45, 45–63 — and the
 stale loop that feeds the Creator's second phase. the Selector, the Formalizer, and the
 Coordinator's regulation are specified in their own files; this file only defines the
 handoffs into them.
@@ -16,23 +16,25 @@ Selector's rules):
 | 0–20 | Creator phase 1 | n idea-workers (0 ≤ n ≤ 8) think (≤10 min) + summaries (≤10 min); fresh summaries ready ~20 |
 | 20–45 | Producer report writers (25 min) | assigned fresh summaries → idea report |
 | 45–63 | hygiene linter (layer 1 ≈3 min, layer 2 ≈7 min) + examine worker (cap 8 min) | linter first, then examine; fail → stale |
-| 63–103 | Selector panel (40 min) | workerA lists by 78; B/C/D review 63–93; exchange 93–103 |
-| 103–118 | PI rebuts + change list; promoter in parallel | both feed the swarm |
-| 118–138 | swarm (20 min) + resumed BCD (20 min) | accept ≥2/3 swarm AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved |
+| 63–103 / 63–108 | Selector panel (40 / 45 min) | rounds 1–3 / from round 4: workerA lists by 78/83; B/C/D review 63–93/63–98; exchange 93–103/98–108 |
+| 103–118 / 108–126 | PI rebuts (15 / 18 min) + change list; promoter in parallel | both feed the swarm |
+| 118–138 / 126–148 | swarm (20 / 22 min) + resumed BCD (20 / 22 min) | accept ≥2/3 swarm AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved |
 
 ## 0. binding rules that apply to the whole loop
 
-- the round clock is hard: 2 hours and 18 minutes (138 minutes) total; rounds ≥ 3 run
-  2 hours and 19 minutes (139 minutes) — the Producer's phase-2 writer spends 1 minute
-  choosing its summary at the round's 20-min mark (§2.2), and the windows after the
-  choice shift +1: 21–46 (report), 46–64 (gates), 64–104 (panel), 104–119 (PI +
-  promoter), 119–139 (swarm + BCD); the panel internals shift with them (workerA's
-  list by 79, B/C/D 64–94, exchange 94–104). rounds 1–2 run the 138-minute
-  two-writer variant in the table above. the windows above
-  are the binding per-phase limits; changing any of them means the 2-hour-and-18-minute
-  budget no longer holds.
+- the round clock is hard: 2 hours and 18 minutes (138 minutes) total in rounds 1–2;
+  round 3 runs 2 hours and 19 minutes (139 minutes) — the Producer's phase-2 writer
+  spends 1 minute choosing its summary at the round's 20-min mark (§2.2) — and the
+  windows after the choice shift +1: 21–46 (report), 46–64 (gates), 64–104 (panel),
+  104–119 (PI + promoter), 119–139 (swarm + BCD); the panel internals shift with them
+  (workerA's list by 79, B/C/D 64–94, exchange 94–104). from round 4 the round is
+  extended +10 min: 148 minutes base, 149 minutes with the Producer's +1 shift (panel
+  64–109, PI 109–127, swarm 127–149; workerA's list by 84, B/C/D 64–99, exchange
+  99–109). the windows above are the binding per-phase limits; changing any of them
+  means the round budget no longer holds.
 - a phase that reaches its window end is cut and its partial output recorded — the same
-  rule as the 10-minute lemma cut — and the round closes atomically at 138 min (rounds ≥ 3: 139) even if a
+  rule as the 10-minute lemma cut — and the round closes atomically at 138 min in rounds
+  1–2, 139 min in round 3, and 149 min from round 4 even if a
   phase is mid-flight. a cut partial report is recorded, versioned, and does not move on
   to the linter.
 - round timing is mandated: the round start is announced and written in the dossier before
@@ -225,7 +227,7 @@ solving issues inside its territory. it is resumable. across round boundaries it
   most one); there is no queue for partials.
 - backpressure: the Producer schedules a report writer on the critical path only while
   fewer than 2 routes are in review — the Selector runs at most two panels at a time, and
-  a review needs 75 min; additional writers run off the critical path in the background.
+  a review needs 75 min in rounds 1–3 and 85 min from round 4; additional writers run off the critical path in the background.
   rationale: the Selector drains at most 2 reviews per round, so a critical-path
   writer is scheduled only while fewer than 2 routes are in review.
 - rounds ≥ 3 variant: from round 3, 4 fresh summaries arrive per round: when the lane is
@@ -234,7 +236,7 @@ solving issues inside its territory. it is resumable. across round boundaries it
   accepted route, and the phase-1 writer takes the rest (4 or 3); when the lane is
   closed, the two phase-1 writers split the 4 summaries (2 each). the 1-minute choice is
   added to the round's total:
-  rounds ≥ 3 run 139 minutes (see §0, the timeline variant).
+  round 3 runs 139 minutes, and from round 4 the rounds run 149 minutes (see §0, the timeline variant).
 - when a revival trigger fires, its fragment jumps the pairing queue.
 - the Producer prefers assigned sets that shrink the goal node's distance to the established base
   on the dependency tree (see the Formalizer rule).
