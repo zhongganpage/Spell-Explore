@@ -23,13 +23,16 @@ fi
 # --- locate the protocol source -------------------------------------------------
 # the packaged skill keeps the protocol at references/protocol/ (current layout);
 # the older source-repo layout kept it at protocol/ (a sibling of scripts/).
-# resolve whichever exists, mirroring init-project.sh's resolution.
-if [ -d "$SRC/protocol" ]; then
-  PROTO="$SRC/protocol"
-elif [ -d "$SKILL_DIR/references/protocol" ]; then
+# in the current layout the packaged path is canonical and the root protocol/
+# tree is a superseded gitignored duplicate (kept locally) — so the packaged
+# path takes priority; the root tree is used only when the packaged path is
+# absent (the older layout), mirroring init-project.sh's resolution.
+if [ -d "$SKILL_DIR/references/protocol" ]; then
   PROTO="$SKILL_DIR/references/protocol"
+elif [ -d "$SRC/protocol" ]; then
+  PROTO="$SRC/protocol"
 else
-  echo "error: cannot locate the protocol (neither $SRC/protocol nor $SKILL_DIR/references/protocol)." >&2
+  echo "error: cannot locate the protocol (neither $SKILL_DIR/references/protocol nor $SRC/protocol)." >&2
   exit 1
 fi
 

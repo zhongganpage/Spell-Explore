@@ -1,6 +1,6 @@
 # round-close record — template
 
-every round ends with a single atomic round close written in one pass, at 138 minutes, even if a
+every round ends with a single atomic round close written in one pass, at 138 minutes (rounds ≥ 3: 139), even if a
 phase is mid-flight: the fresh routes, the verdicts, and the stale list with their fragments,
 together with a phase-time table, and the decision list. timestamps are never reconstructed
 after the fact: the round start is announced and written in the dossier before any agent spawns,
@@ -23,7 +23,7 @@ is the template the Coordinator fills in at the close.
 ### round `<n>` — close
 
 - round start: `<announced timestamp, written in the dossier before any agent spawned>` ·
-  round end: `<138-min boundary timestamp>`
+  round end: `<round-total boundary timestamp (138, or 139 from round 3)>`
 - routes in this round: `<the fresh routes delivered, and any carried-over work handled first
   at the start>`
 
@@ -66,7 +66,8 @@ route):
   from 63 min and pivot to the list when it arrives, exchange reports 93–103;
 - 103–118 the PI rebuts and modifies the route, with the promoter writing its nearest true
   version note in the same window;
-- 118–138 the swarm decides, with the resumed BCD reviewers voting alongside.
+- 118–138 the swarm decides, with the resumed BCD reviewers voting alongside, and the
+  re-invoked promoter marking the route's connections into the single qmd file (rules/selector.md §7.1).
 
 rounds ≥ 3 variant: the Producer's 1-minute summary choice shifts the windows after 20 by +1 (21–46, 46–64, 64–104, 104–119, 119–139), total 139 minutes.
 off the critical path and in the background: the Creator's second phase, the Formalizer (not
@@ -88,11 +89,11 @@ recorded — the same rule as the 10-minute lemma cut. changing any window means
   kept but it is not auto-recycled) — the user decides. a round may deliver none>`
 - user nominations: `<which summaries or fragments the user nominates to pair in the next
   round>`
-- continuation: `<rounds-completed n / rounds-chosen N>`; `<next round n+1 started in the same turn>` or `<final close: count reached | milestone | steering stop | user stop>`; pending user decisions — accepted routes not yet seen, recycle/park unanswered (default park) — are listed here and applied as the user answers>
+- continuation: `<rounds-completed n / rounds-chosen N>`; `<next round n+1 started in the same turn>` or `<final close: count reached | milestone | steering stop | user stop>`; pending user decisions — accepted routes not yet seen, recycle/park unanswered (default park), `pending-compact: requested at close <n>` — are listed here and applied as the user answers>
 
 ## rules that bind this artifact
 
-- the round closes atomically at 138 min in one pass, even when a phase is mid-flight; the
+- the round closes atomically at 138 min (rounds ≥ 3: 139) in one pass, even when a phase is mid-flight; the
   round-close record with the decision list is delivered even when no route was accepted.
 - the rounds auto-run to the round count chosen at round-1 setup: when the count allows
   and no stop condition applies — milestone, steering stop, user stop — the Coordinator

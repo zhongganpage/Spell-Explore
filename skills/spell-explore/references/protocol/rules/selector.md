@@ -77,7 +77,12 @@ roles:
 beyond these specializations, workerB, workerC and workerD are all actively doubtful:
 each of them asks questions about any aspect of the route that raises doubt — a claim,
 a proof step, an evidence, a definition, an assumption, an edge case, a citation, or
-the link to the locked goal. a question is concrete and tied to the route (a specific
+the link to the locked goal. asking is a duty of clarification, not only of suspicion:
+a reviewer questions not just what raises a specific doubt, but every statement that is
+non-trivial and not well clarified — a statement whose hypotheses, terms, definitions
+or well-posedness are not made explicit — because the lack of clarification is itself
+the doubt, and this includes the rougher statements of early rounds, which are
+questioned like any other. a question is concrete and tied to the route (a specific
 claim, step or evidence), carries a stable id (`Q-B<n>` / `Q-C<n>` / `Q-D<n>` by
 reviewer), and is listed in the raw review report and repeated in the review summary.
 asking is a duty: a reviewer that read the route and found no doubt says so explicitly
@@ -86,7 +91,8 @@ raised (§6).
 
 timing within the 63–103 window: workerA lists the evidence points by 78 min; workerB/C/D
 review from 63 min, and pivot to workerA's list when it arrives; the exchange runs 93–103
-min. a phase that reaches its window end is cut and its partial output recorded.
+min. in rounds ≥ 3 all these windows shift +1 (panel 64–104, workerA list by 79, exchange
+94–104, PI 104–119, swarm 119–139 — rules/timekeeping.md §4). a phase that reaches its window end is cut and its partial output recorded.
 
 workerB, workerC and workerD have 30 minutes to run the review and write a raw review
 report, and an additional 10 minutes to exchange the reports — each of the three
@@ -117,8 +123,16 @@ a time, two exterior invocations are needed, and each workerD passes the same ch
 
 ### artifact and context rules for the panel
 
-the panel workers receive the route and the statements of the cited results only, in
-fresh contexts — never the expected outcome and never the author's reasoning. panel
+the panel workers receive the route and the statements of the cited results — never the
+expected outcome, never the author's reasoning — and each B/C/D reviewer additionally
+receives the scoped brief of §3, in fresh contexts. the
+panel's brief is scoped: each B/C/D reviewer receives the route, the statements of
+the cited results, workerA's evidence-point list (when it is ready), the examine
+worker's sufficiency verdict (when one exists), and one-line abstracts of the related
+prior routes — never the full report body and never the full dossier index. a
+reviewer that needs more pulls the specific file on demand (Read) only when a claim's
+support is in question; the scoped brief is a cost rule, never a content rule —
+nothing is skipped because it was not included. panel
 B/C/D are read-only (Read/Grep, no write); workerD runs through the configured
 exterior access when available (modules/providers.md — invoked by the Coordinator,
 never spawned). every worker that produces an artifact is spawned by the Coordinator
@@ -197,10 +211,47 @@ its material supports. the note is given to the swarm together with the PI's reb
 the core may be accepted in reduced form, grounded in the route's material: when the
 double gate votes accept-core, the core becomes the accepted route, versioned, with
 its own title, and its abstract enters question-routes.md. the promoter is
-read-only (Read/Grep) and runs in a fresh context; its note is a versioned artifact
+read-only for the note duty (Read/Grep; it gains Edit only for the connection
+marking of §7.1) and runs in a fresh context; its note is a versioned artifact
 written at an assigned output path (recovered from agent output if the promoter
 cannot write). if the route is rejected, the note also enriches the fragments sent
 to the Creator's second phase.
+
+### 7.1 the promoter's connection marking (118–138, parallel to the swarm and the BCD vote)
+
+the promoter has a second duty in the 118–138 window, at the same time as the decision
+swarm and the resumed BCD vote. the promoter does not resume in this period: it is not
+held across the PI window (like workerD, its context is reconstructed from files), so
+the Selector re-invokes it in a fresh context — one fresh invocation per route under
+review. the marking promoter reads the revised route (the PI's modified route), the
+change list, and the BCD review reports (the raw review reports and the three review
+summaries of workerB, workerC and workerD), then inspects the single qmd file —
+formalizer/single.qmd, with its id list formalizer/qmd-index.md. whenever it thinks
+the route's results or some techniques in the results can be used to show a proof from
+one statement to another in the single qmd file — the initial statement X implies the
+statement Y — it marks the initial statement `[<route ID>-T-<the id of the implied
+statement in single.qmd>]` and marks the implied statement `[<route ID>-F-<the id of
+the initial statement in single.qmd>]`, writing the marks as qmd annotation lines
+placed at the marked blocks. route ID = the route's title (the locked name that
+distinguishes the route from every other route; the connection report carries the
+version). the promoter may use some of the qmd features: the `@id` pointer syntax and
+the annotation-comment convention, and it may run qmd-prover's mechanical check on
+single.qmd to verify the file stays valid. the marks are annotations (provenance),
+never content — they never change a block's statement — and they survive the lean code
+runner's merges (the merge appends per-fragment pieces ordered by fragment id and
+never removes locked content; rules/formalizer.md). the marking is verdict-independent:
+it runs for every route under review, whatever the vote. the Selector verifies the
+written marks by file, and the promoter's final message is the connection report — a
+versioned artifact per the connection-marks template, listing every mark with its
+one-line justification — persisted verbatim at the assigned output path (recovered
+from agent output, as for the note). post-verdict the report rides the handoff: for an
+accepted or accepted-core route it goes to the Formalizer together with the accepted
+route and the note, as scoping metadata — which existing statements the route's
+results or techniques bridge; for a rejected route its connection entries enrich the
+stale entry's fragments. the marks stay in single.qmd either way, and the lean code
+runner mirrors them into the connections section of qmd-index.md at its next merge, so
+the Creator's phase-2 workers are notified of the connection by the ids and may use
+ideas from the route.
 
 ## 8. the decision swarm and the resumed BCD vote
 
@@ -210,6 +261,12 @@ its claims, proofs and evidences — referring to the promoter's nearest true ve
 note as a high-level check on the route's claims: whether the route over-claims, and
 the strongest true version its material supports. the swarm then votes accept,
 accept-core, or reject — acceptance needs 2/3 of the swarm, 2 of 3 workers, to vote accept, and the BCD gate must clear the same bar (§9). the swarm has 20 minutes to make a decision.
+
+in the same 118–138 window the Selector re-invokes the promoter in a fresh context
+for the connection marking of §7.1 — the promoter reads the revised route, the change
+list and the BCD review reports, inspects the single qmd file, and marks every
+statement-pair the route's results or techniques bridge, so the vote runs in parallel
+with the marking and neither waits for the other.
 
 every rejecting vote names the load-bearing obstruction — the single missing lemma,
 false step, or unproved claim whose absence makes the route fail.
@@ -228,7 +285,7 @@ held across the window: its context is reconstructed from files — the Coordina
 re-invokes it externally with the consolidated prompt, retries a lost vote invocation
 once within the window, then records the vote as absent with the reason. a phase that reaches
 its window end is cut and its partial
-output recorded; the round closes atomically at 138 min even if a phase is mid-flight.
+output recorded; the round closes atomically at 138 min (rounds ≥ 3: 139) even if a phase is mid-flight.
 
 ## 9. acceptance, milestone, and quality ranking
 
@@ -283,17 +340,19 @@ user parks it, an unaccepted route is sent back to the Creator for the second ph
 
 after the verdict, the Selector sends the accepted route — full form (the PI's modified
 route) or core form (the accepted salvageable core) — together with the promoter's
-nearest true version note to the Formalizer, the note as scoping metadata; a rejected
-route's pair enriches the fragment region instead.
+nearest true version note to the Formalizer, the note as scoping metadata, and with
+the promoter's connection report (§7.1) — which existing statements in the single qmd
+file the route's results or techniques bridge; a rejected route's pair enriches the
+fragment region instead, and its connection entries join the stale entry's fragments.
 
 on the Coordinator's instruction the Selector also executes the stale marking of an accepted route whose formalization failed — the accepted-route watch of rules/formalizer.md, the Formalizer's stale signal: two consecutive lean-runner batches with no green [acceptedR] piece — using the same mechanics as an unaccepted route: the stale entry per the stale-entry template (source item `route <title> v<n>`; failure reason `formalization failed — none of the accepted route's lean codes is green after two consecutive lean-runner batches (killed by evidence: lean)`; revival trigger; fragments), the fragments archived in the fragment region; the Coordinator handles the question-routes superseding and the PI retirement. when the Selector is mid-panel or in a window, the Coordinator spawns a dedicated stale-worker for the marking instead, so the demotion completes by the end of the round. every unaccepted route is marked stale, and the stale marking records three things: the
 failure reason (the panel findings that rejected it, including the load-bearing
 obstruction named by the rejecting votes), a revival trigger (re-examine
 when <event>), and the fragments of the work — the sub-results that still hold, the
 obstruction, and the closest technique; the load-bearing obstructions named by the
-rejecting votes are aggregated into the obstructions register (dossier/index.md). when
-the route is rejected, the promoter's note
-enriches the fragments. the fragments are archived in the fragment region of the idea
+rejecting votes are aggregated into the obstructions register (dossier/index.md). when the route is rejected, the promoter's note
+and its connection report
+enrich the fragments. the fragments are archived in the fragment region of the idea
 pool in the dossier, so the Producer's report worker can use them like
 any other idea in the dossier, and the Creator's second phase mines them directly. a
 round may deliver no accepted route: in that case the round delivers the round-close
@@ -307,5 +366,11 @@ phase-time table. the Selector contributes the verdicts and the stale entries fo
 routes it reviewed, and its phase start/end timestamps are recorded at each boundary in
 the phase-time table; timestamps are never reconstructed after the fact. the Selector's
 running records — the panel records (with the workerD fallback notes), the canary
-detection rates, the acceptance numbers, and the quality ranking — are kept in the
-archive as versioned artifacts.
+detection rates, the acceptance numbers, the quality ranking, and the promoter's
+connection reports — are kept in the archive as versioned artifacts.
+
+at the round close the Selector closes once its reviews and verdicts are recorded; the next round
+spawns it fresh from its resume pack — never resume-by-ID across rounds (rules/coordinator.md §3,
+the round-boundary bounded context). resume-by-ID stays the within-round fast path: the
+phase-to-phase resumption (raw reports → exchange → swarm) and the held B/C/D panel pause across
+the PI window.

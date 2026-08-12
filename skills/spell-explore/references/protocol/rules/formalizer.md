@@ -19,20 +19,30 @@ and the artifact rules, and solving issues inside its territory, while the Coord
 regulates the Formalizer. every worker it directs is spawned by the Coordinator in the
 explicit background mode, never the blocking foreground; the working swarm is the
 Formalizer's own and is spawned by it in the explicit background mode. the Formalizer
-is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. within the Formalizer's territory so does the lean code runner (see
+is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. the lean code runner is resumable the same way within the Formalizer's territory (see
 below).
 
 the Formalizer runs in the background across rounds: it is not bound by the 2-hour-and-18-
 minute round budget — its decompose workers run per pair of reports at any time, off the
 critical path of the round timeline (0–20 the Creator's phase 1, 20–45 the Producer's report,
 45–63 the hygiene linter and the examine worker, 63–103 the Selector's panel, 103–118 the PI's
-rebuttal and the promoter, 118–138 the Selector's swarm and the resumed BCD reviewers), and
+rebuttal and the promoter, 118–138 the Selector's swarm, the resumed BCD reviewers and the
+re-invoked promoter's connection marking), and
 the Coordinator resumes the lean code runner once per round at the round start — batched,
 never on every qmd file update — subject to the run-or-postpone user gate (the lean code
 runner section below); fragments that land mid-round wait for the next resumption. the
 reliable idea set and the fragment region
 grow continuously across rounds, and a round close never cuts the swarm. the Formalizer has
 no overall time budget: only the decompose workers and the swarm agents carry time limits.
+across round boundaries the Formalizer's context is bounded like the other
+subcoordinators' (rules/coordinator.md §3, the round-boundary bounded context), with
+the in-flight exception: it requests the round-boundary fresh spawn only when its
+territory is idle — no worker in flight (the working swarm complete, the lean code
+runner not mid-batch) and no pending decompose units — otherwise it yields
+children-in-flight and requests the close at the next natural boundary; the Coordinator
+never TaskStops it mid-flight. a round close never cuts the swarm, and the reliable
+idea set, the fragment region, the qmd file and the dependency graph live in the files,
+so a fresh context loses nothing.
 
 the Formalizer winds down only when the project ends: it finishes its existing work — no new
 reports come in, the working swarm completes, and the lean code runner processes the
@@ -54,10 +64,14 @@ worker is copied to it by the Producer as soon as it is stale — its raw form i
 form. a lint-passed report that becomes a route is not copied at linter time: after the
 Selector's verdict, the Selector sends the accepted route — full form (the PI's modified
 route) or core form (the accepted salvageable core) — together with the promoter's nearest
-true version note; a rejected route's pair enriches the fragment region instead. a unit that is an accepted route — full or core form — is decomposed with every piece marked [acceptedR] (lock this name): the piece-provenance marker the decompose plan carries and the working swarm writes on the qmd piece, so the lean code runner can trace every piece back to its accepted route (the accepted-route watch below). the
+true version note and the promoter's connection report (§7.1 of the Selector rule); a rejected route's pair enriches the fragment region instead. a unit that is an accepted route — full or core form — is decomposed with every piece marked [acceptedR] (lock this name): the piece-provenance marker the decompose plan carries and the working swarm writes on the qmd piece, so the lean code runner can trace every piece back to its accepted route (the accepted-route watch below). the
 promoter's note is scoping metadata for the decompose workers: it marks the honest core to
 formalize and the exact breaking point (an obstruction in the fragment region and the
-obstructions register), and the note itself is never decomposed. there is no limit on the
+obstructions register), and the note itself is never decomposed. the connection report is
+scoping metadata of the same kind: it names the pairs of existing statements in
+single.qmd that the route's results or techniques bridge — the decompose workers may
+mark the bridging content for formalization, and the lean code runner may treat a green
+bridge as an edge between the two existing statement nodes (rules below). there is no limit on the
 number of inputs the Formalizer can take: every two units — a lint-passed examine-failed
 report, or an accepted route with its note — the Formalizer requests a decompose worker
 from the Coordinator.
@@ -121,16 +135,34 @@ jobs (see below).
 
 the swarm's rules:
 
+- **bounded briefs.** the swarm is purely mechanical, so its workers need only the
+  material they transform: each working-swarm agent is spawned (or resumed) with a
+  compact job brief — the decomposed fragment (or the packaged relay), the locked
+  per-fragment format (the .qmd piece in qmd-prover form and the .lean piece), the
+  placement index (qmd-index.md — the id list, not the whole qmd file), and its
+  output path — and nothing else. it never loads the whole single.qmd, the
+  generated lean tree, or the dependency graph into its context; those belong to
+  the lean code runner. a swarm agent that over-reads beyond its brief is
+  corrected by the Formalizer (the context economy rule, rules/coordinator.md §3).
 - **single qmd file.** there is only one qmd file in the project — `formalizer/single.qmd` —
   and the swarm never writes parallel qmd files: each transformed fragment becomes its own
   per-fragment files under `formalizer/fragments/<fragment-id>/`, and the lean code runner
-  merges them into the one qmd file at its next resumption, ordered by fragment id.
+  merges them into the one qmd file at its next resumption, ordered by fragment id. single.qmd
+  may also carry connection annotation lines — `<!-- connection: [<route title>-T-<id>] … -->`
+  and `[<route title>-F-<id>]` — written by the Selector's re-invoked promoter during the
+  118–138 window (the Selector rule §7.1): they are annotations (provenance), never content —
+  they never change a block's statement, and the merge appends per-fragment pieces ordered by
+  fragment id and never removes locked content, so they survive; the lean conversion ignores
+  comments, so they never change the mathematics.
 - **similar facts placed closely.** each worker reads `formalizer/qmd-index.md` — the id list
   of the lemmas, definitions and theorems already in single.qmd, not the whole qmd file — and
   decides its placement from that list: a fragment whose facts resemble ids already in the
   index is written to sit next to its relatives, so the qmd file grows as one coherent body
   instead of scattered pieces. the lean code runner maintains qmd-index.md on every merge,
-  appending the ids of the newly merged pieces.
+  appending the ids of the newly merged pieces, and mirrors the connection annotations of
+  single.qmd into a connections section of the index (id → the `[<route title>-T-<id>]` /
+  `[<route title>-F-<id>]` marks attached to it), so the working swarm and the Creator's
+  phase-2 workers see the route bridges without loading single.qmd.
 - **writes lean code.** the swarm converts each decomposed fragment into the qmd piece and
   then into the lean piece, both written as per-fragment files under
   `formalizer/fragments/<fragment-id>/`, and reports the written paths in its final message;
@@ -161,11 +193,18 @@ the swarm's rules:
 
 ## the lean code runner (lock this name)
 
-the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator once per round at the round start — batched, never on every qmd file update — and restored after a session resume; it does not wake on its own. the run-or-postpone gate: at the round start, when landed-but-unintegrated per-fragment files exist under formalizer/fragments/ (or the runner is recorded paused with pending units) and the runner is not already active, the Coordinator decides per the runner-mode chosen at round 1 — in manual mode it asks the user whether to run the runner now or postpone it to the next round; in auto mode it automatically chooses 'run' without asking. on 'run' the Coordinator clears the pause and resumes the runner in the background — one resumption per round, fragments that land mid-round wait for the next one; on a manual 'postpone' the Coordinator records `paused: round N` in the worker registry and the Formalizer mirrors it in its resume pack (runtime/formalizer-state.md) with the pending units, and the runner is not resumed on any trigger while paused — the Formalizer re-requests it at the next round start, where the gate applies again. it plans in advance: on every resumption it examines the qmd
-file, the generated lean code, the reliable idea set and the dependency graph, and builds a
-forward plan of the mechanical verification jobs — which lean code to run, which pieces to
+the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator once per round at the round start — batched, never on every qmd file update — and restored after a session resume; it does not wake on its own. the run-or-postpone gate: at the round start, when landed-but-unintegrated per-fragment files exist under formalizer/fragments/ (or the runner is recorded paused with pending units) and the runner is not already active, the Coordinator decides per the runner-mode chosen at round 1 — in manual mode it asks the user whether to run the runner now or postpone it to the next round; in auto mode it automatically chooses 'run' without asking. on 'run' the Coordinator clears the pause and resumes the runner in the background — one resumption per round, fragments that land mid-round wait for the next one; on a manual 'postpone' the Coordinator records `paused: round N` in the worker registry and the Formalizer mirrors it in its resume pack (runtime/formalizer-state.md) with the pending units, and the runner is not resumed on any trigger while paused — the Formalizer re-requests it at the next round start, where the gate applies again. it plans in advance: on every resumption it reads its previous batch report, the qmd-index tail (the ids this resumption merges) and the dependency graph (the not-green pieces and the reverse-edge closure of the new pieces) to build a forward plan of the mechanical verification jobs — which lean code to run, which pieces to
 green-check, and in what order, preferring the pieces that shrink the goal node's distance
-to the established base. its duties, in order, on every resumption:
+to the established base. the plan covers only the delta since the last resumption: the
+pieces merged by this resumption's step 1 (the ids appended to qmd-index.md), the pieces
+that were not green at the last resumption (a missing premise may now be proved by the new
+pieces), and the pieces whose premise set the new pieces extend (the dependency graph's
+reverse edges). pieces already locked green are never re-dispatched — a locked green
+piece's lean code is fixed in the reliable idea set and its premises (kernel, mathlib,
+[Formalized]) are fixed, so it cannot turn ungreen, and re-running it would only re-read
+the same context for nothing. the mechanical compile (qmd-prover on single.qmd, step 2)
+still runs on the full file; the swarm jobs — which carry the agent-turn cost — run only
+on the delta. its duties, in order, on every resumption:
 
 1. **merge the per-fragment pieces.** it merges only the completed per-fragment files under
    `formalizer/fragments/` — packaged partial work under `<id>/partial/` is not merged — into
@@ -173,7 +212,11 @@ to the established base. its duties, in order, on every resumption:
    stays the one qmd file of the project, and appends the ids of the newly merged pieces to
    `formalizer/qmd-index.md`; it reads the [acceptedR] marker from each merged qmd piece and
    records the piece id under its accepted route in `formalizer/accepted-routes.md` (the
-   accepted-route watch below).
+   accepted-route watch below). it also reads the connection annotation lines of single.qmd
+   (the `<!-- connection: [<route title>-T-<id>] … -->` / `[<route title>-F-<id>]` marks,
+   the Selector rule §7.1) and mirrors any new ones into the connections section of
+   `formalizer/qmd-index.md` (id → the marks attached to it), so the Creator's phase-2
+   workers and the working swarm are notified of the route bridges by the ids.
 2. **refresh the lean code.** it converts the merged single qmd file into the lean code under
    `formalizer/lean/` — running qmd-prover on `formalizer/single.qmd` as the mechanical step —
    so the verification jobs run the current lean code.
@@ -215,11 +258,7 @@ to the established base. its duties, in order, on every resumption:
    - the dependency graph is updated whenever there is a new green lean code, adding the nodes
      and edges of that green proof, with the piece's `#print axioms` footprint recorded in the
      graph.
-6. **update the accepted-route watch.** at the end of each batch it updates
-   `formalizer/accepted-routes.md` with the per-route green counts of the [acceptedR] pieces
-   and applies the [no-green] transitions of the watch (below): a first no-green batch marks
-   the route [no-green], a batch with any green piece clears the marker, and a second
-   consecutive no-green batch is the stale trigger the Formalizer turns into the stale signal.
+6. **update the accepted-route watch.** at the end of each batch it updates the per-route green counts in `formalizer/accepted-routes.md` and flags the stale trigger; the [no-green] marking, clearing, surfacing and the stale signal are the Formalizer's (the accepted-route watch section below).
 
 the lean code runner is not the judge of the mathematics either: it plans, distributes and
 integrates — its swarm agents run the code and green-count, and it locks what is green and
@@ -245,8 +284,7 @@ green-locking — the Formalizer tallies: for each accepted route in the watch, 
 [acceptedR] pieces whose lean code is green. the tally joins the formalization status line
 (status reporting below). the transitions, per route:
 
-- **≥1 piece green** → clear the [no-green] marker if set; the route remains accepted; the
-  consecutive counter resets — a green batch in between saves the route;
+- **≥1 piece green** → clear the [no-green] marker if set; the route remains accepted; the [no-green] marker is cleared — a green batch in between saves the route;
 - **0 pieces green and no [no-green] marker** → first no-green batch: mark the route
   [no-green] (lock this name) in the watch registry and the status line, and the Coordinator
   tells the Producer to warn the route's writer — the Producer writes a dated warning note
@@ -324,6 +362,35 @@ green [acceptedR] pieces over the total, per accepted route — and any [no-gree
 the accepted-route watch, so the round-start check reads the watch state live. the formalization status block holds the green
 count, the [Formalized] count, and the dependency-graph summary — nodes, edges, and the
 goal node's distance to the established base.
+
+## bounded resumption reads — the delta, not the whole state
+
+the Formalizer's territory state is large and mostly unchanged between batches —
+formalizer/single.qmd, the generated lean code under formalizer/lean/,
+formalizer/dependency-graph.json and the fragment region grow piece by piece. on
+resumption the Formalizer reads only the delta since its last batch, never the
+whole files (the context economy rule, rules/coordinator.md §3):
+
+- its resume pack (runtime/formalizer-state.md) carries the delta markers: a
+  pointer to the latest formalization status-line entry, the last merged fragment
+  id (the qmd-index.md tail since that id), the last dependency-graph update
+  reference, the last fragment-region deposit reference, and the pending units;
+- on resumption it reads the resume pack, the formalization status line in the
+  Knowledge State index, the qmd-index.md tail, the new fragment-region deposits
+  and the lean code runner's latest batch report — and verifies artifact
+  existence by file (paths), never full contents;
+- the whole single.qmd, the whole lean/ tree and the whole dependency graph are
+  read only when a specific duty needs them (e.g. the goal-distance check the
+  Coordinator requests) — never as a resumption habit.
+
+the delta reads replace only the way the Formalizer re-reads unchanged state; every
+duty stays exactly as specified — the decompose regulation, the swarm regulation,
+the lean-runner gate re-request, the status reporting, and the accepted-route
+watch: the watch is unchanged and stays cheap because it reads the small registry
+formalizer/accepted-routes.md (never the qmd file) at each batch end, tallies the
+[acceptedR] green counts per accepted route, applies the [no-green] transitions,
+and writes the stale signal to runtime/stale-signals/ before it ends (the
+accepted-route watch and the stale signal above).
 
 ## artifact rules and versioning
 

@@ -21,7 +21,7 @@ accepted route.
 - one subfolder per accepted route, named by the title of that route, holding
   all artifacts related to it: the summaries, the idea reports, the route with
   its versions, and the review reports (including the review summaries of the
-  BCD reviewers). superseded versions stay archived in the subfolder, recorded
+  BCD reviewers and the promoter's connection-marks report). superseded versions stay archived in the subfolder, recorded
   and never deleted; when a revision is accepted, the new PI (the route writer)
   writes it in as the new version and marks the older version superseded (old
   files never edited).

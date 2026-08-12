@@ -46,6 +46,9 @@ are applied here, never silently: every modification after review is a new versi
   cited? · unannounced swarm-stage canary detection when carried>`
 - change list + rebuttal: `<version + pointer, after the PI's 103–118 window>`
 - promoter's nearest true version note: `<pointer, written in the same 103–118 window>`
+- promoter's connection marks: `<pointer — the connection report written in the 118–138
+  window, and the `[<route title>-T-<implied id>]` / `[<route title>-F-<initial id>]`
+  marks the promoter wrote into the single qmd file>`
 - verdicts: `<swarm count x/3, BCD count x/3, accepted / not accepted>`
 - defender: `<current defender PI id>` · superseded versions: `<older versions of this title
   already handed over>`

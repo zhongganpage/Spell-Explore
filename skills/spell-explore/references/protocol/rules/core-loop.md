@@ -32,7 +32,7 @@ Selector's rules):
   are the binding per-phase limits; changing any of them means the 2-hour-and-18-minute
   budget no longer holds.
 - a phase that reaches its window end is cut and its partial output recorded — the same
-  rule as the 10-minute lemma cut — and the round closes atomically at 138 min even if a
+  rule as the 10-minute lemma cut — and the round closes atomically at 138 min (rounds ≥ 3: 139) even if a
   phase is mid-flight. a cut partial report is recorded, versioned, and does not move on
   to the linter.
 - round timing is mandated: the round start is announced and written in the dossier before
@@ -46,7 +46,7 @@ Selector's rules):
   phase to completion in one run and is resumed by the Coordinator for the next phase; a
   subcoordinator never returns early — its final message comes only after every worker it
   directs has produced its artifact at the assigned path and the subcoordinator has
-  verified the write. every other worker closes once its job is done. see
+  verified the write. the exception: the Creator's phase runs may end once their spawn requests are filed — the rotation and summary collection are Coordinator-owned (rules/worker-lifespans.md). every other worker closes once its job is done. see
   rules/worker-lifespans.md for the hold-open connections.
 - everything is versioned: every fresh summary, idea report, route, stale entry, reliable
   idea set entry and fragment region update carries a version (v1, v2, …); nothing is
@@ -84,7 +84,7 @@ files in the project folder, not the dossier.
 the Creator's job is to create ideas and archive. it does not create new ideas itself: it
 regulates its own workers within its domain — idea generation and archiving — requesting
 them from the Coordinator, monitoring their status, enforcing the time limits and the
-artifact rules, and solving issues inside its territory. it is resumable.
+artifact rules, and solving issues inside its territory. it is resumable. across round boundaries its context is bounded like the Coordinator's (rules/coordinator.md §3, the round-boundary bounded context): it closes at the round close and is spawned fresh at the next round from its resume pack (runtime/creator-state.md, file pointers only) — never resume-by-ID across rounds; resume-by-ID stays the within-round rotation path.
 
 the Creator has two phases, which are independent and may run at the same time:
 
@@ -149,13 +149,27 @@ subcoordinators, the reliable idea set, or the fragment region.
   when n > 1, and a single worker mines. the mining is at most 15 minutes.
 - the regular miners search for good ideas / techniques in the received summary /
   report / route, and in the reliable idea set and the fragment region in the dossier.
+  they also read the connection marks — the connections section of formalizer/qmd-index.md,
+  and they may grep single.qmd for the connection annotation lines — and are notified by the
+  ids: a mark `[<route title>-T-<implied id>]` on a statement X (and its pair
+  `[<route title>-F-<initial id>]` on the implied statement Y, both written by the
+  Selector's re-invoked promoter in the 118–138 window, the Selector rule §7.1) says that
+  route's results or techniques can show a proof from X to Y in the single qmd file. a
+  miner that sees such a mark may use ideas from that route when mining around the
+  connected statements — opening the route's files (routes/; question-routes/<title>/ for
+  an accepted route; the stale entry for a rejected one) — and the connection itself is
+  material for its fresh summary.
 - the graph workers activate when formalizer/dependency-graph.json has nodes; before
   that — an empty graph — they mine as regular workers. a graph worker proposes bridging
   lemmas: connections (proofs) between assumption nodes of the dependency graph that
   shrink the goal node's distance to the established base. it reads dependency-graph.json
   (the assumption nodes, the green edges, the [Hired] flags, the goal node), the reliable
   idea set and the formalization status, binds the persistence and verification
-  protocols, and its output is a fresh summary in the normal format.
+  protocols, and its output is a fresh summary in the normal format. the connection marks
+  (the connections section of formalizer/qmd-index.md, and the connection annotations in
+  single.qmd — the Selector rule §7.1) are bridging hints: a mark says route R's results
+  or techniques connect the statement X to the statement Y, so a graph worker may reuse
+  route R's techniques to propose the bridging lemma that turns that edge green.
 - then, as in phase 1, the rotation is Coordinator-owned: when all n idea files are in,
   the Coordinator builds the per-worker rotation briefs (each carrying the preceding
   worker's idea — the idea of worker i goes to worker i+1, wrapping around) and resumes
@@ -187,7 +201,7 @@ subcoordinators, the reliable idea set, or the fragment region.
 
 the Producer does not produce anything: it regulates report and route production within
 its domain — monitoring the report workers, enforcing time limits and artifact rules, and
-solving issues inside its territory. it is resumable.
+solving issues inside its territory. it is resumable. across round boundaries its context is bounded like the Coordinator's (rules/coordinator.md §3, the round-boundary bounded context): it closes at the round close and is spawned fresh at the next round from its resume pack (runtime/producer-state.md, file pointers only) — never resume-by-ID across rounds.
 
 - whenever the Creator has a fresh summary ready, the Creator hands it to the Producer.
 - at the start of a round any carried-over work is handled first: the Producer distributes
@@ -274,7 +288,8 @@ solving issues inside its territory. it is resumable.
 - when open, the Producer requests one route-attached report worker from the Coordinator
   (the route-worker),
   anchored on one accepted route — older versions of accepted routes are preferred as the
-  anchor, and the champion-route pointer's route is excluded — and hands it the remaining summaries per the
+  anchor, the champion-route pointer's route is excluded, and accepted routes the user has
+  not yet seen are excluded as anchors — and hands it the remaining summaries per the
   transfer rule (§2.2): in rounds 1–2 the 2 lowest-goal-frontier leftovers; from
   round 3 the route-worker's 0-or-1 choice, the rest going to the phase-1 writer.
 - the route-worker treats the accepted route as the main approach: its report is a
@@ -476,6 +491,11 @@ shared path has one writer/appender:
   (stale routes), the Formalizer (cut decompose work, swarm 5-min tails): each writes
   only its own entries, subcoordinator-mediated.
 - `formalizer/qmd-index.md` — the lean code runner only.
+- `formalizer/single.qmd` — the lean code runner merges the per-fragment pieces (single
+  writer for the merge); the connection annotation lines are the one exception — appended
+  by the Selector's re-invoked promoter at the marked blocks (the Selector rule §7.1) and
+  verified by the Selector by file; they are annotations, never content, and the merge
+  never removes locked content.
 - `version-inventory.md` — each owner appends its own rows.
 
 no worker ever appends a shared file directly; a worker that must contribute to a shared
