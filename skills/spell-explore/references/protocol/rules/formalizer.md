@@ -121,6 +121,15 @@ jobs (see below).
 
 the swarm's rules:
 
+- **bounded briefs.** the swarm is purely mechanical, so its workers need only the
+  material they transform: each working-swarm agent is spawned (or resumed) with a
+  compact job brief — the decomposed fragment (or the packaged relay), the locked
+  per-fragment format (the .qmd piece in qmd-prover form and the .lean piece), the
+  placement index (qmd-index.md — the id list, not the whole qmd file), and its
+  output path — and nothing else. it never loads the whole single.qmd, the
+  generated lean tree, or the dependency graph into its context; those belong to
+  the lean code runner. a swarm agent that over-reads beyond its brief is
+  corrected by the Formalizer (the context economy rule, rules/coordinator.md §3).
 - **single qmd file.** there is only one qmd file in the project — `formalizer/single.qmd` —
   and the swarm never writes parallel qmd files: each transformed fragment becomes its own
   per-fragment files under `formalizer/fragments/<fragment-id>/`, and the lean code runner
@@ -165,7 +174,16 @@ the Formalizer requests the lean code runner from the Coordinator; like the subc
 file, the generated lean code, the reliable idea set and the dependency graph, and builds a
 forward plan of the mechanical verification jobs — which lean code to run, which pieces to
 green-check, and in what order, preferring the pieces that shrink the goal node's distance
-to the established base. its duties, in order, on every resumption:
+to the established base. the plan covers only the delta since the last resumption: the
+pieces merged by this resumption's step 1 (the ids appended to qmd-index.md), the pieces
+that were not green at the last resumption (a missing premise may now be proved by the new
+pieces), and the pieces whose premise set the new pieces extend (the dependency graph's
+reverse edges). pieces already locked green are never re-dispatched — a locked green
+piece's lean code is fixed in the reliable idea set and its premises (kernel, mathlib,
+[Formalized]) are fixed, so it cannot turn ungreen, and re-running it would only re-read
+the same context for nothing. the mechanical compile (qmd-prover on single.qmd, step 2)
+still runs on the full file; the swarm jobs — which carry the agent-turn cost — run only
+on the delta. its duties, in order, on every resumption:
 
 1. **merge the per-fragment pieces.** it merges only the completed per-fragment files under
    `formalizer/fragments/` — packaged partial work under `<id>/partial/` is not merged — into

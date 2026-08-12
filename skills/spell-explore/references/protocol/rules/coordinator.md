@@ -108,6 +108,27 @@ The Coordinator monitors:
 - whether any subcoordinator is stalled or conflicting;
 - the queue depth: the number of queued route reviews, reported in the round close.
 
+### context economy — the subcoordinators' bounded contexts
+
+the subcoordinators are resumable and their contexts persist across phases, so a
+context that carries full file contents grows with every phase and every later turn
+re-reads it all — the dominant measured cost of the system (the token analysis). the
+Coordinator enforces the economy rule on every subcoordinator:
+
+- artifacts live in files; a subcoordinator reads the artifact it needs at the
+  moment it needs it (Read) and never carries full file contents in its context
+  across resumptions;
+- resume packs and job briefs carry file pointers, never inline contents — a
+  subcoordinator's resume pack records its territory status and the pending
+  artifacts it is waiting on (paths), not the artifacts themselves;
+- the Coordinator's resume prompt to a subcoordinator points at files ('verify and
+  continue' on the expected outputs) — the resumed role re-reads from disk instead
+  of trusting what it already holds;
+- a subcoordinator that over-reads — pulling a whole qmd file, a whole dossier or
+  whole reports into its context when a pointer would do — is corrected and the
+  read pattern recorded in the dossier; the discipline is a cost rule, never a
+  content rule: nothing may be skipped because it was not read.
+
 Artifact guarantees the Coordinator enforces (shared with the subcoordinators): every
 worker that produces an artifact is spawned — by the Coordinator at its
 subcoordinator's request, or by its owner for a swarm — with the explicit output path
@@ -144,10 +165,11 @@ Coordinator never ends a turn that leaves the round mid-flight undriven:
   running (TaskList) is a stalled worker: the Coordinator restarts it in the same
   turn, keeping its label (per §4), never leaving the stall for a later window;
 - the clock watcher's presence is part of the turn discipline: before ending any
-  turn that leaves the round mid-flight, the Coordinator verifies the watcher is
-  live — the `watcher-cron` job present in CronList with the locked wake prompt,
-  or the fallback `sleep 120` task in TaskList (rules/timekeeping.md §6) — and
-  re-creates/re-spawns it in the same turn when missing; a missing watcher is a
+  turn that leaves the round mid-flight, the Coordinator verifies the watcher set
+  is live — the `watcher-backstop` job present in CronList with the locked wake
+  prompt and every not-yet-fired boundary/checkpoint one-shot still scheduled,
+  or the fallback `sleep 600` task in TaskList (rules/timekeeping.md §6) — and
+  re-creates/re-spawns any missing job in the same turn; a missing watcher is a
   stalled worker per §4 and is never left for a later window;
 - if the round is mid-flight and nothing is in flight, the Coordinator either
   executes the current phase's pending spawn requests now (runtime/requests/ is a
@@ -236,10 +258,12 @@ Each round has a hard budget of 2 hours and 18 minutes (138 minutes). Round timi
 mandated: the operational clock loop — announce the round start, timestamp each phase
 boundary, poll at each window end, cut the overrun — is specified in
 rules/timekeeping.md. the clock loop is kept alive mechanically by the clock watcher
-(rules/timekeeping.md §6): at round start the Coordinator creates a recurring
-scheduled job that fires a wake every 2 minutes — self-arming by construction, so
-the chain survives even when its own turn ended earlier or a wake was missed; the
-atomic close deletes the job and the next round creates its own. In short:
+(rules/timekeeping.md §6): at round start the Coordinator creates the watcher set —
+one-shot wakes at every binding window end and at the handoff checkpoints of the
+0–20 and 45–63 windows, plus a recurring 10-minute backstop — self-arming by
+construction, so the chain survives even when its own turn ended earlier or a wake
+was missed; the atomic close deletes the backstop, cancels the pending one-shots,
+and the next round creates its own set. In short:
 
 - the round start is announced and written in the dossier before any agent spawns;
 - phase start and end timestamps are recorded at each boundary in the phase-time
@@ -285,8 +309,9 @@ Every round ends with a single atomic round close written in one pass, containin
   unaccepted route; the user's nominations for which summaries or fragments to pair
   in the next round.
 
-the round's clock watcher job is deleted as part of the close (CronDelete —
-rules/timekeeping.md §6), so it stops firing; the next round creates its own.
+the round's clock watcher set is deleted as part of the close — the `watcher-backstop`
+job and any not-yet-fired one-shot, each CronDelete'd (rules/timekeeping.md §6) — so
+nothing fires after the round; the next round creates its own set.
 
 The Coordinator presents to the user, together with the decision list, every accepted
 route; the user sees the accepted route before it is marked a new version (the
@@ -333,6 +358,16 @@ pending in the round-close record; a later recycle feeds the next round's Creato
 park leaves it out of the auto-recycle); accepted routes the user has not yet seen
 are held — the Producer marks a new version only after the user has seen it, and a
 held route is not revised by the next round's route writer.
+
+Context compaction between rounds: at each close with rounds remaining, the
+Coordinator asks the user to run `/compact` with the locked instruction of
+rules/timekeeping.md §7 — relayed verbatim — together with the decision list. the
+request is recorded `pending-compact` in the round-close record and is
+non-blocking, exactly like the other per-close decisions: if the user does not
+compact, the next round starts anyway, and the Coordinator re-asks at the next
+close. compaction is safe because every artifact is a file and the round resumes
+from runtime/coordinator-state.md — it only stops the next round's turns from
+re-reading the whole prior conversation.
 
 ## 7. Round-2+ scheduling — carried work first
 

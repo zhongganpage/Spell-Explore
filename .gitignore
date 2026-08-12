@@ -7,3 +7,6 @@
 
 # the change log — kept locally, not published
 /CHANGELOG.md
+
+# local token-cost analysis — kept locally, not published
+/coordinator-token-analysis.md

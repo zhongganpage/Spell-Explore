@@ -75,39 +75,70 @@ printf '%s | %s | %s | %s\n' "$(date +%FT%T)" "$phase" "$worker" "$status" \
   >> round-close.md
 ```
 
-## 6. the clock watcher — self-arming, never zero
+## 6. the clock watcher — event-driven, never zero
 
 the window-end polls of §3 are executed by the Coordinator when it is active; a
 turn that ends before a window end leaves the round silent until something wakes
-it. the clock watcher guarantees a wake every 2 minutes regardless of turn
-endings. the watcher is a recurring scheduled job, not a one-shot background
-task — it is self-arming by construction and cannot be forgotten the way a
-manual re-spawn can:
+it. the clock watcher guarantees the round is watched at every fixed boundary and
+handoff even when its turn ended earlier or a wake was missed. the watcher is a
+set of scheduled jobs — one-shot fires at the round's fixed moments plus one
+recurring backstop — not a single one-shot background task, so it is self-arming
+by construction and cannot be forgotten the way a manual re-spawn can. the
+cadence exists to cut boundaries and service handoffs, and it is the dominant
+measured Coordinator cost (the token analysis: ~30% of Coordinator turns and of
+its token spend were watcher wakes), so it is set as low as the timeline's
+variable handoffs allow — a wake every 2 minutes is only needed where a handoff
+can complete mid-window, not everywhere:
 
 - at round start, right after the round-start timestamp is recorded, the
-  Coordinator creates the watcher job on the engine's scheduler: a recurring
-  cron firing every 2 minutes — `CronCreate(cron = "*/2 * * * *", prompt = "clock
-  watcher wake — run the wake procedure of this section for the current round",
-  recurring = true)`. the wake prompt above is the locked string — the
-  Coordinator uses it verbatim and verifies it by CronList; the job id is
-  recorded in runtime/coordinator-state.md as `watcher-cron <job-id>`.
+  Coordinator computes the round's wall-clock schedule from that timestamp and
+  the binding timeline (§4) and creates the watcher set on the engine's
+  scheduler:
+  - **boundary one-shots** — a one-shot scheduled job (`recurring = false`) at
+    every binding window end: 20, 45, 63, 78, 93, 103, 118, 138 minutes into
+    the round (rounds ≥ 3: 21, 46, 64, 79, 94, 104, 119, 139), so each boundary
+    is cut at its exact minute;
+  - **handoff checkpoints** — one-shot jobs at 3-minute spacing inside the two
+    variable-handoff windows, 0–20 (the Creator's phase-1 rotation — when all n
+    idea files are in, the Coordinator builds the rotation briefs and resumes the
+    workers) and 45–63 (the linter→examine handoff — the Producer files the
+    examine request when the linter is done, and the Coordinator spawns it on the
+    next fire); in the rounds ≥ 3 variant the gate window shifts +1 (46–64), the
+    Creator window does not. a handoff that completes mid-window is serviced
+    within ~3 minutes, as the old 2-minute poll served it before;
+  - **the backstop** — one recurring job firing every 10 minutes —
+    `CronCreate(cron = "*/10 * * * *", prompt = "clock watcher wake — run the
+    wake procedure of this section for the current round", recurring = true)` —
+    self-arming by construction, so a missed or held one-shot never leaves the
+    round unwatched for more than 10 minutes; a delayed backstop fire catches up
+    on every boundary that passed in one pass (the wake procedure is idempotent,
+    below). off-critical-path work (the Creator's phase 2, the Formalizer's
+    decompose and swarm) is served by the backstop and tolerates its cadence —
+    none of it is bound by the round budget.
+  - every job above carries the locked wake prompt — the Coordinator uses it
+    verbatim and verifies each by CronList; the job ids are recorded in
+    runtime/coordinator-state.md (`watcher-boundary-<min> <job-id>`,
+    `watcher-checkpoint-<min> <job-id>`, `watcher-backstop <job-id>`).
 - each fire is a wake delivered by the runtime: a fire that arrives while the
   Coordinator is mid-turn is held and delivered at the next turn boundary — it
-  never interrupts work in progress, and it is never lost. the scheduler keeps
-  firing on schedule; there is no re-arm step. at the atomic round close the
-  Coordinator deletes the job (CronDelete) so it stops firing — the next round
-  creates its own (rules/coordinator.md §6).
+  never interrupts work in progress, and it is never lost. one-shot fires
+  auto-delete after firing; the backstop keeps firing on schedule; there is no
+  re-arm step. at the atomic round close the Coordinator deletes the backstop
+  job and cancels any not-yet-fired one-shot (CronDelete), so nothing fires
+  after the round closes — the next round creates its own set
+  (rules/coordinator.md §6).
 - on each wake the Coordinator computes the elapsed time from the round-start
   timestamp, runs the §3 procedure for every window boundary that has passed
   since the last recorded boundary — poll the live state (TaskList), TaskStop
   the still-running workers of the phase, record the cut and the partial output
-  path in the phase-time table, timestamp the boundary — and checks for stalls
+  path in the phase-time table, timestamp the boundary — services pending spawn
+  requests (the spawn broker of Coordinator rule §3), and checks for stalls
   (expected artifacts missing with nothing running → restart per
   rules/coordinator.md §4). at the final boundary (138 / 139) it closes the
   round atomically instead.
 - the wake procedure is idempotent: it records only the boundaries not yet
   present in the phase-time table, so a delayed or duplicated wake (a stale
-  fallback completing while the scheduled job also fired) catches up on every
+  fallback completing while a scheduled job also fired) catches up on every
   boundary that passed in a single pass, and a row the Coordinator's own turn
   already handled makes the wake a no-op for it.
 - wakes are quiet by default: the current-status table — `round clock`
@@ -133,15 +164,16 @@ manual re-spawn can:
   records the gap in the dossier: the audit trail is the files.
 - the watcher's liveness is part of the Coordinator's turn discipline, not only
   of wakes (rules/coordinator.md §3): before ending any turn that leaves the
-  round mid-flight, the Coordinator verifies the watcher job is live — the
-  `watcher-cron` row present in CronList with the locked wake prompt — and
-  re-creates it in the same turn when missing; the round-start check does the
-  same when a resumed session lost it. a missing watcher is a stalled worker
-  like any other (rules/coordinator.md §4). a watcher job that a long-lived
+  round mid-flight, the Coordinator verifies the watcher set is live — the
+  `watcher-backstop` row present in CronList with the locked wake prompt, and
+  every not-yet-fired boundary and checkpoint one-shot still scheduled — and
+  re-creates any missing job in the same turn; the round-start check does the
+  same when a resumed session lost them. a missing watcher is a stalled worker
+  like any other (rules/coordinator.md §4). a backstop job that a long-lived
   session let go stale (the scheduler's 7-day auto-delete) is re-created by the
   same guard at the next turn end or round start.
 - fallback: on an engine without a scheduler, or when CronCreate fails, the
-  Coordinator uses the one-shot background `sleep 120` instead — a pure sleep:
+  Coordinator uses the one-shot background `sleep 600` instead — a pure sleep:
   no model, no artifact, no context — re-spawned on every completion AND by the
   turn-end liveness guard above; runtime/coordinator-state.md records
   `watcher-spawned-at <timestamp>` and the task id, and the round-start check
@@ -156,3 +188,24 @@ manual re-spawn can:
   the Coordinator (a runtime behavior outside the protocol's control), the
   round resumes from coordinator-state.md on the next prompt — the watcher is
   belt-and-suspenders, never the only recovery path.
+
+## 7. the round-close context compaction
+
+the Coordinator's context grows across rounds, and every later turn — a user turn
+or a wake alike — re-reads all of it: the dominant measured cost of the system
+(the token analysis). each atomic round close is a safe compaction point: every
+artifact is a file, the round resumes from runtime/coordinator-state.md and the
+resume packs, and the next round re-reads the dossier from disk — nothing lives
+only in the conversation. so at each close the protocol asks the user to compact:
+
+- at the atomic round close, when rounds remain and no stop condition applies,
+  the Coordinator asks the user to run `/compact` with the locked instruction
+  below — relayed verbatim — together with the decision list. the request is
+  recorded as `pending-compact` in the round-close record and never blocks the
+  next round's start: if the user does not compact, the next round starts anyway
+  on the un-compacted context, and the Coordinator re-asks at the next close.
+- the locked instruction:
+  `Compact the conversation context to free token usage. Preserve: the locked goal (goal.md), the round ledger and lifecycle line in runtime/coordinator-state.md, the dossier index and Knowledge State pointers, the worker registry and every resume pack in runtime/, and any pending user decisions (recycle/park, pairings). All project state is on disk — re-read from the files, never re-derive.`
+- compaction loses nothing: the round resumes from files, never from the
+  conversation, and `/compact` with the instruction above keeps the pointers the
+  next round needs to find them.
