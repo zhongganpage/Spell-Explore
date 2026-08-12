@@ -326,7 +326,13 @@ Every round ends with a single atomic round close written in one pass, containin
 
 the round's clock watcher set is deleted as part of the close — the `watcher-backstop`
 job and any not-yet-fired one-shot, each CronDelete'd (rules/timekeeping.md §6) — so
-nothing fires after the round; the next round creates its own set.
+nothing fires after the round; the next round creates its own set. Before the
+close, the Coordinator verifies the decision-stage artifacts by file for every route
+under review — the swarm votes, the BCD votes, the verdict, the panel record, and the
+promoter's connection-marking report with its marks in single.qmd (rules/selector.md
+§7.1): a route whose marking report is missing is recorded as a pending item in the
+round-close record — the round closes atomically all the same, and the pending marking
+is handed to the next round or the repair session, never silently dropped.
 
 The Coordinator presents to the user, together with the decision list, every accepted
 route; the user sees the accepted route before it is marked a new version (the

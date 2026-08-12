@@ -253,6 +253,19 @@ runner mirrors them into the connections section of qmd-index.md at its next mer
 the Creator's phase-2 workers are notified of the connection by the ids and may use
 ideas from the route.
 
+**the marking is an enforced deliverable.** the Selector's re-invocation request and
+spawn brief for the marking promoter carry the marking instruction explicitly — the
+brief names duty 2 (this §7.1) and the connection report as the deliverable, and
+requires the promoter to confirm the annotation count in its final message; the
+nearest-true-version brief of §7 never substitutes for it, and a re-invocation brief
+that is note-only is a protocol violation. the connection-marking report is a REQUIRED
+deliverable of the Selector's close checklist, like the verdict and the panel record:
+before it closes, the Selector verifies by file that the marks exist in
+formalizer/single.qmd and the report exists at the assigned output path for every
+route under review; a Selector that cannot close with the report hands the
+re-invocation to the Coordinator as a pending item — recorded in its resume pack and
+the round-close record — instead of closing "complete" without it (§11).
+
 ## 8. the decision swarm and the resumed BCD vote
 
 at 118–138, the Selector runs its own swarm of 3 (odd number) workers to review the panel,
@@ -369,7 +382,11 @@ running records — the panel records (with the workerD fallback notes), the can
 detection rates, the acceptance numbers, the quality ranking, and the promoter's
 connection reports — are kept in the archive as versioned artifacts.
 
-at the round close the Selector closes once its reviews and verdicts are recorded; the next round
+at the round close the Selector closes once its reviews and verdicts are recorded and
+the connection-marking reports are verified by file for every route under review
+(§7.1 — the report is a REQUIRED close deliverable, like the verdict and the panel
+record); a close without a marking report records the pending re-invocation for the
+Coordinator, never "complete" without it; the next round
 spawns it fresh from its resume pack — never resume-by-ID across rounds (rules/coordinator.md §3,
 the round-boundary bounded context). resume-by-ID stays the within-round fast path: the
 phase-to-phase resumption (raw reports → exchange → swarm) and the held B/C/D panel pause across

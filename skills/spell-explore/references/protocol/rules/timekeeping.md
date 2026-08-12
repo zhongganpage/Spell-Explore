@@ -135,7 +135,14 @@ can complete mid-window, not everywhere:
   requests (the spawn broker of Coordinator rule §3), and checks for stalls
   (expected artifacts missing with nothing running → restart per
   rules/coordinator.md §4). at the final boundary (138 / 139) it closes the
-  round atomically instead.
+  round atomically instead, and the final-boundary check verifies the
+  decision-stage artifacts for every route under review — the swarm votes, the BCD
+  votes, the verdict, and the re-invoked promoter's connection-marking report with
+  its marks in formalizer/single.qmd (rules/selector.md §7.1): a route whose marking
+  report is missing at the final boundary is recorded as a pending item in the
+  phase-time table and handed to the next round (or the repair session) at the close
+  — the round closes atomically all the same, but a missing marking is never silently
+  dropped.
 - the wake procedure is idempotent: it records only the boundaries not yet
   present in the phase-time table, so a delayed or duplicated wake (a stale
   fallback completing while a scheduled job also fired) catches up on every

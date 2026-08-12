@@ -65,4 +65,9 @@ yet, or no bridge is found, the report records that explicitly (`no connections 
 - the lean code runner mirrors the marks into the connections section of qmd-index.md at
   its next merge, so the Creator's phase-2 workers and the working swarm are notified of
   the connection by the ids and may use ideas from the route.
+- the report is a REQUIRED deliverable of the Selector's close checklist, like the
+  verdict and the panel record (rules/selector.md §7.1, §11): the Selector verifies by
+  file that the marks exist in single.qmd and the report exists at the assigned path
+  before it closes; the re-invocation brief carries the marking duty explicitly and the
+  promoter confirms the annotation count in its final message.
 - everything is versioned (v1, v2, …); nothing is cited or built on without its version.
