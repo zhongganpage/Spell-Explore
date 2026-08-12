@@ -1,6 +1,6 @@
 # connection marks — template
 
-the promoter's connection report (lock this name), written by the Selector's re-invoked
+the promoter's connection report (lock this name), written by the Selector's resumed
 promoter in the 118–138 window, at the same time as the decision swarm and the resumed
 BCD vote. the marking is verdict-independent: it runs for every route under review,
 whatever the vote. the marks themselves are written into the single qmd file
@@ -11,8 +11,9 @@ promoter fills in.
 
 ## who, when, where
 
-- produced by: the promoter, re-invoked in a fresh context during the 118–138 window of
-  the round (the promoter does not resume in this period; rules/selector.md §7.1).
+- produced by: the promoter, resumed (resume-by-ID, context preserved) during the
+  118–138 window of the round — the same worker that wrote the nearest true version
+  note, held paused across the PI window (rules/selector.md §7.1, rules/worker-lifespans.md).
 - inputs: the revised route (the PI's modified route), the change list, the BCD review
   reports (the raw review reports and the three review summaries of workerB, workerC and
   workerD), and the single qmd file — formalizer/single.qmd with its id list
@@ -80,6 +81,6 @@ yet, or no bridge is found, the report records that explicitly (`no connections 
 - the report is a REQUIRED deliverable of the Selector's close checklist, like the
   verdict and the panel record (rules/selector.md §7.1, §12): the Selector verifies by
   file that the marks exist in single.qmd and the report exists at the assigned path
-  before it closes; the re-invocation brief carries the marking duty explicitly and the
+  before it closes; the resume brief carries the marking duty explicitly and the
   promoter confirms the annotation count in its final message.
 - everything is versioned (v1, v2, …); nothing is cited or built on without its version.

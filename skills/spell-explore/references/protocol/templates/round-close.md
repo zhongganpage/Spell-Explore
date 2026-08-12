@@ -67,7 +67,7 @@ route):
 - 103–118 the PI rebuts and modifies the route, with the promoter writing its nearest true
   version note in the same window;
 - 118–138 the swarm decides, with the resumed BCD reviewers voting alongside, and the
-  re-invoked promoter marking the route's connections into the single qmd file (rules/selector.md §7.1).
+  resumed promoter marking the route's connections into the single qmd file (rules/selector.md §7.1).
 
 rounds ≥ 3 variant: the Producer's 1-minute summary choice shifts the windows after 20 by +1 (21–46, 46–64, 64–104, 104–119, 119–139), total 139 minutes.
 off the critical path and in the background: the Creator's second phase, the Formalizer (not

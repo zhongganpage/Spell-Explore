@@ -53,7 +53,7 @@ choice at the 20-min mark: the windows after it shift +1 (21–46, 46–64,
 | 45–63 | hygiene linter + examine | linter layer 1 ≈3 min, layer 2 ≈7 min, then the examine worker (cap 8 min) |
 | 63–103 | Selector panel | workerA lists the evidence points by 78 min; workerB/C/D review 63–93 min (workerD: exterior invocation); exchange + review summaries 93–103 min |
 | 103–118 | PI rebuttal + promoter note | in parallel, the promoter's nearest true version note in the same window |
-| 118–138 | decision swarm + BCD vote | decision swarm 20 min + BCD reviewers 20 min (B/C resumed; workerD re-invoked externally); in the same window the re-invoked promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
+| 118–138 | decision swarm + BCD vote | decision swarm 20 min + BCD reviewers 20 min (B/C resumed; workerD re-invoked externally); in the same window the resumed promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
 
 off the critical path and in the background: the Creator's phase 2, the Formalizer —
 not bound by the round budget, and a round close never cuts its swarm — and any
@@ -137,7 +137,7 @@ can complete mid-window, not everywhere:
   rules/coordinator.md §4). at the final boundary (138 / 139) it closes the
   round atomically instead, and the final-boundary check verifies the
   decision-stage artifacts for every route under review — the swarm votes, the BCD
-  votes, the verdict, and the re-invoked promoter's connection-marking report with
+  votes, the verdict, and the resumed promoter's connection-marking report with
   its marks in formalizer/single.qmd (rules/selector.md §7.1): a route whose marking
   report is missing at the final boundary is recorded as a pending item in the
   phase-time table and handed to the next round (or the repair session) at the close

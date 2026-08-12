@@ -14,7 +14,7 @@ judges mathematics.
 files: `templates/connection-marks.md`, `agents/promoter.md`,
 `rules/selector.md` (§7.1 + close checklist).
 
-- the promoter keeps the marking duty (the Selector's re-invoked promoter,
+- the promoter keeps the marking duty (the Selector's resumed promoter,
   118–138 window, verdict-independent). the PI does NOT mark; `agents/pi.md`
   is untouched.
 - the report gains a proof field on every T (initial) mark, three states:

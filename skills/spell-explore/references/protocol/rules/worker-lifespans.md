@@ -22,7 +22,7 @@ the rotation is Coordinator-owned and mechanical: the Coordinator holds all n id
 
 ## the BCD pause (Selector-internal)
 
-workerB and workerC do not close after their review summaries — the Selector directs the Coordinator to hold them paused, with their panel context, across the PI rebuttal window, and to resume them for the vote at 118–138; only then they close. workerD (the exterior reviewer) is not a held subagent: the Coordinator invokes it twice — the review and exchange (63–103) and the vote (118–138) with a consolidated prompt — and its context is reconstructed from files, never from a paused task (modules/providers.md). the promoter is not held either: it runs 103–118 for the nearest true version note and is re-invoked fresh at 118–138 for the connection marking (rules/selector.md §7.1) — its context is reconstructed from files, never from a paused task.
+workerB and workerC do not close after their review summaries — the Selector directs the Coordinator to hold them paused, with their panel context, across the PI rebuttal window, and to resume them for the vote at 118–138; only then they close. workerD (the exterior reviewer) is not a held subagent: the Coordinator invokes it twice — the review and exchange (63–103) and the vote (118–138) with a consolidated prompt — and its context is reconstructed from files, never from a paused task (modules/providers.md). the promoter IS held: it runs 103–118 for the nearest true version note, is paused, then resumed (resume-by-ID, context preserved) at 118–138 for the connection marking (rules/selector.md §7.1), and closes only after the second duty.
 
 ## the working swarm's resumable window
 

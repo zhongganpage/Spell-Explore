@@ -45,7 +45,7 @@ consistency-checked; this plan says what to build, in what order, and how to val
 | 45–63 | linter (layer 1 ≈3, layer 2 ≈7) + examine (cap 8) | linter first, then examine; fail → stale |
 | 63–103 | Selector panel (40) | A lists by 78; B/C/D review 63–93; exchange 93–103; two panels at a time |
 | 103–118 | PI rebuts + change list; promoter's nearest true version note in parallel (a high-level check) | the PI's rebuttal and the note go to the swarm |
-| 118–138 | swarm (20, 3 odd) + resumed BCD (20) + the re-invoked promoter's connection marking (20) | accept / accept-core / reject: accept and accept-core each need ≥2/3 swarm (2 of 3) AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved; the promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
+| 118–138 | swarm (20, 3 odd) + resumed BCD (20) + the resumed promoter's connection marking (20) | accept / accept-core / reject: accept and accept-core each need ≥2/3 swarm (2 of 3) AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved; the promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
 
 rounds ≥ 3 run 139 minutes: the Producer's phase-2 route writer spends 1 minute choosing its summary at the 20-min mark, and the windows after the choice shift +1 (21–46, 46–64, 64–104, 104–119, 119–139); one phase-1 report writer runs (4 fresh summaries per round).
 

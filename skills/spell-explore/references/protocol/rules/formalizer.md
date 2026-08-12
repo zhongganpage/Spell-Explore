@@ -27,7 +27,7 @@ minute round budget — its decompose workers run per pair of reports at any tim
 critical path of the round timeline (0–20 the Creator's phase 1, 20–45 the Producer's report,
 45–63 the hygiene linter and the examine worker, 63–103 the Selector's panel, 103–118 the PI's
 rebuttal and the promoter, 118–138 the Selector's swarm, the resumed BCD reviewers and the
-re-invoked promoter's connection marking), and
+resumed promoter's connection marking), and
 the Coordinator resumes the lean code runner once per round at the round start — batched,
 never on every qmd file update — subject to the run-or-postpone user gate (the lean code
 runner section below); fragments that land mid-round wait for the next resumption. the
@@ -173,7 +173,7 @@ the swarm's rules:
   per-fragment files under `formalizer/fragments/<fragment-id>/`, and the decompose worker
   plans the merge into the one qmd file (the Formalizer writes it), ordered by fragment id. single.qmd
   may also carry annotation lines — `<!-- connection: [<route title>-T-<id>] … -->`
-  and `[<route title>-F-<id>]` marks, written by the Selector's re-invoked promoter during the
+  and `[<route title>-F-<id>]` marks, written by the Selector's resumed promoter during the
   118–138 window (the Selector rule §7.1), and `[Similar: <green id>]` marks, written by the
   decompose worker at merge (the decompose workers above): they are annotations (provenance),
   never content — they never change a block's statement, and the merge appends per-fragment

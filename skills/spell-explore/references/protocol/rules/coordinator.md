@@ -296,7 +296,7 @@ The timeline (critical path, one route):
 | 45–63 | hygiene linter + examine worker | linter layer 1 (mechanical) ≈3 min, linter layer 2 (the format + assumptions, implications and grouping) ≈7 min, then the examine worker (cap 8 min) |
 | 63–103 | Selector panel | workerA lists the evidence points by 78 min; workerB/C/D review from 63 min and pivot to the list when it arrives; exchange reports 93–103 min, and each writes its review summaries |
 | 103–118 | PI rebuts and modifies the route; promoter in parallel | the promoter writes its nearest true version note in the same window |
-| 118–138 | the swarm decides | decision swarm (20 min) + resumed BCD reviewers (20 min); in the same window the re-invoked promoter marks the route's connections into the single qmd file (20 min, rules/selector.md §7.1) |
+| 118–138 | the swarm decides | decision swarm (20 min) + resumed BCD reviewers (20 min); in the same window the resumed promoter marks the route's connections into the single qmd file (20 min, rules/selector.md §7.1) |
 
 rounds ≥ 3 variant: the Producer's phase-2 1-minute summary choice adds 1 minute at the round's 20-min mark; the windows after the choice shift +1 — 21–46 (report), 46–64 (gates), 64–104 (panel), 104–119 (PI + promoter), 119–139 (swarm + BCD), panel internals shifting with them (workerA's list by 79, B/C/D 64–94, exchange 94–104) — and the round total is 139 minutes. rounds 1–2 run the 138-minute variant above.
 

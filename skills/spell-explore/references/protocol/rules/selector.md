@@ -222,7 +222,10 @@ the core may be accepted in reduced form, grounded in the route's material: when
 double gate votes accept-core, the core becomes the accepted route, versioned, with
 its own title, and its abstract enters question-routes.md. the promoter is
 read-only for the note duty (Read/Grep; it gains Edit only for the connection
-marking of §7.1) and runs in a fresh context; its note is a versioned artifact
+marking of §7.1), runs in a fresh context, and is held paused across the PI window
+by the Coordinator on the Selector's instruction — it is resumed (resume-by-ID,
+context preserved) for the connection marking of §7.1 and closes only after that
+second duty; its note is a versioned artifact
 written at an assigned output path (recovered from agent output if the promoter
 cannot write). if the route is rejected, the note also enriches the fragments sent
 to the Creator's second phase.
@@ -231,9 +234,10 @@ to the Creator's second phase.
 
 the promoter has a second duty in the 118–138 window in rounds 1–3 and the 126–148
 window from round 4, at the same time as the decision
-swarm and the resumed BCD vote. the promoter does not resume in this period: it is not
-held across the PI window (like workerD, its context is reconstructed from files), so
-the Selector requests the Coordinator to spawn it in a fresh context — one fresh invocation per route under
+swarm and the resumed BCD vote. the promoter IS resumed in this period: it is held
+paused across the PI window (like workerB and workerC — see rules/worker-lifespans.md),
+so the Selector instructs the Coordinator to resume it (resume-by-ID, context preserved)
+for the connection marking — one resume per route under
 review. the marking promoter reads the revised route (the PI's modified route), the
 change list, and the BCD review reports (the raw review reports and the three review
 summaries of workerB, workerC and workerD), then inspects the single qmd file —

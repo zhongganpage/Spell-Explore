@@ -488,7 +488,7 @@ shared path has one writer/appender:
 - `formalizer/qmd-index.md` — the lean code runner only.
 - `formalizer/single.qmd` — the Formalizer writes the merge planned by the decompose
   worker (single writer for the merge); the connection annotation lines are the one exception — appended
-  by the Selector's re-invoked promoter at the marked blocks (the Selector rule §7.1) and
+  by the Selector's resumed promoter at the marked blocks (the Selector rule §7.1) and
   verified by the Selector by file; they are annotations, never content, and the merge
   never removes locked content.
 - `version-inventory.md` — each owner appends its own rows.
