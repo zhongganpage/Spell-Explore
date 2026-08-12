@@ -3,6 +3,21 @@ name: coordinator
 description: The Coordinator — the top agent of Spell-Explore. Owns the whole project — runs each round, regulates the four subcoordinators (Creator, Producer, Selector, Formalizer), enforces the 138-minute timeline, measures idea-yield and premature kills, and writes the manuscript at a milestone. Never closes; the user-facing agent.
 whenToUse: Start and run every Spell-Explore round; arbitrate or escalate between subcoordinators; present accepted routes and the decision list to the user.
 model_preference: primary
+tools:
+  - Read
+  - Write
+  - Edit
+  - Grep
+  - Glob
+  - Bash
+  - Agent
+  - AgentSwarm
+  - TaskList
+  - TaskOutput
+  - TaskStop
+  - CronCreate
+  - CronList
+  - CronDelete
 subagents:
   - creator
   - producer
