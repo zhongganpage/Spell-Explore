@@ -51,9 +51,21 @@ yet, or no bridge is found, the report records that explicitly (`no connections 
 ### marks
 
 - `<id of the initial statement X>` ← `[<route title>-T-<id of the implied statement Y>]`
+- proof: `<route-ref:<claim-id> | full-argument | open>` — every T mark carries the
+  proof field in one of the three states: `route-ref:<claim-id>` (the implication is
+  already a claim in the revised route, no new argument needed), `full-argument` (a
+  complete argument written inline, using only claims already in the revised route, so
+  the swarm can transcribe it mechanically), or `open` (no complete argument, the gap
+  is recorded for the PI, the mark stays annotation-only)
 - `<id of the implied statement Y>` ← `[<route title>-F-<id of the initial statement X>]`
 - justification: `<one line per pair: how the route's results or techniques show the
-  proof from X to Y — the claim or technique in the route that does the work>`
+  proof from X to Y — the claim or technique in the route that does the work>` (F marks
+  carry this one line of reason only, no proof field)
+
+### open gaps
+
+- `<id of the initial statement X>` → `<id of the implied statement Y>` — `<what is
+  missing: the argument step that would complete the proof>` — recorded for the PI
 
 ## rules that bind this artifact
 
@@ -62,11 +74,11 @@ yet, or no bridge is found, the report records that explicitly (`no connections 
   per-fragment pieces ordered by fragment id and never removes locked content,
   rules/formalizer.md); the lean conversion ignores comments, so the marks never change
   the mathematics.
-- the lean code runner mirrors the marks into the connections section of qmd-index.md at
-  its next merge, so the Creator's phase-2 workers and the working swarm are notified of
+- the decompose worker mirrors the marks into the connections section of qmd-index.md at its
+  merge, so the Creator's phase-2 workers and the working swarm are notified of
   the connection by the ids and may use ideas from the route.
 - the report is a REQUIRED deliverable of the Selector's close checklist, like the
-  verdict and the panel record (rules/selector.md §7.1, §11): the Selector verifies by
+  verdict and the panel record (rules/selector.md §7.1, §12): the Selector verifies by
   file that the marks exist in single.qmd and the report exists at the assigned path
   before it closes; the re-invocation brief carries the marking duty explicitly and the
   promoter confirms the annotation count in its final message.

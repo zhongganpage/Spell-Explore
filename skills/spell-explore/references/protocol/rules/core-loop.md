@@ -149,27 +149,19 @@ subcoordinators, the reliable idea set, or the fragment region.
   when n > 1, and a single worker mines. the mining is at most 15 minutes.
 - the regular miners search for good ideas / techniques in the received summary /
   report / route, and in the reliable idea set and the fragment region in the dossier.
-  they also read the connection marks — the connections section of formalizer/qmd-index.md,
-  and they may grep single.qmd for the connection annotation lines — and are notified by the
-  ids: a mark `[<route title>-T-<implied id>]` on a statement X (and its pair
-  `[<route title>-F-<initial id>]` on the implied statement Y, both written by the
-  Selector's re-invoked promoter in the 118–138 window, the Selector rule §7.1) says that
-  route's results or techniques can show a proof from X to Y in the single qmd file. a
-  miner that sees such a mark may use ideas from that route when mining around the
-  connected statements — opening the route's files (routes/; question-routes/<title>/ for
-  an accepted route; the stale entry for a rejected one) — and the connection itself is
-  material for its fresh summary.
+  they may also read the connection report — the report, not only the connections section
+  of formalizer/qmd-index.md — as material for their fresh summaries: each mark's proof
+  state (`route-ref` | `full-argument` | `open`, the Selector rule §7.1) tells them which
+  connections are already argued — borrow the technique when mining around the connected
+  statements, opening the route's files (routes/; question-routes/<title>/ for an accepted
+  route; the stale entry for a rejected one) — and which are open: mine toward the gap.
 - the graph workers activate when formalizer/dependency-graph.json has nodes; before
   that — an empty graph — they mine as regular workers. a graph worker proposes bridging
   lemmas: connections (proofs) between assumption nodes of the dependency graph that
-  shrink the goal node's distance to the established base. it reads dependency-graph.json
-  (the assumption nodes, the green edges, the [Hired] flags, the goal node), the reliable
-  idea set and the formalization status, binds the persistence and verification
-  protocols, and its output is a fresh summary in the normal format. the connection marks
-  (the connections section of formalizer/qmd-index.md, and the connection annotations in
-  single.qmd — the Selector rule §7.1) are bridging hints: a mark says route R's results
-  or techniques connect the statement X to the statement Y, so a graph worker may reuse
-  route R's techniques to propose the bridging lemma that turns that edge green.
+  shrink the goal node's distance to the established base. it reads only
+  dependency-graph.json (the assumption nodes, the green edges, the [Hired] flags, the
+  goal node), the reliable idea set and the Knowledge State index, binds the persistence
+  and verification protocols, and its output is a fresh summary in the normal format.
 - then, as in phase 1, the rotation is Coordinator-owned: when all n idea files are in,
   the Coordinator builds the per-worker rotation briefs (each carrying the preceding
   worker's idea — the idea of worker i goes to worker i+1, wrapping around) and resumes
@@ -363,7 +355,8 @@ solving issues inside its territory. it is resumable. across round boundaries it
   - layer 2 also has the duty to formalize the arguments and identify the assumptions of
     the claims: the Formalizer's swarms never identify assumptions themselves — they
     only mechanically write the reports' per-fragment files (the .qmd and .lean pieces) — the
-    lean code runner merges them into the single qmd file and converts them to lean code, never identifying assumptions or judging the mathematics.
+    decompose worker plans the merge into the single qmd file (the Formalizer writes it) and the
+    lean code runner converts them to lean code, never identifying assumptions or judging the mathematics.
 - a report that does not pass the quick lint is stale: it does not move on, and the round
   produces no route from it. the linter's finding is recorded as the failure reason in the
   stale marking.
@@ -491,8 +484,8 @@ shared path has one writer/appender:
   (stale routes), the Formalizer (cut decompose work, swarm 5-min tails): each writes
   only its own entries, subcoordinator-mediated.
 - `formalizer/qmd-index.md` — the lean code runner only.
-- `formalizer/single.qmd` — the lean code runner merges the per-fragment pieces (single
-  writer for the merge); the connection annotation lines are the one exception — appended
+- `formalizer/single.qmd` — the Formalizer writes the merge planned by the decompose
+  worker (single writer for the merge); the connection annotation lines are the one exception — appended
   by the Selector's re-invoked promoter at the marked blocks (the Selector rule §7.1) and
   verified by the Selector by file; they are annotations, never content, and the merge
   never removes locked content.

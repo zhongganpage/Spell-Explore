@@ -221,7 +221,7 @@ this §3 — with its
 runtime/<role>-state.md resume pack (rules/worker-lifespans.md), and restoring each
 territory's live workers from the worker registry — and it sweeps
 formalizer/fragments/ for landed-but-unintegrated per-fragment files, handing them to
-the lean code runner's next merge — and resolves any stall or conflict
+the Formalizer's next merge — and resolves any stall or conflict
 it finds; the check is a bounded read that, like the
 round-1 setup, is not counted in the 138-minute budget. It repeats the environment
 preflight of §1 — the lean toolchain (lean --version), qmd-prover availability,

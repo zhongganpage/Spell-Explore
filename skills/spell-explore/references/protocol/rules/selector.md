@@ -243,13 +243,20 @@ never removes locked content; rules/formalizer.md). the marking is verdict-indep
 it runs for every route under review, whatever the vote. the Selector verifies the
 written marks by file, and the promoter's final message is the connection report — a
 versioned artifact per the connection-marks template, listing every mark with its
-one-line justification — persisted verbatim at the assigned output path (recovered
-from agent output, as for the note). post-verdict the report rides the handoff: for an
+one-line justification and its T-mark proof field — persisted verbatim at the assigned
+output path (recovered from agent output, as for the note). post-verdict the report rides the handoff: for an
 accepted or accepted-core route it goes to the Formalizer together with the accepted
 route and the note, as scoping metadata — which existing statements the route's
 results or techniques bridge; for a rejected route its connection entries enrich the
-stale entry's fragments. the marks stay in single.qmd either way, and the lean code
-runner mirrors them into the connections section of qmd-index.md at its next merge, so
+stale entry's fragments. every T (initial) mark carries a proof field in one of
+three states: `route-ref:<claim-id>` — the implication is already a claim in the
+revised route, no new argument needed; `full-argument` — a complete argument written
+inline, using only claims already in the revised route, so the swarm can transcribe it
+mechanically; `open` — no complete argument, the gap is recorded for the PI and the
+mark stays annotation-only. F (implied) marks carry one line of reason only, no proof
+field, and the open gaps are recorded in a dedicated open-gaps subsection of the
+report. the marks stay in single.qmd either way, and the decompose worker
+mirrors them into the connections section of qmd-index.md at its merge, so
 the Creator's phase-2 workers are notified of the connection by the ids and may use
 ideas from the route.
 
@@ -261,10 +268,11 @@ nearest-true-version brief of §7 never substitutes for it, and a re-invocation 
 that is note-only is a protocol violation. the connection-marking report is a REQUIRED
 deliverable of the Selector's close checklist, like the verdict and the panel record:
 before it closes, the Selector verifies by file that the marks exist in
-formalizer/single.qmd and the report exists at the assigned output path for every
-route under review; a Selector that cannot close with the report hands the
-re-invocation to the Coordinator as a pending item — recorded in its resume pack and
-the round-close record — instead of closing "complete" without it (§11).
+formalizer/single.qmd and the report exists at the assigned output path with its
+proof fields (L-B, §11) for every route under review; a Selector that cannot close
+with the report — missing or proof-field-invalid — hands the re-invocation to the
+Coordinator as a pending item — recorded in its resume pack and the round-close
+record — instead of closing "complete" without it (§12).
 
 ## 8. the decision swarm and the resumed BCD vote
 
@@ -371,7 +379,26 @@ any other idea in the dossier, and the Creator's second phase mines them directl
 round may deliver no accepted route: in that case the round delivers the round-close
 record with the decision list.
 
-## 11. the round close and the Selector's records
+## 11. the mechanical linters (L-A, L-B)
+
+before the handoff to the Formalizer, at the Selector close, the Selector runs two
+mechanical linters on the artifacts it hands over. L-A — the accepted route plus the
+PI's change list: every change-list item lands in the route (the ids exist and the
+numbering is consistent), the claim structure is uniform, the citations and the locked
+names are consistent, and the symbols conform to the symbol list
+(formalizer/symbol-list.md — the symbols as defined there, `proposed` symbols
+accepted, not violations). L-B — the connection report: the T/F pairs are complete,
+both ids exist in the route, each proof field is one of the three states and valid
+(`route-ref` resolves to a claim in the route, `full-argument` cites only route
+claims, `open` is recorded in the open-gaps subsection), and the report is
+cross-checked against the route. both are deterministic mechanical checks — no new
+subagent, no AI judgment: the Selector runs them itself, or its own workers per the
+existing gate pattern. a failing artifact stays at the Selector — a failing report
+goes back to the promoter, a failing route back to its writer (the PI) — and the
+failure is recorded pending like the other per-close decisions, non-blocking for the
+next round's start.
+
+## 12. the round close and the Selector's records
 
 every round ends with a single atomic round close written in one pass: the fresh
 routes, the verdicts, and the stale list with their fragments, together with a
@@ -383,10 +410,13 @@ detection rates, the acceptance numbers, the quality ranking, and the promoter's
 connection reports — are kept in the archive as versioned artifacts.
 
 at the round close the Selector closes once its reviews and verdicts are recorded and
-the connection-marking reports are verified by file for every route under review
-(§7.1 — the report is a REQUIRED close deliverable, like the verdict and the panel
-record); a close without a marking report records the pending re-invocation for the
-Coordinator, never "complete" without it; the next round
+the connection-marking reports are verified by file with their proof fields (L-B, §11)
+for every route under review (§7.1 — the report is a REQUIRED close deliverable, like
+the verdict and the panel record); a close without a complete marking report — missing
+or proof-field-invalid — records the pending re-invocation for the Coordinator, never
+"complete" without it; the two mechanical linters of §11 run before the handoff to the
+Formalizer, and a failing artifact stays at the Selector, recorded pending like the
+other per-close decisions — non-blocking for the next round's start; the next round
 spawns it fresh from its resume pack — never resume-by-ID across rounds (rules/coordinator.md §3,
 the round-boundary bounded context). resume-by-ID stays the within-round fast path: the
 phase-to-phase resumption (raw reports → exchange → swarm) and the held B/C/D panel pause across

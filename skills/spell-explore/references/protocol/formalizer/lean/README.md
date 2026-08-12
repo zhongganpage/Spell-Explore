@@ -18,7 +18,7 @@ round budget.
   as the idea pool in the dossier.
 - the sibling directory formalizer/fragments/ — one directory per fragment id,
   holding the `.qmd` piece and the `.lean` piece that the working swarm writes;
-  the lean code runner merges them into single.qmd at its next resumption,
+  the decompose worker plans their merge into single.qmd (the Formalizer writes it),
   ordered by fragment id.
 - the sibling file formalizer/qmd-index.md — the id list of the lemmas,
   definitions and theorems in single.qmd: the working swarm reads it for
