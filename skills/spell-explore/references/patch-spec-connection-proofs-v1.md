@@ -133,12 +133,13 @@ files: `agents/lean-code-runner.md`, `agents/lean-swarm-worker.md`,
 - **swarm verification**: the runner's swarm agents copy the assigned piece +
   its dependency closure from single.lean into a new temporary lean file and
   compile there; single.lean itself stays untouched by the swarm.
-- **[Similar]**: the runner mirrors the decompose worker's [Similar]
-  annotations into the qmd-index similarity section (notification channel for
-  miners and the Creator's phase-2 workers). lifecycle: when a [Similar]-marked
-  piece turns green, the runner retires the mark at lock time; on rename, the
-  mark's target follows the rename log. the runner never claims equivalence,
-  and a missing [Similar] means nothing.
+- **[Similar]**: the decompose worker writes its [Similar]
+  annotations into single.qmd at merge and mirrors them into the qmd-index
+  similarity section (notification channel for miners and the Creator's phase-2
+  workers). lifecycle: when a [Similar]-marked piece turns green, the runner
+  retires the mark at lock time; on rename, the mark's target follows the
+  rename log. the runner never claims equivalence, and a missing [Similar]
+  means nothing.
 - **[Hired]**: the runner marks [Hired] IN single.lean (annotation) and builds
   the dependency graph from the single file. graph node identity = div id
   (stable), with the lean declaration name as an attribute updated on rename —
