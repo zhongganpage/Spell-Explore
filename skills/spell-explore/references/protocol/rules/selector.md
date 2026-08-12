@@ -233,7 +233,7 @@ the promoter has a second duty in the 118–138 window in rounds 1–3 and the 1
 window from round 4, at the same time as the decision
 swarm and the resumed BCD vote. the promoter does not resume in this period: it is not
 held across the PI window (like workerD, its context is reconstructed from files), so
-the Selector re-invokes it in a fresh context — one fresh invocation per route under
+the Selector requests the Coordinator to spawn it in a fresh context — one fresh invocation per route under
 review. the marking promoter reads the revised route (the PI's modified route), the
 change list, and the BCD review reports (the raw review reports and the three review
 summaries of workerB, workerC and workerD), then inspects the single qmd file —
