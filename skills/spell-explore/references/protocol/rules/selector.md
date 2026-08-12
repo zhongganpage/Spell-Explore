@@ -91,7 +91,8 @@ raised (§6).
 
 timing within the 63–103 window: workerA lists the evidence points by 78 min; workerB/C/D
 review from 63 min, and pivot to workerA's list when it arrives; the exchange runs 93–103
-min. a phase that reaches its window end is cut and its partial output recorded.
+min. in rounds ≥ 3 all these windows shift +1 (panel 64–104, workerA list by 79, exchange
+94–104, PI 104–119, swarm 119–139 — rules/timekeeping.md §4). a phase that reaches its window end is cut and its partial output recorded.
 
 workerB, workerC and workerD have 30 minutes to run the review and write a raw review
 report, and an additional 10 minutes to exchange the reports — each of the three
@@ -122,8 +123,9 @@ a time, two exterior invocations are needed, and each workerD passes the same ch
 
 ### artifact and context rules for the panel
 
-the panel workers receive the route and the statements of the cited results only, in
-fresh contexts — never the expected outcome and never the author's reasoning. the
+the panel workers receive the route and the statements of the cited results — never the
+expected outcome, never the author's reasoning — and each B/C/D reviewer additionally
+receives the scoped brief of §3, in fresh contexts. the
 panel's brief is scoped: each B/C/D reviewer receives the route, the statements of
 the cited results, workerA's evidence-point list (when it is ready), the examine
 worker's sufficiency verdict (when one exists), and one-line abstracts of the related
@@ -240,7 +242,7 @@ held across the window: its context is reconstructed from files — the Coordina
 re-invokes it externally with the consolidated prompt, retries a lost vote invocation
 once within the window, then records the vote as absent with the reason. a phase that reaches
 its window end is cut and its partial
-output recorded; the round closes atomically at 138 min even if a phase is mid-flight.
+output recorded; the round closes atomically at 138 min (rounds ≥ 3: 139) even if a phase is mid-flight.
 
 ## 9. acceptance, milestone, and quality ranking
 

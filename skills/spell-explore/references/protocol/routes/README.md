@@ -20,7 +20,9 @@ versions.
   modifies the route and rebuts within its 15 minutes (window 103–118); the
   change list and the rebuttal are handed to the decision swarm. the change
   list answers the reviewers' questions point by point — the BCD reviewers
-  raise questions about any doubtful aspect (id'd `Q-B/C/D<n>`), and the BCD
+  raise questions about any doubtful aspect (id'd `Q-B/C/D<n>`) and question every statement
+  that is non-trivial and not well clarified, including the rougher statements of early
+  routes, and the BCD
   vote weighs the quality of the answers.
 - the Selector marks routes accepted / unaccepted in the archive.
 

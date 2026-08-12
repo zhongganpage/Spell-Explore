@@ -447,19 +447,18 @@ Acceptance of a route: ≥2/3 of the swarm workers AND ≥2/3 of the BCD reviewe
 The acceptance numbers rank the quality of an accepted route: full consensus (3/3 +
 3/3) is the strongest, lower counts are accepted but weaker.
 
-Milestone: the milestone is Lean-led — the required condition is the goal node of
-dependency-graph.json reachable from the established base (kernel axioms + Mathlib
-theorems + [Formalized] pieces), with `#print axioms goalTheorem` containing no
-non-kernel axiom, and a full manuscript claim requires the hired set empty and the
-reachability proven in Lean. The
-3/3 swarm + 3/3 BCD unanimity is the presentation bar for the manuscript, not the
-reachability condition.
+Milestone: the project reaches a milestone only when all 3 swarm workers and all 3
+BCD reviewers accept AND the accepted routes together achieve the locked goal —
+operationally, the goal node of dependency-graph.json reachable from the established
+base (kernel axioms + Mathlib theorems + [Formalized] pieces), with `#print axioms
+goalTheorem` containing no non-kernel axiom, and a full manuscript claim requires the
+hired set empty and the reachability proven in Lean. the 3/3 + 3/3 unanimity is part
+of the condition, never a presentation bar: reachability without full consensus is
+not a milestone and goes no further.
 
-When the goal node is reachable with full consensus, the Coordinator writes a report
-about it in PDF, called the manuscript (locked name); the manuscript carries a
-version. When the reachability holds without the unanimity, the Coordinator reports
-the formalization milestone to the user and asks how to proceed — write the
-manuscript, or keep going.
+When the milestone is reached, the Coordinator writes a report about it in PDF,
+called the manuscript (locked name); the manuscript carries a version. the milestone
+is a stop condition (§6a): the rounds stop there.
 
 ## 10. question-routes maintenance
 

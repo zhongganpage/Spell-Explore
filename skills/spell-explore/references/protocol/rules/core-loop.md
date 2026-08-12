@@ -32,7 +32,7 @@ Selector's rules):
   are the binding per-phase limits; changing any of them means the 2-hour-and-18-minute
   budget no longer holds.
 - a phase that reaches its window end is cut and its partial output recorded — the same
-  rule as the 10-minute lemma cut — and the round closes atomically at 138 min even if a
+  rule as the 10-minute lemma cut — and the round closes atomically at 138 min (rounds ≥ 3: 139) even if a
   phase is mid-flight. a cut partial report is recorded, versioned, and does not move on
   to the linter.
 - round timing is mandated: the round start is announced and written in the dossier before
@@ -46,7 +46,7 @@ Selector's rules):
   phase to completion in one run and is resumed by the Coordinator for the next phase; a
   subcoordinator never returns early — its final message comes only after every worker it
   directs has produced its artifact at the assigned path and the subcoordinator has
-  verified the write. every other worker closes once its job is done. see
+  verified the write. the exception: the Creator's phase runs may end once their spawn requests are filed — the rotation and summary collection are Coordinator-owned (rules/worker-lifespans.md). every other worker closes once its job is done. see
   rules/worker-lifespans.md for the hold-open connections.
 - everything is versioned: every fresh summary, idea report, route, stale entry, reliable
   idea set entry and fragment region update carries a version (v1, v2, …); nothing is
@@ -274,7 +274,8 @@ solving issues inside its territory. it is resumable. across round boundaries it
 - when open, the Producer requests one route-attached report worker from the Coordinator
   (the route-worker),
   anchored on one accepted route — older versions of accepted routes are preferred as the
-  anchor, and the champion-route pointer's route is excluded — and hands it the remaining summaries per the
+  anchor, the champion-route pointer's route is excluded, and accepted routes the user has
+  not yet seen are excluded as anchors — and hands it the remaining summaries per the
   transfer rule (§2.2): in rounds 1–2 the 2 lowest-goal-frontier leftovers; from
   round 3 the route-worker's 0-or-1 choice, the rest going to the phase-1 writer.
 - the route-worker treats the accepted route as the main approach: its report is a

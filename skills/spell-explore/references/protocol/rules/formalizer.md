@@ -19,7 +19,7 @@ and the artifact rules, and solving issues inside its territory, while the Coord
 regulates the Formalizer. every worker it directs is spawned by the Coordinator in the
 explicit background mode, never the blocking foreground; the working swarm is the
 Formalizer's own and is spawned by it in the explicit background mode. the Formalizer
-is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. within the Formalizer's territory so does the lean code runner (see
+is resumable: it runs each phase to completion in one run — waiting for every worker's artifact before returning — and is resumed by the Coordinator for the next phase; it never returns early, and a narrated step is not a done step. the lean code runner is resumable the same way within the Formalizer's territory (see
 below).
 
 the Formalizer runs in the background across rounds: it is not bound by the 2-hour-and-18-
@@ -179,9 +179,7 @@ the swarm's rules:
 
 ## the lean code runner (lock this name)
 
-the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator once per round at the round start — batched, never on every qmd file update — and restored after a session resume; it does not wake on its own. the run-or-postpone gate: at the round start, when landed-but-unintegrated per-fragment files exist under formalizer/fragments/ (or the runner is recorded paused with pending units) and the runner is not already active, the Coordinator decides per the runner-mode chosen at round 1 — in manual mode it asks the user whether to run the runner now or postpone it to the next round; in auto mode it automatically chooses 'run' without asking. on 'run' the Coordinator clears the pause and resumes the runner in the background — one resumption per round, fragments that land mid-round wait for the next one; on a manual 'postpone' the Coordinator records `paused: round N` in the worker registry and the Formalizer mirrors it in its resume pack (runtime/formalizer-state.md) with the pending units, and the runner is not resumed on any trigger while paused — the Formalizer re-requests it at the next round start, where the gate applies again. it plans in advance: on every resumption it examines the qmd
-file, the generated lean code, the reliable idea set and the dependency graph, and builds a
-forward plan of the mechanical verification jobs — which lean code to run, which pieces to
+the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator once per round at the round start — batched, never on every qmd file update — and restored after a session resume; it does not wake on its own. the run-or-postpone gate: at the round start, when landed-but-unintegrated per-fragment files exist under formalizer/fragments/ (or the runner is recorded paused with pending units) and the runner is not already active, the Coordinator decides per the runner-mode chosen at round 1 — in manual mode it asks the user whether to run the runner now or postpone it to the next round; in auto mode it automatically chooses 'run' without asking. on 'run' the Coordinator clears the pause and resumes the runner in the background — one resumption per round, fragments that land mid-round wait for the next one; on a manual 'postpone' the Coordinator records `paused: round N` in the worker registry and the Formalizer mirrors it in its resume pack (runtime/formalizer-state.md) with the pending units, and the runner is not resumed on any trigger while paused — the Formalizer re-requests it at the next round start, where the gate applies again. it plans in advance: on every resumption it reads its previous batch report, the qmd-index tail (the ids this resumption merges) and the dependency graph (the not-green pieces and the reverse-edge closure of the new pieces) to build a forward plan of the mechanical verification jobs — which lean code to run, which pieces to
 green-check, and in what order, preferring the pieces that shrink the goal node's distance
 to the established base. the plan covers only the delta since the last resumption: the
 pieces merged by this resumption's step 1 (the ids appended to qmd-index.md), the pieces
@@ -242,11 +240,7 @@ on the delta. its duties, in order, on every resumption:
    - the dependency graph is updated whenever there is a new green lean code, adding the nodes
      and edges of that green proof, with the piece's `#print axioms` footprint recorded in the
      graph.
-6. **update the accepted-route watch.** at the end of each batch it updates
-   `formalizer/accepted-routes.md` with the per-route green counts of the [acceptedR] pieces
-   and applies the [no-green] transitions of the watch (below): a first no-green batch marks
-   the route [no-green], a batch with any green piece clears the marker, and a second
-   consecutive no-green batch is the stale trigger the Formalizer turns into the stale signal.
+6. **update the accepted-route watch.** at the end of each batch it updates the per-route green counts in `formalizer/accepted-routes.md` and flags the stale trigger; the [no-green] marking, clearing, surfacing and the stale signal are the Formalizer's (the accepted-route watch section below).
 
 the lean code runner is not the judge of the mathematics either: it plans, distributes and
 integrates — its swarm agents run the code and green-count, and it locks what is green and
@@ -272,8 +266,7 @@ green-locking — the Formalizer tallies: for each accepted route in the watch, 
 [acceptedR] pieces whose lean code is green. the tally joins the formalization status line
 (status reporting below). the transitions, per route:
 
-- **≥1 piece green** → clear the [no-green] marker if set; the route remains accepted; the
-  consecutive counter resets — a green batch in between saves the route;
+- **≥1 piece green** → clear the [no-green] marker if set; the route remains accepted; the [no-green] marker is cleared — a green batch in between saves the route;
 - **0 pieces green and no [no-green] marker** → first no-green batch: mark the route
   [no-green] (lock this name) in the watch registry and the status line, and the Coordinator
   tells the Producer to warn the route's writer — the Producer writes a dated warning note

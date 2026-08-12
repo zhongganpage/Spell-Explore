@@ -13,8 +13,9 @@ template a worker fills in; the filled file becomes the artifact.
   around the locked goal — the locked goal file — with maximal freedom; in round ≥ 2 it also
   read the Knowledge State index and must find ideas that do not exist in the idea pool — not
   even ideas similar to the ones already archived.
-- the rotation: before the summaries are written, the Creator rotates the n ideas — it hands the
-  idea of each worker to the next worker (with n = 4, the idea of worker 1234 goes to worker
+- the rotation: before the summaries are written, the rotation is Coordinator-owned — it hands
+  the idea of each worker to the next worker via rotation briefs (with n = 4, the idea of worker
+  1234 goes to worker
   4123) — and the worker learns from the idea it receives — a summary may incorporate what the
   worker learned, and should say so.
 - where it lands: the idea pool in the dossier, archived by the Creator; nothing reads it as

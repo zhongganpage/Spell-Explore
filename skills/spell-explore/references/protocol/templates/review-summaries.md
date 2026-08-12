@@ -40,10 +40,13 @@ the template each of the three workers fills in.
 
 each of the three summaries carries a "questions for the PI" section: every doubt the
 reviewer has about any aspect of the route — a claim, a proof step, an evidence, a
-definition, an assumption, an edge case, the link to the goal — asked as a concrete
-question with a stable id (`Q-B<n>` / `Q-C<n>` / `Q-D<n>` by reviewer); a reviewer with
-no doubt records `no doubts found`. the PI must answer every question when modifying
-the route (the change list), and the BCD vote weighs the quality of the answers.
+definition, an assumption, an edge case, a citation, the link to the goal — asked as a
+concrete question with a stable id (`Q-B<n>` / `Q-C<n>` / `Q-D<n>` by reviewer); the
+reviewer also questions every statement that is non-trivial and not well clarified
+(hypotheses, terms, definitions or well-posedness not explicit), including the rougher
+statements of early routes; a reviewer with no doubt records `no doubts found`. the PI
+must answer every question when modifying the route (the change list), and the BCD vote
+weighs the quality of the answers.
 
 ### workerB — inconsistencies and readability
 
@@ -92,7 +95,10 @@ diversity recorded)>` · summary id + version: `<id> <v1, v2, …>`
 
 - the three summaries are separate, versioned artifacts; the Selector transfers them to the PI
   as files, and the PI receives them before the 103–118 window.
-- every reviewer actively asks questions about any doubtful aspect of the route (the §3
+- every reviewer asks questions about any aspect of the route that raises doubt, and also
+  questions every statement that is non-trivial and not well clarified (hypotheses, terms,
+  definitions or well-posedness not explicit) — including the rougher statements of early
+  routes; a reviewer with no doubt records `no doubts found` (the §3
   questioning duty, id'd `Q-B/C/D<n>`); the PI must answer every question in the change list
   when modifying the route — `repaired` (embodied in the modified route, section cited) /
   `rebutted` (justified) / `open` (stated reason). at the vote the BCD reviewers weigh the

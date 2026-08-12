@@ -87,7 +87,7 @@ by construction and cannot be forgotten the way a manual re-spawn can. the
 cadence exists to cut boundaries and service handoffs, and it is the dominant
 measured Coordinator cost (the token analysis: ~30% of Coordinator turns and of
 its token spend were watcher wakes), so it is set as low as the timeline's
-variable handoffs allow — a wake every 2 minutes is only needed where a handoff
+variable handoffs allow — a wake every ~3 minutes is only needed where a handoff
 can complete mid-window, not everywhere:
 
 - at round start, right after the round-start timestamp is recorded, the
