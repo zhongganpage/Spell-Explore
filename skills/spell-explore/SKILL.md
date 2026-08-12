@@ -24,7 +24,7 @@ Adversarial multi-agent proof protocol. rough idea in → attacked, reviewed, an
 
 ## Invariants
 
-- every subagent is spawned in the background, never the blocking foreground; every resume (resume-by-ID) runs in the background too, never the blocking foreground
+- every Agent call — spawn AND resume-by-ID — runs in the explicit background mode (`run_in_background=true`), never the blocking foreground. A resume is never foreground. AgentSwarm has no `run_in_background` flag (tool limitation); swarm workers run asynchronously, and the lifecycle contract handles the block via children-in-flight yield
 - a subcoordinator never returns early — its final message comes only after every worker it directs has produced its artifact at the assigned path and it has verified the write; a narrated step is not a done step
 - the Coordinator's own turns carry the same contract: every turn ends with a lifecycle line (children-in-flight | awaiting-resume at <window> | round-closed) written to runtime/coordinator-state.md, and a turn that ends mid-round without one is an early return — the round resumes from that file, never from task-state inference
 - no subcoordinator closes a worker that a later stage still needs (see rules/worker-lifespans.md)

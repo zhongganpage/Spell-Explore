@@ -192,7 +192,7 @@ Coordinator never ends a turn that leaves the round mid-flight undriven:
   other.
 
 All subcoordinators and all workers run in the background: every subagent is spawned
-in the explicit background mode, never the blocking foreground; every resume (resume-by-ID) also runs in the explicit background mode. The subcoordinators,
+in the explicit background mode, never the blocking foreground; every resume (resume-by-ID) also runs in the explicit background mode — a resume-by-ID is never foreground, regardless of expected duration: the Coordinator passes `run_in_background=true` on every resume, without exception. The subcoordinators,
 the PIs, and the lean code runner are resumable: each runs its phase to completion
 in one run and is resumed by the Coordinator for the next phase; a subcoordinator
 never returns early — its final message comes only after every worker it directs has
