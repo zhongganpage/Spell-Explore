@@ -147,7 +147,7 @@ subcoordinators, the reliable idea set, or the fragment region.
   independent of the workers in phase 1: in rounds 1–2 the split is 2 graph workers and
   2 regular miners — the 2-graph/2-miner split is the standard n = 4 — and from round 3
   it is 1 graph worker and 1 regular miner. for other n the Creator scales it: at most 2
-  graph workers (1 from round 3) when dependency-graph.json has nodes, at least 1 miner
+  graph workers (1 from round 3) when ITG.lean has nodes, at least 1 miner
   when n > 1, and a single worker mines. the mining is at most 15 minutes.
 - the regular miners search for good ideas / techniques in the received summary /
   report / route, and in the reliable idea set and the fragment region in the dossier.
@@ -157,11 +157,11 @@ subcoordinators, the reliable idea set, or the fragment region.
   connections are already argued — borrow the technique when mining around the connected
   statements, opening the route's files (routes/; question-routes/<title>/ for an accepted
   route; the stale entry for a rejected one) — and which are open: mine toward the gap.
-- the graph workers activate when formalizer/dependency-graph.json has nodes; before
-  that — an empty graph — they mine as regular workers. a graph worker proposes bridging
-  lemmas: connections (proofs) between assumption nodes of the dependency graph that
+- the graph workers activate when formalizer/Integrator/ITG.lean has nodes; before
+  that — an empty ITG.lean — they mine as regular workers. a graph worker proposes bridging
+  lemmas: connections (proofs) between assumption nodes of ITG.lean that
   shrink the goal node's distance to the established base. it reads only
-  dependency-graph.json (the assumption nodes, the green edges, the [Hired] flags, the
+  ITG.lean (the assumption nodes, the green edges, the [Hired] flags, the
   goal node), the reliable idea set and the Knowledge State index, binds the persistence
   and verification protocols, and its output is a fresh summary in the normal format.
 - then, as in phase 1, the rotation is Coordinator-owned: when all n idea files are in,
@@ -212,11 +212,11 @@ solving issues inside its territory. it is resumable. across round boundaries it
 - the Producer maintains a goal-frontier score for every pool idea — how much of the
   locked goal's unproved structure the idea touches, measured by term overlap with the
   goal statement, the number of [Formalized] or [Hired] premises it can cite on the
-  dependency tree's path toward the goal, whether the idea would hire new
+  report/ITG path toward the goal, whether the idea would hire new
   axiom-class nodes (fragments adjacent to unhired axiom-class nodes on the
-  dependency tree score higher), the graph's hired ratio — the hired axiom-class
+  report/ITG path score higher), the report's hired ratio — the hired axiom-class
   nodes over the total nodes — as a connectivity measure (the more hired, the more
-  of the graph's statements are derived from the established base), and its
+  of the report's statements are derived from the established base), and its
   provenance (revival-triggered or obstruction-
   touching fragments score higher) — the measured terms enter the score with equal
   weight. — and, when the phase-2 lane is open, the 2 lowest-
@@ -239,7 +239,7 @@ solving issues inside its territory. it is resumable. across round boundaries it
   round 3 runs 139 minutes, and from round 4 the rounds run 149 minutes (see §0, the timeline variant).
 - when a revival trigger fires, its fragment jumps the pairing queue.
 - the Producer prefers assigned sets that shrink the goal node's distance to the established base
-  on the dependency tree (see the Formalizer rule).
+  on the report/ITG (see the Formalizer rule).
 - the user may nominate which summaries or fragments to pair in the next round through the
   decision list; those nominations steer the pairing.
 
@@ -248,8 +248,7 @@ solving issues inside its territory. it is resumable. across round boundaries it
 - a phase-1 report writer processes its assigned summaries with a time limit of 25 minutes, i.e.
   the 20–45 window. it has full tools to write the report and is spawned by the
   Coordinator with the explicit output path its subcoordinator assigns.
-- the worker itself actively reviews the reliable idea set and the current dependency
-  graph, and finds the interesting ideas according to its own reasoning about the
+- the worker itself actively reviews the reliable idea set and the current report/ITG, and finds the interesting ideas according to its own reasoning about the
   summaries it received — the goal-frontier score guides the grouping but does not
   dictate the worker's synthesis.
 - this worker will think about the ultimate problem strictly according to its assigned summaries and
@@ -463,8 +462,9 @@ kept here so the core loop is self-contained; the Selector's rules specify the m
   merges them into the single qmd file and converts them to lean code, and the lean code
   runner (lock this name) locks the green pieces in the qmd file, places their lean code
   in the reliable idea set (green lean codes are the only format in the reliable idea
-  set), and marks hired assumptions as [Hired] on the dependency tree. the Producer's
-  goal-frontier scoring reads this dependency tree, so the core loop and the Formalizer
+  set), and the Integrator marks hired assumptions as [Hired] on ITG.lean (never
+  single.lean). the Producer's
+  goal-frontier scoring reads the report/ITG, so the core loop and the Formalizer
   stay coupled.
 
 ## 8. file ownership — one writer per path
@@ -480,8 +480,9 @@ shared path has one writer/appender:
   Formalizer (green/[Formalized] results).
 - `dossier/idea-pool/fresh-summaries/` — the Creator only (single writer): it archives
   there the summaries its phase-1 and phase-2 workers produce.
-- `dossier/idea-pool/reliable-idea-set/` — the lean code runner only (single writer):
-  green lean codes are the only format in the reliable idea set.
+- `dossier/idea-pool/reliable-idea-set/` — the lean code runner and the Integrator
+  (two writers: the runner locks green pieces; the Integrator deposits its green connection
+  codes): green lean codes are the only format in the reliable idea set.
 - `dossier/idea-pool/fragment-region/` — the Producer (stale reports), the Selector
   (stale routes), the Formalizer (cut decompose work, swarm 5-min tails): each writes
   only its own entries, subcoordinator-mediated.

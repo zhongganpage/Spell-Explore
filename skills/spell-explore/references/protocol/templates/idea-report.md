@@ -16,7 +16,7 @@ and be renamed a route with a title.
   dossier ideas (including the fragments deposited by stale reports, summaries and routes) may
   support it but do not replace the core.
 - before writing: the report worker actively reviews the reliable idea set and the current
-  dependency graph, and finds the interesting ideas according to its own reasoning about the
+  report/ITG, and finds the interesting ideas according to its own reasoning about the
   summaries it received — the goal-frontier score guides the pairing but does not dictate the
   worker's synthesis.
 - where it lands: the Producer archives the report in the project folder (reports/), versioned;

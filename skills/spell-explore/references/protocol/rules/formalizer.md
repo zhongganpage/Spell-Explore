@@ -3,10 +3,10 @@
 this rule specifies the fourth subcoordinator, the Formalizer: what it receives, how it
 decomposes idea reports into the decomposed fragments, how the purely mechanical working
 swarm turns them into per-fragment files, how the decompose worker plans the merge and the
-Formalizer writes it into the single qmd file, how the lean code runner locks green pieces and builds the dependency tree, and what it outputs —
+Formalizer writes it into the single qmd file, how the lean code runner locks green pieces and the Integrator builds the report, and what it outputs —
 the reliable idea set and the fragment region. it is authoritative on the Formalizer's territory and consistent
 with planning-ideas-no-push.md (the locked spec) and construction-plan.md §1 and §5 — construction-plan §1's tree now includes `formalizer/fragments/` (the per-fragment files) and `formalizer/qmd-index.md` (the id list), updated in construction-plan.md by this group. the role of the
-Formalizer in the whole project is subordinated to the Coordinator, which regulates all four
+Formalizer in the whole project is subordinated to the Coordinator, which regulates all five
 subcoordinators and enforces the 138-minute round timeline (0–20, 20–45, 45–63, 63–103,
 103–118, 118–138) — the Formalizer is not bound by it.
 
@@ -41,7 +41,7 @@ territory is idle — no worker in flight (the working swarm complete, the lean 
 runner not mid-batch) and no pending decompose units — otherwise it yields
 children-in-flight and requests the close at the next natural boundary; the Coordinator
 never TaskStops it mid-flight. a round close never cuts the swarm, and the reliable
-idea set, the fragment region, the qmd file and the dependency graph live in the files,
+idea set, the fragment region, the qmd file and the report + ITG.lean live in the files,
 so a fresh context loses nothing.
 
 the Formalizer winds down only when the project ends: it finishes its existing work — no new
@@ -75,9 +75,9 @@ fragment (the swarm transcribes the written argument verbatim), a `route-ref` pa
 plain import edge, and an `open` pair annotation-only, recorded for the PI (the
 Formalizer surfaces it at revision time), never scheduled. a scheduled proof fragment
 carries `[proves: X → Y via <route> v<n>]`; when the lean code runner verifies it green
-it records a `proves` edge — the first green→green edge class — in the dependency graph
-and logs the pair in `formalizer/connection-proofs.md`, the registry the runner
-maintains (rules below). there is no limit on the
+the Integrator records a `proves` edge — the first green→green edge class — in `ITG.lean` / the integration report
+and logs the pair in `formalizer/connection-proofs.md`, the registry the Integrator
+maintains (rules/integrator.md). there is no limit on the
 number of inputs the Formalizer can take: every two units — a lint-passed examine-failed
 report, or an accepted route with its note — the Formalizer requests a decompose worker
 from the Coordinator.
@@ -111,7 +111,7 @@ promoter's note. the decompose worker:
    on the qmd piece;
 4. classifies every assumption it names — mathlib vs axiom — preferring the mathlib statement
    when one exists, and records a documented "no Mathlib equivalent" justification for every
-   declared axiom; the Formalizer files those justifications in the hireable registry;
+   declared axiom; the Formalizer hands those justifications to the Integrator, which files them in the hireable registry;
 5. after the working swarm finishes, produces the merge plan: the completed per-fragment
    `.qmd` pieces in deterministic order by fragment id (`partial/` never merged), with the
    `formalizer/qmd-index.md` update — the appended ids of the newly merged pieces, the
@@ -124,7 +124,7 @@ promoter's note. the decompose worker:
    whose proof text resembles a green piece's proof text but is not mechanically the same —
    the comparison is local (the merged piece vs the green pool in single.qmd / the reliable
    idea set), proof-text similarity is the index, the most similar green id wins; `[Similar]`
-   is an annotation, never a dependency-graph edge, never a claim of equivalence;
+   is an annotation, never a report edge, never a claim of equivalence;
 7. schedules the connection report's pairs when the unit carries one: a `full-argument` pair
    as a proof fragment — the swarm transcribes the written argument verbatim — carrying
    `[proves: X → Y via <route> v<n>]`; a `route-ref` pair as a plain import edge; an `open`
@@ -165,8 +165,8 @@ the swarm's rules:
   per-fragment format (the .qmd piece in qmd-prover form and the .lean piece), the
   placement index (qmd-index.md — the id list, not the whole qmd file), and its
   output path — and nothing else. it never loads the whole single.qmd, the
-  generated lean tree, or the dependency graph into its context; those belong to
-  the lean code runner. a swarm agent that over-reads beyond its brief is
+  generated lean tree, or the Integrator's report / ITG.lean into its context; those belong to
+  the lean code runner and the Integrator. a swarm agent that over-reads beyond its brief is
   corrected by the Formalizer (the context economy rule, rules/coordinator.md §3).
 - **single qmd file.** there is only one qmd file in the project — `formalizer/single.qmd` —
   and the swarm never writes parallel qmd files: each transformed fragment becomes its own
@@ -200,7 +200,7 @@ the swarm's rules:
 - **prefer mathlib over declared axioms.** the swarm writes the lean pieces importing mathlib
   for any classical result that exists there — it never declares an axiom for something mathlib
   proves; an unavoidable declared axiom sits in a clearly flagged section with its "no Mathlib
-  equivalent" justification comment, which the Formalizer files in the hireable registry.
+  equivalent" justification comment, which the Formalizer hands to the Integrator, which files in the hireable registry.
 - **10-minute lemma cut with relay.** whenever a swarm worker's job runs more than 10 minutes, it
   packages the partial work and waits for another swarm worker that has already done its job to
   take it over — the relay restarts the 10-minute clock on the receiving worker; the Formalizer enforces the 1-minute timeout: if no such
@@ -222,12 +222,12 @@ the swarm's rules:
 
 ## the lean code runner (lock this name)
 
-the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator once per round at the round start — batched, never on every qmd file update — and restored after a session resume; it does not wake on its own. the run-or-postpone gate: at the round start, when landed-but-unintegrated per-fragment files exist under formalizer/fragments/ (or the runner is recorded paused with pending units) and the runner is not already active, the Coordinator decides per the runner-mode chosen at round 1 — in manual mode it asks the user whether to run the runner now or postpone it to the next round; in auto mode it automatically chooses 'run' without asking. on 'run' the Coordinator clears the pause and resumes the runner in the background — one resumption per round, fragments that land mid-round wait for the next one; on a manual 'postpone' the Coordinator records `paused: round N` in the worker registry and the Formalizer mirrors it in its resume pack (runtime/formalizer-state.md) with the pending units, and the runner is not resumed on any trigger while paused — the Formalizer re-requests it at the next round start, where the gate applies again. it plans in advance: on every resumption it reads its previous batch report, the qmd-index tail (the ids merged since the last resumption) and the dependency graph (the not-green pieces and the reverse-edge closure of the new pieces) to build a forward plan of the mechanical verification jobs — which lean code to run, which pieces to
+the Formalizer requests the lean code runner from the Coordinator; like the subcoordinators and the PIs it is resumed by the Coordinator once per round at the round start — batched, never on every qmd file update — and restored after a session resume; it does not wake on its own. the run-or-postpone gate: at the round start, when landed-but-unintegrated per-fragment files exist under formalizer/fragments/ (or the runner is recorded paused with pending units) and the runner is not already active, the Coordinator decides per the runner-mode chosen at round 1 — in manual mode it asks the user whether to run the runner now or postpone it to the next round; in auto mode it automatically chooses 'run' without asking. on 'run' the Coordinator clears the pause and resumes the runner in the background — one resumption per round, fragments that land mid-round wait for the next one; on a manual 'postpone' the Coordinator records `paused: round N` in the worker registry and the Formalizer mirrors it in its resume pack (runtime/formalizer-state.md) with the pending units, and the runner is not resumed on any trigger while paused — the Formalizer re-requests it at the next round start, where the gate applies again. it plans in advance: on every resumption it reads its previous batch report, the qmd-index tail (the ids merged since the last resumption) and the Integrator's report / ITG.lean (the not-green pieces and the reverse-edge closure of the new pieces) to build a forward plan of the mechanical verification jobs — which lean code to run, which pieces to
 green-check, and in what order, preferring the pieces that shrink the goal node's distance
 to the established base. the plan covers only the delta since the last resumption: the
 pieces merged since the last resumption (the ids appended to qmd-index.md), the pieces
 that were not green at the last resumption (a missing premise may now be proved by the new
-pieces), and the pieces whose premise set the new pieces extend (the dependency graph's
+pieces), and the pieces whose premise set the new pieces extend (the report's
 reverse edges). pieces already locked green are never re-dispatched — a locked green
 piece's lean code is fixed in the reliable idea set and its premises (kernel, mathlib,
 [Formalized]) are fixed, so it cannot turn ungreen, and re-running it would only re-read
@@ -259,8 +259,8 @@ on the delta. its duties, in order, on every resumption:
    compile-verified, and rolled back on failure — it never changes the mathematics, and a
    green piece stays green. the rename log (old → new) lives in the symbol list, and a
    rename syncs the green archive in the reliable idea set (the [Formalized] lean copies),
-   `axioms-<piece>.txt`, `hireable-registry.md` and the 1:1 registry — all updated together,
-   each with a version bump; a [Similar] mark's target follows the rename log. model merging
+   `axioms-<piece>.txt`, and the 1:1 registry — all updated together,
+   each with a version bump; the hireable-registry rename is the Integrator's (it owns the registry). a [Similar] mark's target follows the rename log. model merging
    (two pieces modelling one object) is NOT a rename: it is mathematics and goes through the
    route pipeline, never the runner.
 3. **plan and distribute.** it distributes the planned verification jobs to its own swarm
@@ -283,45 +283,25 @@ on the delta. its duties, in order, on every resumption:
    turns green it retires the mark at lock time. so the reliable idea set holds
    the formalized pieces as lean code, and the qmd file keeps the green pieces locked in
    place.
-5. **build and update the dependency tree.** the lean code runner is responsible for building
-   and updating a dependency tree, stored as the dependency graph in the project folder at
-   `formalizer/dependency-graph.json` (schema v2), built from the single file:
-   - every statement — in the lean code format, not qmd — is a node whose identity is its div
-     id, stable across renames, carrying its lean declaration name as an attribute — a rename
-     updates the attribute, never the node id — and a status class (`kernel` | `mathlib` |
-     `formalized` | `axiom` | `goal`) and a status (`formalized` | `hired` | `axiom` |
-     `base` | `goal`);
-   - every green lean code contributes a directed edge — "the proof of the conclusion
-     references the premise" — extracted from lean, not from qmd `@id` citations: the runner
-     runs `#print axioms <theoremName>` on every green piece and classifies each name in the
-     result — kernel axiom names are acceptable base; mathlib theorem names resolve
-     transitively to kernel axioms and are acceptable (established by compilation — never to
-     be hired); declared axiom names must exist in the project's hireable registry, and the
-     piece is green modulo that axiom; each edge carries `source: lean-axioms`;
-   - an axiom-class node becomes [Hired] iff some green lean code whose conclusion is that
-     node's statement is implied by the established nodes — i.e. the axiom is now derivable
-     and could be replaced by a proof, and `#print axioms` on the new proof no longer lists
-     it — the runner marks [Hired] in single.lean as an annotation at the same time;
-     axiom-class nodes are never [Formalized];
-   - the main goal is a distinguished node of this tree;
-   - the dependency graph is updated whenever there is a new green lean code, adding the nodes
-     and edges of that green proof, with the piece's `#print axioms` footprint recorded in the
-     graph; when a scheduled proof fragment carrying `[proves: X → Y via <route> v<n>]` is
-     verified green, the runner records a `proves` edge — the first green→green edge class —
-     from the pair in the graph and logs it in `formalizer/connection-proofs.md`, the
-     registry it maintains. the graph itself stays `formalizer/dependency-graph.json`;
-     [Similar] is not an edge class — the proves edges are the only new edge class.
+5. **mark versions and defer the report to the Integrator.** on every update of
+   `formalizer/single.qmd` / `formalizer/lean/single.lean` the runner bumps the version (v1,
+   v2, …). the dependency-tree/report build — the chain/atlas report that replaces
+   `dependency-graph.json` as the milestone source — is the Integrator's, not the runner's
+   (rules/integrator.md): the runner no longer builds the dependency graph, no longer marks
+   `[Hired]` in `single.lean` (it is a dictionary — `[Hired]` appears only in `ITG.lean`),
+   no longer records `proves` edges, and no longer maintains `formalizer/connection-proofs.md`;
+   the hire test also moves to the Integrator on `ITG.lean`.
 6. **update the accepted-route watch.** at its resumption it reads the [acceptedR] markers from single.qmd and records the piece ids under their accepted routes in `formalizer/accepted-routes.md`, and at the end of each batch it updates the per-route green counts and flags the stale trigger; the [no-green] marking, clearing, surfacing and the stale signal are the Formalizer's (the accepted-route watch section below).
 
 the lean code runner is not the judge of the mathematics either: it plans, distributes and
 integrates — its swarm agents run the code and green-count, and it locks what is green and
-records the edges; its swarm agents are purely mechanical as well. the best outcome for the
+marks versions; the report/edges are the Integrator's; its swarm agents are purely mechanical as well. the best outcome for the
 project is a green lean
 code that connects the goal node to the established base — the goal is reachable from kernel +
 mathlib + formalized, with `#print axioms goalTheorem` containing no non-kernel axiom — and the
 Producer prefers pairings that shrink the goal node's distance to the established base (the
 Producer's goal-frontier score counts the established premises an idea can cite on the
-dependency tree's path toward the goal — kernel, mathlib, formalized, and hired axioms — and
+report's path toward the goal — kernel, mathlib, formalized, and hired axioms — and
 rewards ideas that would hire a declared axiom: derive it from the established base).
 
 ## the accepted-route watch and the stale signal (lock this name)
@@ -374,12 +354,12 @@ revival trigger.
   the reliable idea set is an additional premise channel, established without further panel
   review.
 - the reliable idea set lives in the same place as the idea pool in the dossier
-  (`dossier/idea-pool/`); the lean code runner places it there. the Coordinator keeps a copy of
+  (`dossier/idea-pool/`); the lean code runner and the Integrator place it there (the Integrator as the second writer). the Coordinator keeps a copy of
   the full reliable idea set as a file in the question-routes folder.
 - each [Formalized] idea's entry records its `#print axioms` footprint: the names its green
   lean code depends on beyond the kernel, each classified as mathlib (acceptable, established
   by compilation — never to be hired) or a declared axiom (green modulo that axiom, filed in
-  the hireable registry); the same footprint is recorded in the dependency graph.
+  the hireable registry); the same footprint is recorded in the integration report.
 - the lean formalization does not have to be fully based on mathlib — a declared axiom is
   allowed only with a documented "no Mathlib equivalent" justification filed in the hireable
   registry, and mathlib imports are preferred for any classical result that exists there:
@@ -390,7 +370,7 @@ revival trigger.
 ### the fragment region (lock this name)
 
 - the fragment region is part of the idea pool in the dossier (`dossier/idea-pool/`); the
-  Formalizer deposits it there, alongside the fresh summaries; the reliable idea set is placed there by the lean code runner.
+  Formalizer deposits it there, alongside the fresh summaries; the reliable idea set is placed there by the lean code runner and the Integrator.
 - it collects anything that is not well formatted — unformalized bits, partial work, and
   unclustered material: the cut output of overrun decompose workers, the cut lemmas of the
   swarm, the 5-minute-tail handoff of closing swarm agents, and any other unfinished
@@ -409,31 +389,31 @@ each completed batch — a decompose run (including its merge), a swarm batch th
 per-fragment files, or a lean code runner resumption that greens a piece or deposits
 fragments — it
 writes one dated line recording
-the green count, the [Formalized] count, the fragment deposits and the dependency graph
+the green count, the [Formalized] count, the fragment deposits and the report
 delta, so the index always reflects the current formalization state and the Coordinator's
 round-start check reads a live number. the same line carries the [acceptedR] tally — the
 green [acceptedR] pieces over the total, per accepted route — and any [no-green] markers of
 the accepted-route watch, so the round-start check reads the watch state live. the formalization status block holds the green
-count, the [Formalized] count, and the dependency-graph summary — nodes, edges, and the
+count, the [Formalized] count, and the integration-report summary — nodes, edges, and the
 goal node's distance to the established base.
 
 ## bounded resumption reads — the delta, not the whole state
 
 the Formalizer's territory state is large and mostly unchanged between batches —
 formalizer/single.qmd, the generated lean code under formalizer/lean/,
-formalizer/dependency-graph.json and the fragment region grow piece by piece. on
+the Integrator's report + ITG.lean and the fragment region grow piece by piece. on
 resumption the Formalizer reads only the delta since its last batch, never the
 whole files (the context economy rule, rules/coordinator.md §3):
 
 - its resume pack (runtime/formalizer-state.md) carries the delta markers: a
   pointer to the latest formalization status-line entry, the last merged fragment
-  id (the qmd-index.md tail since that id), the last dependency-graph update
+  id (the qmd-index.md tail since that id), the last report update
   reference, the last fragment-region deposit reference, and the pending units;
 - on resumption it reads the resume pack, the formalization status line in the
   Knowledge State index, the qmd-index.md tail, the new fragment-region deposits
   and the lean code runner's latest batch report — and verifies artifact
   existence by file (paths), never full contents;
-- the whole single.qmd, the whole lean/ tree and the whole dependency graph are
+- the whole single.qmd, the whole lean/ tree and the whole report are
   read only when a specific duty needs them (e.g. the goal-distance check the
   Coordinator requests) — never as a resumption habit.
 
@@ -461,7 +441,7 @@ accepted-route watch and the stale signal above).
   Formalizer checks that every artifact exists after each worker completes and never starts
   the next step on a missing artifact; documents move between workers only as files.
 - everything is versioned: every qmd file update, reliable idea set entry, fragment region
-  update and dependency graph update carries a version (v1, v2, …); nothing is cited or built
+  update and report update carries a version (v1, v2, …); nothing is cited or built
   on without its version. the goal file is excluded from this rule: it is locked and the
   project never changes it.
 - artifact locations (default layout, construction-plan §1):
@@ -472,19 +452,21 @@ accepted-route watch and the stale signal above).
   - `formalizer/qmd-index.md` — the id list of the lemmas, definitions and theorems in
     single.qmd: read by the working swarm for placement, maintained by the decompose worker
     on every merge;
-  - `formalizer/dependency-graph.json` — the dependency tree (schema v2): statement nodes with
-    their class (`kernel` | `mathlib` | `formalized` | `axiom` | `goal`) and status
-    (`formalized` | `hired` | `axiom` | `base` | `goal`) · green edges with `source:
-    lean-axioms` · [Hired] flags · the goal node;
+  - `formalizer/Integrator/` — the Integrator's sandbox: `single-int.qmd` / `single-int.lean`
+    (snapshots), `ITG.lean`, `ITG-1.lean`, `ITG-2.lean`, its own `symbol-list.md`, and
+    `integration-report.md` — the chain/atlas report (div-id node identity, the graph-like
+    structure that replaces `dependency-graph.json` as the milestone source); `[Hired]` appears
+    only in `ITG.lean`;
   - `formalizer/lean/` — the lean code generated from the qmd file: the one canonical
     append-only file `single.lean` with its 1:1 correspondence registry and its mandatory
     section markers, the per-green-piece `#print axioms` footprints
-    (`axioms-<piece>.txt`), and the hireable registry (`hireable-registry.md`);
+    (`axioms-<piece>.txt`);
+  - `formalizer/hireable-registry.md` — the hireable registry, owned by the Integrator;
   - `formalizer/symbol-list.md` — the symbol list written from `templates/symbol-list.md`
     when single.lean holds more than 10 lean codes: every symbol with its precise definition
     and the rename log (old → new);
   - `formalizer/connection-proofs.md` — the registry of proved connection pairs
-    (`X → Y via <route> v<n>`), maintained by the lean code runner;
+    (`X → Y via <route> v<n>`), maintained by the Integrator;
   - `dossier/idea-pool/` — the reliable idea set ([Formalized] green lean) and the fragment
     region (append-only for workers);
   - `formalizer/accepted-routes.md` — the accepted-route watch registry (versioned;
@@ -496,8 +478,7 @@ accepted-route watch and the stale signal above).
 
 - the Producer feeds the Formalizer (examine-failed lint-passed reports) and the Selector
   feeds it post-verdict (accepted routes — full or core form — with the promoter's note as
-  scoping metadata); the Producer consumes its outputs (the [Formalized] premises and the
-  dependency tree, via the goal-frontier score; the fragment region as pairing material).
+  scoping metadata); the Producer consumes the Formalizer's outputs (the [Formalized] premises, via the goal-frontier score; the fragment region as pairing material) and the Integrator's report/ITG tree (via the goal-frontier score).
   the Producer prefers pairings that shrink the goal node's distance to the established base.
 - the Creator's second phase consumes its outputs: its phase-2 workers search for good ideas
   and techniques in the reliable idea set and the fragment region in the dossier.
@@ -517,7 +498,7 @@ accepted-route watch and the stale signal above).
   thresholds. at the start of each round it performs the bounded Formalizer check before
   the round clock starts: it reads the formalization status line in the Knowledge State
   index that the Formalizer keeps current, and the live background state, verifies that
-  the four subcoordinators (Creator, Producer, Selector, Formalizer), the PIs, and the
+  the five subcoordinators (Creator, Producer, Selector, Formalizer, Integrator), the PIs, and the
   lean code runner are present and working — re-spawning them if a
   resumed session lost them — and resolves any stall or conflict it finds; the check is
   a bounded read that, like the round-1 setup, is not counted in the 138-minute budget.

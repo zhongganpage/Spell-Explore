@@ -8,15 +8,16 @@ hands-free.
 
 | role | job |
 |---|---|
-| **Coordinator** | top agent — runs each round, enforces the timeline, regulates the four subcoordinators, measures the system, writes the manuscript at a milestone |
-| **Creator** | idea generation — phase-1 idea-workers think around the goal and write fresh summaries; phase-2 miners + graph workers mine stale material and bridging lemmas, and read the connection marks in single.qmd/qmd-index — a route's ideas connect the marked statements, and they may use those ideas |
+| **Coordinator** | top agent — runs each round, enforces the timeline, regulates the five subcoordinators, measures the system, writes the manuscript at a milestone |
+| **Creator** | idea generation — phase-1 idea-workers think around the goal and write fresh summaries; phase-2 miners + graph workers mine stale material and bridging lemmas (graph workers read `formalizer/Integrator/ITG.lean`), and read the connection marks in single.qmd/qmd-index — a route's ideas connect the marked statements, and they may use those ideas |
 | **Producer** | pairing and reports — report workers write idea reports from summary triples; the route writer revises accepted routes; the hygiene linter + examine worker gate them |
-| **Selector** | adversarial review — workerA evidence list, B/C/D reviews (each also asks questions about any doubtful aspect), the promoter's nearest-true-version note, the PI rebuttal (answers the questions), then the decision swarm + BCD vote (answer quality weighs in): accept / accept-core / reject — with the resumed promoter marking, in the same window, every statement-pair the route's results or techniques bridge in the single qmd file (`[route-T-implied]` / `[route-F-initial]`) |
+| **Selector** | adversarial review — workerA evidence list, B/C/D reviews (each also asks questions about any doubtful aspect), the promoter's nearest-true-version note, the PI rebuttal (answers the questions), then the decision swarm + BCD vote (answer quality weighs in): accept / accept-core / reject — with the re-invoked promoter marking, in the same window, every statement-pair the route's results or techniques bridge in the single qmd file (`[route-T-implied]` / `[route-F-initial]`) |
 | **Formalizer** | Lean formalization — decompose workers split reports into fragments; the working swarm writes .qmd/.lean pieces; the lean code runner merges, verifies, and locks green pieces; the connection marks the promoter writes into single.qmd are mirrored into qmd-index.md at each merge |
+| **Integrator** | fifth subcoordinator — owns the dependency graph as `formalizer/Integrator/ITG.lean` and the integration report (`formalizer/Integrator/integration-report.md`, the milestone source); runs two ephemeral workers (worker-1 = 45-min primary proof writer, worker-2 = 15-min secondary lean-run/fix) with a stable ID across rounds; writes `hireable-registry.md` and `connection-proofs.md`, second writer of the reliable idea set |
 | **PI** | route owner — defends and modifies its route, rebuts the panel, writes the change list answering the reviewers' questions |
 | **workerA / B / C / D** | evidence list / inconsistencies / counterexamples / overall judgement (D = the exterior reviewer X) — B/C/D also raise questions about any doubtful aspect |
 | **swarm worker** | two lives — decision votes (3) or mechanical fragment transformation (working swarm ~4) |
-| **lean code runner + swarm** | plans and dispatches lean verification, merges the single qmd, updates the dependency graph |
+| **lean code runner + swarm** | plans and dispatches lean verification, merges the single qmd, version-marks single.qmd / single.lean |
 | **clock watcher** | not an agent — one-shot wakes at every window end and handoff checkpoint, plus a recurring 10-minute backstop (`*/10 * * * *`) that wakes the Coordinator, quietly unless it cut a boundary, fixed a stall, or closed the round (fallback: a background `sleep 600`) |
 
 ## 1. Installation
@@ -82,7 +83,7 @@ not drive it — you supervise it.
 
 ## 4. Milestone
 
-The project reaches a milestone when the goal node of `dependency-graph.json` is
+The project reaches a milestone when the goal node of the integration report (`formalizer/Integrator/integration-report.md`) is
 reachable from the established base (kernel axioms + Mathlib + `[Formalized]`
 pieces) with a clean `#print axioms`, and the round closes with full consensus
 (3/3 swarm + 3/3 BCD). The Coordinator then writes the **manuscript** (PDF).

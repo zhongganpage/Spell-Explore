@@ -47,7 +47,7 @@ contradicts, each with its version>`
 ### conflicts
 
 `<what the idea conflicts with: existing claims, archived summaries, the fragment region, the
-reliable idea set, the dependency graph — name them with versions>`
+reliable idea set, the integration graph (formalizer/Integrator/ITG.lean) — name them with versions>`
 
 ### possible directions
 

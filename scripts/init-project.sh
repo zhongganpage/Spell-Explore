@@ -49,6 +49,7 @@ mkdir -p \
   "$TARGET/stale" \
   "$TARGET/formalizer/lean" \
   "$TARGET/formalizer/fragments" \
+  "$TARGET/formalizer/Integrator" \
   "$TARGET/runtime" \
   "$TARGET/runtime/requests" \
   "$TARGET/runtime/briefs"
@@ -75,13 +76,14 @@ cp -n "$PROTO/formalizer/lean/README.md" "$TARGET/formalizer/lean/"
     '' \
     '| id | kind | location in single.qmd | status |' \
     '|---|---|---|---|' > "$TARGET/formalizer/qmd-index.md"
+# dependency-graph.json is retired as the workflow source — visualization-only; the graph lives in formalizer/Integrator/ITG.lean + integration-report.md
 [ -e "$TARGET/formalizer/dependency-graph.json" ] || \
   printf '%s\n' '{"version":"v2","nodes":[],"edges":[],"goal_node":null,"schema":{"node":{"class":["kernel","mathlib","formalized","axiom","goal"],"status":["formalized","hired","axiom","base","goal"]},"edge":{"source":"lean-axioms"}}}' > "$TARGET/formalizer/dependency-graph.json"
 [ -e "$TARGET/runtime/README.md" ] || cat > "$TARGET/runtime/README.md" <<'EOF'
 # runtime — resume packs
 
 this directory holds the resume packs: a versioned state file per long-lived
-role — the four subcoordinators, the PIs, and the lean code runner — at
+role — the five subcoordinators, the PIs, and the lean code runner — at
 runtime/<role>-state.md, recording its current stage, its spawned workers with
 their output paths, and the file pointers it needs to continue. background
 tasks do not survive a process restart, so after a restart the Coordinator
@@ -178,4 +180,4 @@ echo
 echo "scaffolded $TARGET. next:"
 echo "  1. export KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1"
 echo "  2. verify lean --version (the lean code runner needs a working lean toolchain)"
-echo "  3. run kimi in $TARGET and confirm the four subcoordinator profiles and every worker profile resolve: creator, producer, selector, formalizer, idea-worker, graph-worker, report-worker, route-worker, examine-worker, worker-a, reviewer-bcd, worker-d-external, promoter, swarm-worker, decompose-worker, lean-code-runner, lean-swarm-worker, pi"
+echo "  3. run kimi in $TARGET and confirm the five subcoordinator profiles and every worker profile resolve: creator, producer, selector, formalizer, integrator, integrator-worker-1, integrator-worker-2, idea-worker, graph-worker, report-worker, route-worker, examine-worker, worker-a, reviewer-bcd, worker-d-external, promoter, swarm-worker, decompose-worker, lean-code-runner, lean-swarm-worker, pi"

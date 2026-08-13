@@ -1,5 +1,6 @@
 # job brief — worker <label>
-label: <c|p|s|f>-<round>-<type>-<order>
+label: <c|p|s|f|i>-<round>-<type>-<order>
+# label codes: c creator · p producer · s selector · f formalizer · i integrator — i-1 = integrator-worker-1, i-2 = integrator-worker-2
 profile: <...>
 output: <...>
 deadline: <...>

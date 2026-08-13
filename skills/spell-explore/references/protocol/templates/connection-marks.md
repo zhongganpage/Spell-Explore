@@ -71,9 +71,7 @@ yet, or no bridge is found, the report records that explicitly (`no connections 
 ## rules that bind this artifact
 
 - the marks are annotations (provenance), never content: they never change a block's
-  statement, and they survive the lean code runner's merges (the merge appends
-  per-fragment pieces ordered by fragment id and never removes locked content,
-  rules/formalizer.md); the lean conversion ignores comments, so the marks never change
+  statement, and they survive the merge into single.qmd (the decompose worker's plan, written by the Formalizer — the merge appends per-fragment pieces ordered by fragment id and never removes locked content, rules/formalizer.md); the lean conversion ignores comments, so the marks never change
   the mathematics.
 - the decompose worker mirrors the marks into the connections section of qmd-index.md at its
   merge, so the Creator's phase-2 workers and the working swarm are notified of

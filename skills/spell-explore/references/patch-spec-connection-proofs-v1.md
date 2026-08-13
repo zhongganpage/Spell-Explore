@@ -158,9 +158,9 @@ files: `agents/decompose-worker.md`, `rules/formalizer.md`.
   - `open` pairs stay annotation-only, recorded for the PI (the Formalizer
     surfaces them at revision time), never scheduled.
 - a scheduled proof fragment carries `[proves: X → Y via <route> v<n>]`; when
-  the runner verifies it green it records a `proves` edge (the first
-  green→green edge class) in the dependency graph and logs the pair in
-  `formalizer/connection-proofs.md` (new registry the runner maintains).
+  the runner verifies it green the Integrator records a `proves` edge (the first
+  green→green edge class) in `ITG.lean` and logs the pair in
+  `formalizer/connection-proofs.md` (a registry the Integrator maintains).
 
 ## D7. connection-report delivery
 

@@ -38,14 +38,14 @@ The round-1 setup happens before the round clock starts and is not counted in th
 - the Coordinator asks the user for the source-repository path — the local clone of the Spell-Explore repository that holds the canonical protocol — records it in runtime/coordinator-state.md (`protocol-src: <path>`) and in the dossier, and runs the protocol-integrity check: the repository's scripts/check-skill.sh with that path (a bounded read, not counted in the budget). when the installed protocol differs from the repository's, the Coordinator aligns the installed copy with the repository — running the repository's scripts/sync-skill.sh, re-running the check to verify it is clean, recording the aligned files in the dossier — and surfaces the drift and the alignment to the user;
 - the Coordinator runs the environment preflight: the lean toolchain answers (lean
   --version), qmd-prover is available, and the agent-profile discovery resolves —
-  the four subcoordinator profiles (Creator, Producer, Selector, Formalizer) and every
+  the five subcoordinator profiles (Creator, Producer, Selector, Formalizer, Integrator) and every
   worker profile the Coordinator may spawn are found and readable; it also checks
   that KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL is exported (the secondary-model
   worker tier needs it — when it is unset the tier runs on the default model; the
   exterior reviewer X needs no experimental flag, but its access must resolve: the
   provider env var present for api, or the Codex CLI installed for codex — and its
   provider family must differ from the primary's) and that the live
-  config's [subagent] timeout_ms is 0 (the resumable roles — the four
+  config's [subagent] timeout_ms is 0 (the resumable roles — the five
   subcoordinators, the PIs, the lean code runner — could otherwise be force-killed
   as timed_out mid-round); both take effect only at kimi start, so when either is
   not in effect the Coordinator tells the user to restart kimi with the flag
@@ -81,10 +81,10 @@ user.
 ## 3. Status monitoring and handoff dependencies
 
 The Coordinator regulates the subcoordinators (Creator, Producer, Selector,
-Formalizer). Each subcoordinator regulates its own workers within its own territory —
+Formalizer, Integrator). Each subcoordinator regulates its own workers within its own territory —
 the Creator within idea generation and archiving, the Producer within report and route
 production, the Selector within review and acceptance, the Formalizer within
-formalization — requesting its workers from the Coordinator, monitoring its workers'
+formalization, the Integrator within integration — requesting its workers from the Coordinator, monitoring its workers'
 status, enforcing the time limits and the artifact rules, and solving issues inside its
 territory. The Coordinator regulates the
 subcoordinators themselves.
@@ -138,7 +138,9 @@ Coordinator enforces the economy rule on every subcoordinator:
   phase-to-phase resumption and the B/C/D panel pause). the in-flight exception:
   a subcoordinator with owned children in flight (the Formalizer's working swarm)
   does not close at the boundary — it yields children-in-flight and closes at the
-  next natural boundary, and the Coordinator never TaskStops it. the fresh spawn
+  next natural boundary, and the Coordinator never TaskStops it. the Integrator is the exception:
+  it keeps a stable ID across rounds (resume-by-ID across rounds, never a fresh spawn), with its
+  resume pack runtime/integrator-state.md (rules/integrator.md). the fresh spawn
   loses nothing: the territory state lives in the files and the resume pack, and
   later turns stop re-reading the whole prior conversation.
 
@@ -202,7 +204,7 @@ for the hold-open connections.
 
 Everything is versioned — every fresh summary, idea report, route, review summary,
 change list, stale entry, qmd file update, reliable idea set entry, fragment region
-update, dependency graph update, question-routes.md, and the manuscript carries a
+update, report update, question-routes.md, and the manuscript carries a
 version (v1, v2, …); nothing is cited or built on without its version. The goal file
 is excluded from this rule: it is locked and the project never changes it. The
 Coordinator enforces that the version inventory stays current.
@@ -214,7 +216,7 @@ champion-route pointer — as every fresh worker does.
 At the start of each round it performs the bounded Formalizer check before the round
 clock starts: it reads the formalization status line in the Knowledge State index and
 the live background state, verifies that the resumable workers are present and
-working — the four subcoordinators (Creator, Producer, Selector, Formalizer), the
+working — the five subcoordinators (Creator, Producer, Selector, Formalizer, Integrator), the
 PIs, and the lean code runner — re-spawning any that a resumed session lost — and any subcoordinator that
 closed at the previous round's close per the round-boundary bounded context of
 this §3 — with its
@@ -225,7 +227,7 @@ the Formalizer's next merge — and resolves any stall or conflict
 it finds; the check is a bounded read that, like the
 round-1 setup, is not counted in the 138-minute budget. It repeats the environment
 preflight of §1 — the lean toolchain (lean --version), qmd-prover availability,
-the agent-profile discovery (the four subcoordinator profiles and every worker profile the Coordinator may spawn resolve), and the
+the agent-profile discovery (the five subcoordinator profiles and every worker profile the Coordinator may spawn resolve), and the
 secondary-model flag and [subagent] timeout checks — and records
 the results in the dossier, surfacing them to the user. It also repeats the protocol-integrity check of §1: running the recorded protocol-src through the repository's scripts/check-skill.sh (when protocol-src is missing — a project started before this check existed — the Coordinator asks the user for the path at this round start and records it), aligning the installed protocol with the repository — the repository's scripts/sync-skill.sh — when drift is found, re-running the check to verify it is clean, and recording the drifted and aligned files in the dossier. It also reads the accepted-route watch (formalizer/accepted-routes.md) and the stale-signal channel (runtime/stale-signals/): on a stale signal it delegates the stale marking — asking the Selector, or spawning a dedicated stale-worker when the Selector is working (mid-panel or in a window) — and sees the demotion through so the accepted route is, by the end of the round, no different from a stale route: the stale entry written per the stale-entry template, the fragments archived in the fragment region, the abstract superseded in question-routes.md, the defender PI retired (resume pack superseded, TaskStop), and the champion-route pointer updated when the staled route was the champion; it verifies the demotion by file and appends the signal's status line (received | delegated | done). the check also reads the
 Coordinator's own lifecycle from runtime/coordinator-state.md: when it shows a
@@ -303,7 +305,8 @@ rounds ≥ 3 variant: the Producer's phase-2 1-minute summary choice adds 1 minu
 Off the critical path and in the background: the Creator's second phase, the
 Formalizer (its decompose workers run per pair of reports and feed the working swarm,
 and the lean code runner, resumed once per round at the round start (batched; run-or-postpone gate) — the Formalizer runs across
-rounds and is not bound by the 138-minute budget), and any additional Producer report
+rounds and is not bound by the 138-minute budget), the Integrator (its two workers need
+45 + 15 = 60 minutes, off the critical path, spawned at the round start with a stable ID), and any additional Producer report
 workers.
 
 Cut rule: a phase that reaches its window end is cut and its partial output recorded
@@ -455,7 +458,7 @@ The acceptance numbers rank the quality of an accepted route: full consensus (3/
 
 Milestone: the project reaches a milestone only when all 3 swarm workers and all 3
 BCD reviewers accept AND the accepted routes together achieve the locked goal —
-operationally, the goal node of dependency-graph.json reachable from the established
+operationally, the goal node of the Integrator's report (integration-report.md) reachable from the established
 base (kernel axioms + Mathlib theorems + [Formalized] pieces), with `#print axioms
 goalTheorem` containing no non-kernel axiom, and a full manuscript claim requires the
 hired set empty and the reachability proven in Lean. the 3/3 + 3/3 unanimity is part

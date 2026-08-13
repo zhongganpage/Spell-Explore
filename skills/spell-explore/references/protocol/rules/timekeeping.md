@@ -56,7 +56,9 @@ choice at the 20-min mark: the windows after it shift +1 (21–46, 46–64,
 | 118–138 | decision swarm + BCD vote | decision swarm 20 min + BCD reviewers 20 min (B/C resumed; workerD re-invoked externally); in the same window the resumed promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
 
 off the critical path and in the background: the Creator's phase 2, the Formalizer —
-not bound by the round budget, and a round close never cuts its swarm — and any
+not bound by the round budget, and a round close never cuts its swarm — the
+Integrator (its 45 + 15 = 60-minute worker pair runs off the critical path, in the
+background), and any
 additional report workers.
 
 ## 5. optional — a subagent-completion hook
@@ -150,8 +152,8 @@ can complete mid-window, not everywhere:
   already handled makes the wake a no-op for it.
 - wakes are quiet by default: the current-status table — `round clock`
   <minute>/<total> · `current phase` <window> · `subcoordinators` the Creator /
-  Producer / Selector / Formalizer stages (the Formalizer's status line: green
-  count, [Formalized] count, goal distance) · `live workers` <label> — running
+  Producer / Selector / Formalizer / Integrator stages (the Formalizer's status line: green
+  count, [Formalized] count, goal distance; the Integrator's status line: integration-report summary — nodes, edges) · `live workers` <label> — running
   | done | cut, with task-ids and output paths · `pending artifacts` <paths> ·
   `last boundary` <min>: cut? partial output · `next action` spawn | resume |
   cut | close — is shown to the user only when the wake did something real: it

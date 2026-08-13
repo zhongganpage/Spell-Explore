@@ -11,7 +11,7 @@ consistency-checked; this plan says what to build, in what order, and how to val
 <project>/
 ├── goal.md                       # locked goal file — Coordinator writes it at round-1 start (outside the 138-min clock)
 ├── dossier/                      # one living file until ~30 KB, then splits (see §5)
-│   ├── index.md                  # Knowledge State: conjectures registry · obstructions register · champion-route pointer · formalization status (green · [Formalized] · graph summary)
+│   ├── index.md                  # Knowledge State: conjectures registry · obstructions register · champion-route pointer · formalization status (green · [Formalized] · integration-report summary)
 │   ├── idea-pool/                # fresh summaries · reliable idea set ([Formalized] green lean) · fragment region (append-only for workers)
 │   ├── attempts-log.md           # tried / broke / implies / next
 │   ├── verification-ledger.md    # date | claim | status | reviewer | verdict & reasons | repair targets
@@ -26,13 +26,14 @@ consistency-checked; this plan says what to build, in what order, and how to val
 │   ├── single.qmd                # the one qmd file (green pieces get LOCKED in place, never removed; may carry the promoter's connection annotation lines)
 │   ├── fragments/                # per-fragment .qmd + .lean pieces — written by the working swarm, merged by the lean code runner
 │   ├── qmd-index.md              # id list of the lemmas, definitions and theorems in single.qmd + the connections section (route bridges) — maintained by the lean code runner
-│   ├── dependency-graph.json     # lean dependency tree: statement nodes (kernel | mathlib | formalized | axiom | goal) · green edges · [Hired] flags · goal node
+│   ├── Integrator/               # the Integrator's sandbox: single-int.qmd · single-int.lean · ITG.lean (ITG-1/ITG-2) · symbol-list.md · integration-report.md (the milestone source)
+│   ├── dependency-graph.json     # retired as the workflow source — visualization-only (the graph now lives in ITG.lean + the integration report)
 │   └── lean/                     # lean code
 ├── runtime/                      # the spawn channel + resume packs (see §3)
 │   ├── requests/                 # spawn requests — <territory>-<round>-<seq>.md in the locked format (§4); the Coordinator appends the status line
 │   ├── briefs/                   # job briefs — locked header (label · profile · output · deadline), free-form body
 │   ├── worker-registry.md        # request → task-ids → labels → output paths — the Coordinator's recovery map after a session resume
-│   └── <role>-state.md           # resume packs (the four subcoordinators, the PIs, the lean code runner)
+│   └── <role>-state.md           # resume packs (the five subcoordinators, the PIs, the lean code runner)
 └── .kimi-code/agents/            # optional project-scoped agent profiles (see §3)
 ```
 
@@ -59,10 +60,13 @@ Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), eac
 
 | role | spawner | tools | model | resumable |
 |---|---|---|---|---|
-| coordinator | spawns the four subcoordinators and every non-swarm worker at a subcoordinator's request (the spawn request, §4) | full | primary | ✓ |
+| coordinator | spawns the five subcoordinators and every non-swarm worker at a subcoordinator's request (the spawn request, §4) | full | primary | ✓ |
 | creator / producer / selector / formalizer | request their workers from the Coordinator; spawn only their own swarms (the Selector: decision swarm; the Formalizer: working swarm) | Read/Grep/Glob/Write/Edit/Bash + TaskList/TaskOutput/TaskStop (no Agent/AgentSwarm except the swarm owners) | primary | ✓ (subcoordinators) |
 | lean code runner | requested by the Formalizer from the Coordinator; spawns its own lean swarm | Read/Grep/Bash/Write/Edit/Agent/AgentSwarm/TaskList/TaskOutput/TaskStop | primary | ✓ |
 | lean runner swarm worker | the lean code runner | Read/Grep/Bash | secondary | ✗ (30-min life) |
+| integrator | the Coordinator | Read/Grep/Glob/Write/Edit/Bash + Agent/AgentSwarm + TaskList/TaskOutput/TaskStop (spawns its two workers) | primary | ✓ (stable ID across rounds) |
+| integrator-worker-1 (45-min primary proof writer) | the Integrator | Read/Grep/Glob/Write/Edit/Bash | primary | ✗ |
+| integrator-worker-2 (15-min secondary lean-run/fix) | the Integrator | Read/Grep/Bash/Write/Edit | secondary | ✗ |
 | PI | the Coordinator (a held-open report/route worker, birth label kept) | full (route editing) | primary | ✓ |
 | report worker (Producer phase 1; assigned-summaries core) | the Coordinator | full (writes report) | secondary | ✗ (becomes PI on success) |
 | route worker (Producer phase 2 — route writer of accepted revisions) | the Coordinator | full (route writing) | secondary | ✗ (becomes the new PI on an accepted revision) |
@@ -70,7 +74,7 @@ Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), eac
 | decompose worker | the Coordinator | Read/Grep | secondary | ✗ |
 | swarm worker (decision swarm 3, odd — 2/3 = 2 of 3 — and the working swarm ~4) | its owner (the Selector / the Formalizer) | Read/Grep/Glob/Write/Edit | secondary | ✗ (30-min life) |
 | idea worker | the Coordinator | Read/Grep | secondary | ✗ |
-| graph worker (Creator phase 2 — bridging-lemma summaries when dependency-graph.json has nodes) | the Coordinator | Read/Grep/Glob/Write | secondary | ✗ |
+| graph worker (Creator phase 2 — bridging-lemma summaries when formalizer/Integrator/ITG.lean has nodes) | the Coordinator | Read/Grep/Glob/Write | secondary | ✗ |
 | panel B/C/D (BCD: votes at the swarm stage, ≥2/3 of 3 = 2; worker rules: proof-step ledger, assumption audit, counterexample duty, evidence tie-in, boundary sweep, verdict format) | the Coordinator | Read/Grep (no write) | primary | B/C: ✓ (paused across the PI window, then close after the vote); D: ✗ (exterior, invoked twice) |
 | workerA | the Coordinator | Read/Grep | secondary | ✗ |
 | workerD (exterior reviewer X) | the Coordinator (invokes via the configured exterior access — api / codex, modules/providers.md; captures the reply, reports the actual model; the Selector records the fallback) | Read/Grep (invocation prompt; reply captured from api response / codex stdout) | exterior — a different provider family than the panel's primary; fallback = internal reviewer, reduced diversity recorded with a confidence downgrade | ✗ (invoked twice: review 63–103, vote 118–138) |
@@ -82,7 +86,7 @@ windows operationally (TaskStop), per rules/timekeeping.md.
 
 Rules encoded in profiles: **every agent file body states "your final message is the complete,
 self-contained result"** (custom agents don't inherit the built-in handoff framing). the `subagents`
-allowlists enforce the new spawning: the Coordinator's allowlist is the union of the four
+allowlists enforce the new spawning: the Coordinator's allowlist is the union of the five
 subcoordinators and every worker profile it may be asked to spawn; a subcoordinator's allowlist
 covers only its own swarm (the Selector: swarm-worker; the Formalizer: swarm-worker and
 lean-code-runner); the lean code runner's allowlist covers lean-swarm-worker; every other worker is
@@ -96,11 +100,11 @@ the primary model; workerD is external (see the table). the Coordinator never as
 subcoordinator role to a weaker model.
 
 The worker label — the name every spawn request carries — is a letter for the territory (c: Creator,
-p: Producer, s: Selector, f: Formalizer), the birth round, the job-type number, and the order of
+p: Producer, s: Selector, f: Formalizer, i: Integrator), the birth round, the job-type number, and the order of
 that job in the round: c-2-1-3 = the Creator's third idea-worker, born in round 2. job types:
 c-1 idea-worker, c-2 miner, c-3 graph-worker; p-1 report-worker, p-2 route-worker, p-3 examine-worker;
 s-1 worker-a, s-2 reviewer-b, s-3 reviewer-c, s-4 reviewer-d, s-5 promoter, s-6 swarm-worker;
-f-1 decompose-worker, f-2 swarm-worker, f-3 lean-code-runner, f-4 lean-swarm-worker. the order
+f-1 decompose-worker, f-2 swarm-worker, f-3 lean-code-runner, f-4 lean-swarm-worker; i-1 integrator-worker-1, i-2 integrator-worker-2. the order
 counts every instance of the type spawned in the round; a restarted worker keeps its label; the PI
 keeps its birth label; the swarm workers carry the same labels, assigned by their owner at spawn.
 
@@ -149,7 +153,7 @@ unaccepted; user nominations for next-round pairings).
    (`[background] max_running_tasks = 50`, `[subagent] timeout_ms = 0` — the per-phase
    budgets live in rules/timekeeping.md).
 2. **Core loop** — Creator (phases 1+2: phase 1 n idea-workers 0–8, the n ideas rotated; phase 2
-   from round ≥ 2 when the pool has content — 2 graph workers, active when dependency-graph.json
+   from round ≥ 2 when the pool has content — 2 graph workers, active when formalizer/Integrator/ITG.lean
    has nodes, plus 2 regular miners) → Producer (two phases: phase 1 two report writers in rounds 1–2 (split as evenly as possible ±1; one
    writer from round 3 when the lane is open) — from round 3, one phase-1 writer runs (4 summaries per round) and the route writer chooses 0 or 1 summary in a 1-minute window at the 20-min mark (139-minute rounds) — [Formalized]/[Hired] premises on the goal
    path, hires-new-assumptions, provenance; phase 2 the route writer, gated on Creator phase 2 on
@@ -173,15 +177,14 @@ unaccepted; user nominations for next-round pairings).
    relayed to a free worker, 1-min wait, else fragment region; the Formalizer's own swarm) →
    single qmd → lean code runner (requested from the Coordinator; plans the verification jobs in
    advance, dispatches them to its own swarm of the required number — at most 3, unrelated to the
-   working swarm — and integrates the results: locks green pieces, dependency tree with goal node
-   + [Hired]); keeps the index's formalization status current — one dated line per completed batch
-   (green count, [Formalized] count, fragment deposits, graph delta).
+   working swarm — and integrates the results: locks green pieces and version-marks single.qmd / single.lean); keeps the index's formalization status current — one dated line per completed batch
+   (green count, [Formalized] count, fragment deposits, report delta).
 5. **Coordinator regulation** — the spawn broker: poll runtime/requests/, validate each request
    against the locked format, spawn the named workers, append the status line, execute the
    resume/stop operations the subcoordinators instruct, and keep the worker registry current (so a
    session resume restores each territory's live workers); status monitoring (incl. the bounded
    round-start Formalizer check before the clock: read the index status line + live background
-   state, re-spawn any of the four subcoordinators, the PIs, or the lean code runner that a resumed
+   state, re-spawn any of the five subcoordinators, the PIs, or the lean code runner that a resumed
    session lost), timeline enforcement (announce, timestamps, cuts, atomic close), measurements
    (idea-yield, premature kills — never into votes), the two-consecutive-0/3 steering report (split
    the goal / nominate pairings / pause), user-facing surfacing of substantive formalization news,
@@ -196,6 +199,7 @@ unaccepted; user nominations for next-round pairings).
    subcoordinator's profile; subcoordinators are single-run orchestrators — never return before
    every worker they direct has produced its artifact at the assigned path and they have verified
    the write.
+8. **Integrator** — the fifth subcoordinator: owns the dependency graph as `formalizer/Integrator/ITG.lean` + the integration report (`integration-report.md`, the milestone source); two ephemeral workers (worker-1 = 45-min primary proof writer, worker-2 = 15-min secondary lean-run/fix) with a stable ID across rounds; writes `formalizer/hireable-registry.md` + `formalizer/connection-proofs.md`, second writer of `dossier/idea-pool/reliable-idea-set/`; the lean code runner drops graph build / [Hired]-marking / proves / connection-proofs / the hire test and adds version marking on single.qmd / single.lean.
 
 ## 6. Validation
 
@@ -214,7 +218,7 @@ unaccepted; user nominations for next-round pairings).
   receiving worker's 10-min clock), and only fragments if no worker is free within 1 min.
 - **Lean runner dispatch drill**: a round-start resumption produces a forward plan; the lean code runner
   spawns exactly the required number of swarm agents (unrelated to the working swarm),
-  integrates the green results into the reliable idea set and the dependency graph.
+  integrates the green results into the reliable idea set; the Integrator turns the dependency edges into ITG.lean.
 - **Spawn-broker drill**: a subcoordinator writes a spawn request (labels, profiles, output
   paths, brief pointers); the Coordinator validates it, spawns the workers named by their labels,
   and appends the status line; a malformed request — wrong kind, mismatched territory or round,
@@ -234,8 +238,8 @@ unaccepted; user nominations for next-round pairings).
   report before a third such round starts.
 - **Split drill**: two Producer phase-1 report writers each write an idea report from
   their assigned split of the round's summaries; check each report's core is its assigned set.
-- **Graph-worker drill**: with dependency-graph.json holding nodes, the Creator phase-2 graph
-  workers write bridging-lemma summaries from the graph; without nodes they fall back to
+- **Graph-worker drill**: with `formalizer/Integrator/ITG.lean` holding nodes, the Creator phase-2 graph
+  workers write bridging-lemma summaries from `ITG.lean`; without nodes they fall back to
   regular mining.
 - **Route-revision + PI-handover drill**: an accepted revision → the new PI (the Producer
   phase-2 route writer) writes the new version and marks the old superseded → the Coordinator
@@ -249,7 +253,7 @@ unaccepted; user nominations for next-round pairings).
 - **Obstruction-naming check**: a rejected route's stale entry and the obstructions register
   carry the load-bearing obstruction named by the rejecting votes.
 - **Lifespan drill**: a subcoordinator never returns before every worker it directs has produced
-  its artifact at the assigned path; a resumed session restores the four subcoordinators, the
+  its artifact at the assigned path; a resumed session restores the five subcoordinators, the
   PIs, and the lean code runner — and each territory's live workers from the worker registry.
 - **No-early-return check**: a subcoordinator's final message cites verified artifact paths;
   a narrated-but-unverified worker is treated as a failure.
@@ -263,7 +267,7 @@ unaccepted; user nominations for next-round pairings).
   only, the invented timeout tables deleted.
 - **Preflight drill**: at round start, `lean --version`, `qmd-prover`, and agent-profile
   discovery all succeed — discovery now resolves every worker profile the Coordinator may spawn,
-  not just the four subcoordinators; the secondary-model flag
+  not just the five subcoordinators; the secondary-model flag
   (`KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1`) and the `[subagent] timeout_ms = 0`
   config are verified, and the restart caveat is surfaced when either is not in effect;
   the exterior reviewer X's access is re-checked at each round start — the provider env

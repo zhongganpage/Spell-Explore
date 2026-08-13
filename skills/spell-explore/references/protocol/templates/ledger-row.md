@@ -38,7 +38,7 @@ this file is the template for a single row; rows are appended to the ledger as r
 
 - a claim in claimed or under-review is never used as a premise — not by later work, not in
   reporting to the user. only an accepted claim (including the [Formalized] pieces and the
-  [Hired] assumptions of the lean code runner's dependency tree) may be treated as established.
+  [Hired] assumptions of ITG.lean (the Integrator)) may be treated as established.
 - the repair loop is bounded: at most two review rounds, then the claim is parked as rejected
   with its full history, and a fresh attack starts a new thread.
 - the reviewer's verdict outranks the author's confidence: the author may repair and resubmit,

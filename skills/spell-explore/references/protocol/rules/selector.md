@@ -252,9 +252,7 @@ distinguishes the route from every other route; the connection report carries th
 version). the promoter may use some of the qmd features: the `@id` pointer syntax and
 the annotation-comment convention, and it may run qmd-prover's mechanical check on
 single.qmd to verify the file stays valid. the marks are annotations (provenance),
-never content — they never change a block's statement — and they survive the lean code
-runner's merges (the merge appends per-fragment pieces ordered by fragment id and
-never removes locked content; rules/formalizer.md). the marking is verdict-independent:
+never content — they never change a block's statement — and they survive the merge into single.qmd (the decompose worker's plan, written by the Formalizer — the merge appends per-fragment pieces ordered by fragment id and never removes locked content; rules/formalizer.md). the marking is verdict-independent:
 it runs for every route under review, whatever the vote. the Selector verifies the
 written marks by file, and the promoter's final message is the connection report — a
 versioned artifact per the connection-marks template, listing every mark with its
@@ -357,7 +355,7 @@ weaker — 3/3 is the maximum a gate clears. the quality ranking is recorded wit
 verdict in the archive, and the decision list shows it with the route's abstract.
 
 the project reaches a milestone only if all 3 swarm workers and all 3 BCD reviewers
-accept — 3/3 + 3/3 — and the accepted routes together achieve the locked goal. a
+accept — 3/3 + 3/3 — and the accepted routes together achieve the locked goal — operationally, the goal node of the Integrator's report reachable from the established base (kernel axioms + Mathlib theorems + [Formalized] pieces), with `#print axioms goalTheorem` containing no non-kernel axiom. a
 milestone is a Coordinator matter: the Selector reports the counts and the verdicts;
 the Coordinator verifies the goal and writes the manuscript as a PDF.
 

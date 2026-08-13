@@ -7,7 +7,8 @@ into one list the whole project shares, with the rename log (old → new) of the
 the runner applies when it unifies the symbols. this file is the template the runner fills in;
 the filled file becomes the artifact at `formalizer/symbol-list.md`, and the runner rewrites it
 as the list grows. the symbol list is a Formalizer artifact: everything in it is versioned
-(v1, v2, …), and nothing is cited or built on without its version.
+(v1, v2, …), and nothing is cited or built on without its version. single.lean is a
+dictionary — no [Hired] here: [Hired] lives only in ITG.lean.
 
 ## who, when, where
 
@@ -37,7 +38,7 @@ into the symbols section at its next resumption when it takes them in.
 ### rename log
 
 `<old symbol> → <new symbol> — <the version of the sync'd artifacts: the green archive in the
-reliable idea set, axioms-<piece>.txt, hireable-registry.md, the 1:1 registry>`
+reliable idea set, axioms-<piece>.txt, the 1:1 registry>`
 
 ## rules that bind this artifact
 
@@ -48,7 +49,7 @@ reliable idea set, axioms-<piece>.txt, hireable-registry.md, the 1:1 registry>`
 - a rename is a pure rename: atomic, compile-verified, and rolled back on failure — it never
   changes the mathematics, and a green piece stays green. the rename log (old → new) lives
   here, and a rename syncs the green archive in the reliable idea set (the [Formalized] lean
-  copies), `axioms-<piece>.txt`, `hireable-registry.md` and the 1:1 correspondence registry —
+  copies), `axioms-<piece>.txt` and the 1:1 correspondence registry —
   all updated together, each with a version bump.
 - model merging (two pieces modelling one object) is NOT a rename: it is mathematics and goes
   through the route pipeline, never the runner.

@@ -22,10 +22,11 @@ round budget.
   ordered by fragment id.
 - the sibling file formalizer/qmd-index.md — the id list of the lemmas,
   definitions and theorems in single.qmd: the working swarm reads it for
-  placement, never the whole single.qmd, and the lean code runner maintains it
+  placement, never the whole single.qmd, and the decompose worker maintains it
   on every merge, appending the ids of the newly merged pieces.
-- the sibling file formalizer/dependency-graph.json holds the dependency tree
-  that the lean code runner builds and updates (see below).
+- the sibling directory formalizer/Integrator/ holds the integration working
+  lean file ITG.lean and the integration report integration-report.md — the
+  integration graph and the chain/atlas report that the Integrator builds and updates (see below).
 
 ## Who writes
 
@@ -45,21 +46,22 @@ round budget.
   file update; run-or-postpone gate), plans the
   verification jobs in advance, and distributes them to its own swarm agents —
   whatever number the plan requires — at most 3 — unrelated to the working swarm. at every
-  resumption it first merges the pending per-fragment files into the single qmd
-  file, deterministically ordered by fragment id, and appends the ids of the
-  newly merged pieces to formalizer/qmd-index.md; then it integrates the green
+  resumption it reads the already-merged `single.qmd` and its index (`formalizer/qmd-index.md`) —
+  it never merges pending per-fragment files into `single.qmd` (the decompose worker plans the
+  merge and the Formalizer writes it); then it integrates the green
   results, locking green pieces in the qmd file, placing their lean code in the
-  reliable idea set, and updating the dependency graph.
+  reliable idea set.
 
 ## How pieces become established
 
-- the lean code runner builds and updates a dependency tree: a node is a statement —
+- the Integrator builds and updates the integration working lean file ITG.lean,
+  with the integration report integration-report.md: a node is a statement —
   in the lean code format, not qmd — carrying a status class (kernel | mathlib |
   formalized | axiom | goal), and an edge is "the proof of the conclusion references
   the premise," derived from Lean (`#print axioms`), never from qmd citations. an
   axiom-class node becomes [Hired] iff some green lean code whose conclusion is that
   node's statement is implied by the established base.
-  the graph is updated whenever there is a new green lean code, adding the nodes
+  ITG.lean is updated whenever there is a new green lean code, adding the nodes
   and edges of that green proof.
 - the main goal is a distinguished node of this tree: the best outcome is a
   green lean code that connects the goal node to the established base — kernel
@@ -74,7 +76,7 @@ round budget.
 
 - the lean code runner; the working swarm (which reads formalizer/qmd-index.md,
   not the whole single.qmd, to decide placement); the Producer's report worker
-  (which reviews the reliable idea set and the current dependency graph); and
+  (which reviews the reliable idea set and the current integration report + ITG.lean); and
   any report or route that cites [Formalized] or [Hired] premises.
 
 ## Timing rules (the only Formalizer time limits)
