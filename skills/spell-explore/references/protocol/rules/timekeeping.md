@@ -11,6 +11,10 @@ keeps the clock. it is written for the Coordinator agent to read and act on.
 - before any agent spawns, the Coordinator records the round start in the dossier —
   `date +%FT%T` — and announces it to the user; the round budget counts from
   that timestamp (138 min in rounds 1–2, 139 min in round 3, 149 min from round 4).
+  the round clock is always computed from a FRESH `date` read at the moment of the
+  announcement — never from a remembered 'now', and always re-read after a user
+  question that may have been unanswered for a long time (a round launched on a
+  stale now starts with an expired clock).
 
 ## 2. at each phase boundary — the phase-time table
 
@@ -94,8 +98,9 @@ variable handoffs allow — a wake every ~3 minutes is only needed where a hando
 can complete mid-window, not everywhere:
 
 - at round start, right after the round-start timestamp is recorded, the
-  Coordinator computes the round's wall-clock schedule from that timestamp and
-  the binding timeline (§4) and creates the watcher set on the engine's
+  Coordinator re-runs `date` (a fresh read — never a remembered now) and computes
+  the round's wall-clock schedule from it, verifies every boundary is still in
+  the future, and creates the watcher set on the engine's
   scheduler:
   - **boundary one-shots** — a one-shot scheduled job (`recurring = false`) at
     every binding window end: rounds 1–2 at 20, 45, 63, 78, 93, 103, 118, 138
@@ -123,6 +128,12 @@ can complete mid-window, not everywhere:
     verbatim and verifies each by CronList; the job ids are recorded in
     runtime/coordinator-state.md (`watcher-boundary-<min> <job-id>`,
     `watcher-checkpoint-<min> <job-id>`, `watcher-backstop <job-id>`).
+  - a scheduler 'past' rejection for any boundary one-shot means real time has
+    already advanced past that boundary — the real clock is authoritative:
+    re-run `date` first, and suspect the scheduler only after the real clock
+    agrees; a round clock that has expired is restarted from the real now
+    (start/close recomputed from `date`, the restart recorded in
+    runtime/coordinator-state.md) before any job is created.
 - each fire is a wake delivered by the runtime: a fire that arrives while the
   Coordinator is mid-turn is held and delivered at the next turn boundary — it
   never interrupts work in progress, and it is never lost. one-shot fires

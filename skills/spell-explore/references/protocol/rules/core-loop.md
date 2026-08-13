@@ -102,8 +102,10 @@ subcoordinators, the reliable idea set, or the fragment region.
 
 - at the start of the phase the Creator requests n idea-workers (0 ≤ n ≤ 8; the Creator
   chooses n per phase, and the two phases are independent; 4 is the standard phase-1
-  size in rounds 1–2, and from round 3 the standard phase-1 size is n = 2; the
-  freedom stays) from the Coordinator — called workers (lock this
+  size in rounds 1–2, and from round 3 the phase-1 size is a MANDATE — exactly 4
+  workers: 2 idea-workers + 1 graph-worker + 1 miner (the round-≥-3 phase-1
+  mandate; the 0 ≤ n ≤ 8 freedom stays for rounds 1–2 and does NOT apply to the
+  phase-1 mix in rounds ≥ 3) from the Coordinator — called workers (lock this
   name: every subagent of a subcoordinator is called worker) — to actively think about
   new ideas (with maximal freedom) around the goal — the locked goal file — with maximal
   time length 10 min. the request is a file at runtime/requests/ naming the workers by their labels (shorthand examples: c-1 idea-worker, c-2 miner, c-3 graph-worker — the locked label format is `<c|p|s|f|i>-<round>-<type>-<order>` per templates/spawn-request.md, e.g. `c-<round>-idea-<order>`), with their output paths and a pointer to each one's job brief at runtime/briefs/, which the Creator writes. the workers read the locked goal file and think; they may follow or
