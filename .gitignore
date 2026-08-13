@@ -10,3 +10,10 @@
 
 # local token-cost analysis — kept locally, not published
 /coordinator-token-analysis.md
+
+# graphify build output — regenerated locally; the published copies are docs/
+/graphify-out/
+
+# local analysis scratch — kept locally, not published
+/coordinator-token-analysis-1.md
+/integrator.txt
