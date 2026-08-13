@@ -34,7 +34,9 @@ sent to the Creator, which processes them in its second phase.
 - the Producer: stale reports and their corresponding summaries.
 - the Selector: stale (unaccepted) routes.
 - the Coordinator: the stale list with their fragments is part of the single
-  atomic round close written at 138 min.
+  atomic round close written at 138 min in rounds 1–2 (round 3: 139 min; from
+  round 4: 149 min; the windows shift +1 — rules/selector.md §3,
+  rules/timekeeping.md §4).
 
 ## Who reads
 

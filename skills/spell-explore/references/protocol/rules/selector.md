@@ -40,11 +40,12 @@ phase; it never returns early, and a narrated step is not a done step.
 
 ## 2. two panels at a time
 
-the Selector only runs two panels at a time. in rounds 1–3 the two panels run 63–103
+the Selector only runs two panels at a time. in rounds 1–2 the two panels run 63–103
 (40 min), the two PI rebuttals run in parallel 103–118 (15 min), and the two decision
-swarms run together in the same window 118–138 as background workers (20 min). from
-round 4 the round is extended +10 min and the panels run 63–108 (45 min), the PI
-rebuttals 108–126 (18 min), and the swarms 126–148 (22 min) — 85 min per review. a
+swarms run together in the same window 118–138 as background workers (20 min). round
+3 and rounds ≥ 4 shift +1 (see §3). from round 4 the round is extended +10 min and
+the panels run 64–109 (45 min), the PI rebuttals 109–127 (18 min), and the swarms
+127–149 (22 min) — 85 min per review. a
 third fresh route's review is carried to the next round.
 
 carried-over work is handled first at the start of a round: the Selector resumes queued
@@ -97,10 +98,9 @@ timing: in rounds 1–2 the panel runs 63–103 (40 min) — workerA lists the e
 points by 78 min, workerB/C/D review from 63 min and pivot to workerA's list when it
 arrives, and the exchange runs 93–103 min. in round 3 these windows shift +1 (panel
 64–104, workerA list by 79, exchange 94–104, PI 104–119, swarm 119–139 —
-rules/timekeeping.md §4). from round 4 the panel is extended to 45 min: base windows
-63–108 (workerA by 83, exchange 98–108), shifting +1 for the Producer's summary choice
-(panel 64–109, workerA by 84, exchange 99–109, PI 109–127, swarm 127–149 —
-rules/timekeeping.md §4). a phase that reaches its window end is cut and its partial output recorded.
+rules/timekeeping.md §4). from round 4 the panel is extended to 45 min: panel 64–109 (workerA by 84, exchange
+99–109), PI 109–127, swarm 127–149 — the +1 shift for the Producer's summary choice
+(rules/timekeeping.md §4). a phase that reaches its window end is cut and its partial output recorded.
 
 workerB, workerC and workerD have 30 minutes to run the review and write a raw review
 report, and an additional 10 minutes to exchange the reports — each of the three
@@ -184,15 +184,15 @@ workerC, workerD) to the PI of the route. the summaries, the raw review reports 
 panel report are versioned artifacts; the PI receives the three review summaries and the
 route with its authoring context preserved — the PI is the report worker the Producer
 directed the Coordinator to hold open (rules/worker-lifespans.md); fresh context is the
-panel's and the promoter's
-requirement, never the PI's — together with workerA's list when the summaries rely on
-it. the summaries carry the reviewers' questions for the PI (the §3 questioning duty,
+panel's requirement, and the promoter's
+first-duty (nearest-true-version note) requirement, never the PI's — together with
+workerA's list when the summaries rely on it. the summaries carry the reviewers' questions for the PI (the §3 questioning duty,
 id'd `Q-B<n>` / `Q-C<n>` / `Q-D<n>`); the PI answers every one of them in §6.
 
 ## 6. the PI rebuttal and the change list
 
 the PI has 15 minutes in rounds 1–3 (window 103–118; round 3 shifts +1 to 104–119),
-18 minutes from round 4 (window 108–126). the PI modifies the route and rebuts the
+18 minutes from round 4 (window 109–127). the PI modifies the route and rebuts the
 report, and makes a change list. the change list is a versioned artifact that states,
 point by point, which review summary findings were accepted and repaired in the
 modified route, which were rebutted and why, and which remain open. the change list
@@ -212,7 +212,7 @@ verification protocol — it is not a way to set the vote aside.
 ## 7. the promoter
 
 a fresh-context promoter worker has the duty to promote the route. it works during
-103–118 min in rounds 1–3 (round 3 shifts +1 to 104–119), and during 108–126 min from
+103–118 min in rounds 1–3 (round 3 shifts +1 to 104–119), and during 109–127 min from
 round 4, at the same time as the PI, reading the route and the three review summaries
 and writing a nearest true version note — the strongest claim the route can honestly
 make, and the exact point where it breaks. the note is a high-level check the reviewers
@@ -230,9 +230,9 @@ written at an assigned output path (recovered from agent output if the promoter
 cannot write). if the route is rejected, the note also enriches the fragments sent
 to the Creator's second phase.
 
-### 7.1 the promoter's connection marking (118–138 in rounds 1–3, 126–148 from round 4, parallel to the swarm and the BCD vote)
+### 7.1 the promoter's connection marking (118–138 in rounds 1–3, 127–149 from round 4, parallel to the swarm and the BCD vote)
 
-the promoter has a second duty in the 118–138 window in rounds 1–3 and the 126–148
+the promoter has a second duty in the 118–138 window in rounds 1–3 and the 127–149
 window from round 4, at the same time as the decision
 swarm and the resumed BCD vote. the promoter IS resumed in this period: it is held
 paused across the PI window (like workerB and workerC — see rules/worker-lifespans.md),
@@ -244,10 +244,11 @@ summaries of workerB, workerC and workerD), then inspects the single qmd file �
 formalizer/single.qmd, with its id list formalizer/qmd-index.md. whenever it thinks
 the route's results or some techniques in the results can be used to show a proof from
 one statement to another in the single qmd file — the initial statement X implies the
-statement Y — it marks the initial statement `[<route ID>-T-<the id of the implied
-statement in single.qmd>]` and marks the implied statement `[<route ID>-F-<the id of
-the initial statement in single.qmd>]`, writing the marks as qmd annotation lines
-placed at the marked blocks. route ID = the route's title (the locked name that
+statement Y — the promoter writes the T/F marks as comment lines per
+templates/connection-marks.md: `<!-- connection: [<route title>-T-<id>] — <prose> -->`
+on the initial statement and `<!-- connection: [<route title>-F-<id>] — <prose> -->`
+on the implied statement, <id> being the id of the other statement in single.qmd.
+route title = the route's title (the locked name that
 distinguishes the route from every other route; the connection report carries the
 version). the promoter may use some of the qmd features: the `@id` pointer syntax and
 the annotation-comment convention, and it may run qmd-prover's mechanical check on
@@ -273,23 +274,23 @@ mirrors them into the connections section of qmd-index.md at its merge, so
 the Creator's phase-2 workers are notified of the connection by the ids and may use
 ideas from the route.
 
-**the marking is an enforced deliverable.** the Selector's re-invocation request and
-spawn brief for the marking promoter carry the marking instruction explicitly — the
+**the marking is an enforced deliverable.** the Selector's resume request and
+resume brief for the marking promoter carry the marking instruction explicitly — the
 brief names duty 2 (this §7.1) and the connection report as the deliverable, and
 requires the promoter to confirm the annotation count in its final message; the
-nearest-true-version brief of §7 never substitutes for it, and a re-invocation brief
+nearest-true-version brief of §7 never substitutes for it, and a resume brief
 that is note-only is a protocol violation. the connection-marking report is a REQUIRED
 deliverable of the Selector's close checklist, like the verdict and the panel record:
 before it closes, the Selector verifies by file that the marks exist in
 formalizer/single.qmd and the report exists at the assigned output path with its
 proof fields (L-B, §11) for every route under review; a Selector that cannot close
-with the report — missing or proof-field-invalid — hands the re-invocation to the
+with the report — missing or proof-field-invalid — hands the resume to the
 Coordinator as a pending item — recorded in its resume pack and the round-close
 record — instead of closing "complete" without it (§12).
 
 ## 8. the decision swarm and the resumed BCD vote
 
-at 118–138 in rounds 1–3 (126–148 from round 4), the Selector runs its own swarm of
+at 118–138 in rounds 1–3 (127–149 from round 4), the Selector runs its own swarm of
 3 (odd number) workers to review the panel, the original route, the modified route
 and the rebuttals, and judge the route itself — its claims, proofs and evidences —
 referring to the promoter's nearest true version note as a high-level check on the
@@ -299,8 +300,8 @@ needs 2/3 of the swarm, 2 of 3 workers, to vote accept, and the BCD gate must cl
 the same bar (§9). the swarm has 20 minutes in rounds 1–3 and 22 minutes from round 4
 to make a decision.
 
-in the same window (118–138 rounds 1–3, 126–148 from round 4) the Selector re-invokes
-the promoter in a fresh context
+in the same window (118–138 rounds 1–3, 127–149 from round 4) the Selector resumes
+the held promoter (resume-by-ID, context preserved)
 for the connection marking of §7.1 — the promoter reads the revised route, the change
 list and the BCD review reports, inspects the single qmd file, and marks every
 statement-pair the route's results or techniques bridge, so the vote runs in parallel

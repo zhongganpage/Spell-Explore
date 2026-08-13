@@ -1,8 +1,10 @@
 # round-close record — template
 
-every round ends with a single atomic round close written in one pass, at 138 minutes (rounds ≥ 3: 139), even if a
-phase is mid-flight: the fresh routes, the verdicts, and the stale list with their fragments,
-together with a phase-time table, and the decision list. timestamps are never reconstructed
+every round ends with a single atomic round close written in one pass, at 138 minutes in
+rounds 1–2, 139 in round 3, 149 from round 4, even if a phase is mid-flight: the fresh routes,
+the verdicts, and the stale list with their fragments, together with a phase-time table, the
+decision list, and the refreshed declared-axiom footprint and goal distance in the index
+(dossier/index.md). timestamps are never reconstructed
 after the fact: the round start is announced and written in the dossier before any agent spawns,
 and phase start and end timestamps are recorded at each boundary, as the round runs. this file
 is the template the Coordinator fills in at the close.
@@ -13,7 +15,7 @@ is the template the Coordinator fills in at the close.
   the fact.
 - the round clock: the round-1 setup — the Coordinator asking the user for the rough idea and
   writing the locked goal file — happens before the round clock starts and is not counted in
-  the budget. the round itself is 138 minutes.
+  the budget. the round itself is 138 minutes in rounds 1–2, 139 in round 3, 149 from round 4.
 - where it lives: the project folder, versioned; it is the round's record and the user's
   decision document. a round may deliver no accepted route — in that case the round delivers
   this round-close record with the decision list.
@@ -23,7 +25,7 @@ is the template the Coordinator fills in at the close.
 ### round `<n>` — close
 
 - round start: `<announced timestamp, written in the dossier before any agent spawned>` ·
-  round end: `<round-total boundary timestamp (138, or 139 from round 3)>`
+  round end: `<round-total boundary timestamp (138 in rounds 1–2, 139 in round 3, 149 from round 4)>`
 - routes in this round: `<the fresh routes delivered, and any carried-over work handled first
   at the start>`
 
@@ -40,7 +42,8 @@ the review sequence>`
 - unaccepted: `<title + version, with the counts and the failure reason>`
 - carried over: `<queued route reviews that carry to the next round —
   handled first at the next round's start; a new route's review starts only if the remaining
-  budget fits a full review (75 min: panel 40 + PI 15 + swarm 20)>`
+  budget fits a full review (75 min: panel 40 + PI 15 + swarm 20 in rounds 1–3; 85 min:
+  panel 45 + PI 18 + swarm 22 from round 4)>`
 
 ### stale list with fragments
 
@@ -53,9 +56,10 @@ when the route was rejected. the close lists them; the full stale entries live i
 
 | phase | window | start (recorded at the boundary) | end (recorded at the boundary) | cut? | partial output |
 
-the windows are the binding per-phase limits of the 138-minute timeline (critical path, one
+the windows are the binding per-phase limits of the round timeline (critical path, one
 route):
 
+rounds 1–2 (138 minutes):
 - 0–20 the Creator's phase-1 workers think (≤10 min) and write their fresh summaries (≤10 min),
   ready by ~20 — the rotation hands all n ideas at once and the workers write in parallel;
 - 20–45 the Producer's report worker writes the idea report (25 min);
@@ -69,12 +73,18 @@ route):
 - 118–138 the swarm decides, with the resumed BCD reviewers voting alongside, and the
   resumed promoter marking the route's connections into the single qmd file (rules/selector.md §7.1).
 
-rounds ≥ 3 variant: the Producer's 1-minute summary choice shifts the windows after 20 by +1 (21–46, 46–64, 64–104, 104–119, 119–139), total 139 minutes.
+round 3 (139 minutes): the Producer's 1-minute summary choice shifts the windows after 20 by
++1 (21–46, 46–64, 64–104 — workerA's list by 79, exchange 94–104; 104–119 PI + promoter note;
+119–139 swarm + resumed BCD + the resumed promoter's connection marking).
+rounds ≥ 4 (149 minutes — 148-min base + the persisting +1): 21–46, 46–64, then the panel is
+45 minutes (64–109 — workerA's list by 84, B/C/D 64–99, exchange 99–109), the PI rebuttal
+18 minutes (109–127, with the promoter note), and the swarm 22 minutes (127–149, with the
+resumed BCD and the resumed promoter's connection marking).
 off the critical path and in the background: the Creator's second phase, the Formalizer (not
-bound by the 138-minute budget — a round close never cuts the swarm), the Integrator (its 45 + 15 = 60-minute worker pair, off the critical path, in the background), and any additional
+bound by the round budget — a round close never cuts the swarm), the Integrator (its 45 + 15 = 60-minute worker pair, off the critical path, in the background), and any additional
 Producer report workers. a phase that reaches its window end is cut and its partial output
-recorded — the same rule as the 10-minute lemma cut. changing any window means the
-2-hour-and-18-minute budget no longer holds.
+recorded — the same rule as the 10-minute lemma cut. changing any window means the round
+total (138 / 139 / 149 per the variant) no longer holds.
 
 ### decision list
 
@@ -93,7 +103,7 @@ recorded — the same rule as the 10-minute lemma cut. changing any window means
 
 ## rules that bind this artifact
 
-- the round closes atomically at 138 min (rounds ≥ 3: 139) in one pass, even when a phase is mid-flight; the
+- the round closes atomically at 138 min in rounds 1–2, 139 min in round 3, 149 min from round 4, in one pass, even when a phase is mid-flight; the
   round-close record with the decision list is delivered even when no route was accepted.
 - the rounds auto-run to the round count chosen at round-1 setup: when the count allows
   and no stop condition applies — milestone, steering stop, user stop — the Coordinator

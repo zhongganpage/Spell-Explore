@@ -33,7 +33,7 @@ this file is the template for a single row; rows are appended to the ledger as r
   "this should be right">`
 - **repair targets / notes**: `<for rejected: the step, the missing hypothesis, the
   counterexample; for accepted: what may now build on it>`
-- convention: accepted rows record the route's declared-axiom dependence (`footprint: none |
+- convention: accepted rows record the route's declared-axiom footprint (`footprint: none |
   declared: <list>`) and its residual delta (`delta: <subgoal + measure> | none`); a
   [Formalized] row always carries `footprint: none`.
 

@@ -281,9 +281,10 @@ place) are arbitrated by the Coordinator; if arbitration cannot settle the confl
 the Coordinator escalates to the user. The Coordinator never leaves a stalled or
 conflicting stage blocking the round.
 
-## 5. The 138-minute timeline — announce, timestamp, cut, close
+## 5. The round timeline (138 / 139 / 149 minutes) — announce, timestamp, cut, close
 
-Each round has a hard budget of 2 hours and 18 minutes (138 minutes). Round timing is
+Rounds 1–2 have a hard budget of 2 h 18 min (138 min); round 3 runs 139 min; rounds
+≥ 4 run 149 min (148-min base + the persisting +1). Round timing is
 mandated: the operational clock loop — announce the round start, timestamp each phase
 boundary, poll at each window end, cut the overrun — is specified in
 rules/timekeeping.md. the clock loop is kept alive mechanically by the clock watcher
@@ -312,7 +313,7 @@ The timeline (critical path, one route):
 | 103–118 | PI rebuts and modifies the route; promoter in parallel | the promoter writes its nearest true version note in the same window |
 | 118–138 | the swarm decides | decision swarm (20 min) + resumed BCD reviewers (20 min); in the same window the resumed promoter marks the route's connections into the single qmd file (20 min, rules/selector.md §7.1) |
 
-rounds ≥ 3 variant: the Producer's phase-2 1-minute summary choice adds 1 minute at the round's 20-min mark; the windows after the choice shift +1 — 21–46 (report), 46–64 (gates), 64–104 (panel), 104–119 (PI + promoter), 119–139 (swarm + BCD), panel internals shifting with them (workerA's list by 79, B/C/D 64–94, exchange 94–104) — and the round total is 139 minutes. rounds 1–2 run the 138-minute variant above.
+the rounds-1–2 timeline above is the 138-minute variant. round 3 runs 139 minutes: the Producer's phase-2 1-minute summary choice adds 1 minute at the round's 20-min mark; the windows after the choice shift +1 — 21–46 (report), 46–64 (gates), 64–104 (panel), 104–119 (PI + promoter), 119–139 (swarm + BCD) — panel internals shifting with them (workerA's list by 79, B/C/D 64–94, exchange 94–104). from round 4 the rounds run 149 minutes (a 148-minute base + the persisting +1 shift): 21–46 (report), 46–64 (gates), 64–109 (panel, 45 min — workerA's list by 84, B/C/D 64–99, exchange 99–109), 109–127 (PI + promoter, 18 min), 127–149 (swarm + BCD, 22 min); the full review is 85 min (panel 45 + PI 18 + swarm 22) from round 4.
 
 Off the critical path and in the background: the Creator's second phase, the
 Formalizer (its decompose workers run per pair of reports and feed the working swarm,
@@ -323,8 +324,9 @@ workers.
 
 Cut rule: a phase that reaches its window end is cut and its partial output recorded
 — the same rule as the 10-minute lemma cut — and the round closes atomically at 138
-min even if a phase is mid-flight. These windows are the binding per-phase limits;
-changing any of them means the 138-minute budget no longer holds. A round close never
+min in rounds 1–2, 139 min in round 3, and 149 min from round 4 even if a phase is
+mid-flight. These windows are the binding per-phase limits;
+changing any of them means the per-variant round budget no longer holds. A round close never
 cuts the Formalizer's swarm. The project never runs autonomously across days: the auto-run is bounded by the round count chosen at round-1 setup and the stop conditions of §6a, and the user can stop it at any time.
 
 ## 6. The atomic round close
@@ -346,7 +348,7 @@ job and any not-yet-fired one-shot, each CronDelete'd (rules/timekeeping.md §6)
 nothing fires after the round; the next round creates its own set. Before the
 close, the Coordinator verifies the decision-stage artifacts by file for every route
 under review — the swarm votes, the BCD votes, the verdict, the panel record, and the
-promoter's connection-marking report with its marks in single.qmd (rules/selector.md
+promoter's connection-marking report with its marks in formalizer/single.qmd (rules/selector.md
 §7.1): a route whose marking report is missing is recorded as a pending item in the
 round-close record — the round closes atomically all the same, and the pending marking
 is handed to the next round or the repair session, never silently dropped.
@@ -430,14 +432,17 @@ existing obstruction-fed pairing extends to the subgoals of the residual registr
 In rounds ≥ 2 the carried review owns the critical path: its panel, PI rebuttal and
 swarm run in their windows first, while the Creator's phase 1 and the Producer's
 report run in the background alongside it. A new route's review starts only if the
-remaining budget fits a full review (75 min: panel 40 + PI 15 + swarm 20); otherwise
+remaining budget fits a full review (75 min: panel 40 + PI 15 + swarm 20) in rounds 1–3; 85 min (panel 45 + PI 18 + swarm 22) from round 4; otherwise
 the round closes with the carried verdict and the new report queued.
 
 There is no fixed limit on the number of routes in one round: the Selector reviews
-each fresh route as it becomes ready, and the 138-minute budget is the only bound. In
-practice two route reviews fit per round (the Selector runs two panels at a time,
-63–103; the two PI rebuttals run in parallel, 103–118; the two decision swarms run
-together in the same window, 118–138, as background workers), so a third route's
+each fresh route as it becomes ready, and the per-variant round budget is the only
+bound (138 min in rounds 1–2, 139 min in round 3, 149 min from round 4). In
+practice two route reviews fit per round (in rounds 1–2 the Selector runs two panels
+at a time, 63–103; the two PI rebuttals run in parallel, 103–118; the two decision
+swarms run together in the same window, 118–138, as background workers; round 3
+shifts +1 to 64–104 / 104–119 / 119–139, and rounds ≥ 4 to 64–109 / 109–127 /
+127–149), so a third route's
 review is carried to the next round.
 
 ## 8. Measurements — tuned by data, never into the votes

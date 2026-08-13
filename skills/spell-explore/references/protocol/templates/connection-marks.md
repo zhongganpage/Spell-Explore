@@ -1,7 +1,7 @@
 # connection marks — template
 
 the promoter's connection report (lock this name), written by the Selector's resumed
-promoter in the 118–138 window, at the same time as the decision swarm and the resumed
+promoter in the 118–138 window (rounds 1–2; 119–139 in round 3, 127–149 from round 4 — rules/selector.md §7.1), at the same time as the decision swarm and the resumed
 BCD vote. the marking is verdict-independent: it runs for every route under review,
 whatever the vote. the marks themselves are written into the single qmd file
 (formalizer/single.qmd) as qmd annotation lines at the marked blocks; this report is the
@@ -12,8 +12,9 @@ promoter fills in.
 ## who, when, where
 
 - produced by: the promoter, resumed (resume-by-ID, context preserved) during the
-  118–138 window of the round — the same worker that wrote the nearest true version
-  note, held paused across the PI window (rules/selector.md §7.1, rules/worker-lifespans.md).
+  118–138 window (rounds 1–2; 119–139 in round 3, 127–149 from round 4 — rules/selector.md §7.1) of the round — the
+  same worker that wrote the nearest true version note, held paused across the PI window
+  (rules/selector.md §7.1, rules/worker-lifespans.md).
 - inputs: the revised route (the PI's modified route), the change list, the BCD review
   reports (the raw review reports and the three review summaries of workerB, workerC and
   workerD), and the single qmd file — formalizer/single.qmd with its id list

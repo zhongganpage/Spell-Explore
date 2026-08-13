@@ -3,7 +3,7 @@
 this file specifies the core loop of the round, in the construction plan's build order
 (§5, step 2): the Creator (two independent phases) → the Producer (pairing + report) → the
 hygiene linter (two layers) → the examine worker → the route with its title and PI. it
-covers the first three windows of the 138-minute timeline (148 minutes from round 4) — 0–20, 20–45, 45–63 — and the
+covers the first three windows of the round timeline (rounds 1–2: 138; round 3: 139; from round 4: 149, 148-min base + the persisting +1) — 0–20, 20–45, 45–63 in rounds 1–2, and 0–20, 21–46, 46–64 from round 3 — and the
 stale loop that feeds the Creator's second phase. the Selector, the Formalizer, and the
 Coordinator's regulation are specified in their own files; this file only defines the
 handoffs into them.
@@ -11,14 +11,14 @@ handoffs into them.
 the full round timeline (binding per-phase limits; the Selector windows belong to the
 Selector's rules):
 
-| window | phase | binding notes |
-|---|---|---|
-| 0–20 | Creator phase 1 | n idea-workers (0 ≤ n ≤ 8) think (≤10 min) + summaries (≤10 min); fresh summaries ready ~20 |
-| 20–45 | Producer report writers (25 min) | assigned fresh summaries → idea report |
-| 45–63 | hygiene linter (layer 1 ≈3 min, layer 2 ≈7 min) + examine worker (cap 8 min) | linter first, then examine; fail → stale |
-| 63–103 / 63–108 | Selector panel (40 / 45 min) | rounds 1–3 / from round 4: workerA lists by 78/83; B/C/D review 63–93/63–98; exchange 93–103/98–108 |
-| 103–118 / 108–126 | PI rebuts (15 / 18 min) + change list; promoter in parallel | both feed the swarm |
-| 118–138 / 126–148 | swarm (20 / 22 min) + resumed BCD (20 / 22 min) | accept ≥2/3 swarm AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved |
+| window (rounds 1–2) | window (round 3) | window (rounds ≥ 4) | phase | binding notes |
+|---|---|---|---|---|
+| 0–20 | 0–20 | 0–20 | Creator phase 1 | n idea-workers (0 ≤ n ≤ 8) think (≤10 min) + summaries (≤10 min); fresh summaries ready ~20 |
+| 20–45 | 21–46 | 21–46 | Producer report writers (25 min) | assigned fresh summaries → idea report |
+| 45–63 | 46–64 | 46–64 | hygiene linter (layer 1 ≈3 min, layer 2 ≈7 min) + examine worker (cap 8 min) | linter first, then examine; fail → stale |
+| 63–103 | 64–104 | 64–109 | Selector panel (40 / 40 / 45 min) | workerA lists by 78 / 79 / 84; B/C/D review 63–93 / 64–94 / 64–99; exchange 93–103 / 94–104 / 99–109 |
+| 103–118 | 104–119 | 109–127 | PI rebuts (15 / 15 / 18 min) + change list; promoter in parallel | both feed the swarm |
+| 118–138 | 119–139 | 127–149 | swarm (20 / 20 / 22 min) + resumed BCD (20 / 20 / 22 min) | accept ≥2/3 swarm AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved |
 
 ## 0. binding rules that apply to the whole loop
 
@@ -106,7 +106,7 @@ subcoordinators, the reliable idea set, or the fragment region.
   freedom stays) from the Coordinator — called workers (lock this
   name: every subagent of a subcoordinator is called worker) — to actively think about
   new ideas (with maximal freedom) around the goal — the locked goal file — with maximal
-  time length 10 min. the request is a file at runtime/requests/ naming the workers by their labels (c-1 idea-worker, c-2 miner, c-3 graph-worker), with their output paths and a pointer to each one's job brief at runtime/briefs/, which the Creator writes. the workers read the locked goal file and think; they may follow or
+  time length 10 min. the request is a file at runtime/requests/ naming the workers by their labels (shorthand examples: c-1 idea-worker, c-2 miner, c-3 graph-worker — the locked label format is `<c|p|s|f|i>-<round>-<type>-<order>` per templates/spawn-request.md, e.g. `c-<round>-idea-<order>`), with their output paths and a pointer to each one's job brief at runtime/briefs/, which the Creator writes. the workers read the locked goal file and think; they may follow or
   not follow the persistence and verification protocols: their exploration is free-form,
   bound only by the time limits and the summary format.
 - when all n idea files are in, the rotation is Coordinator-owned and mechanical: the
@@ -487,7 +487,7 @@ shared path has one writer/appender:
 - `dossier/idea-pool/fragment-region/` — the Producer (stale reports), the Selector
   (stale routes), the Formalizer (cut decompose work, swarm 5-min tails): each writes
   only its own entries, subcoordinator-mediated.
-- `formalizer/qmd-index.md` — the lean code runner only.
+- `formalizer/qmd-index.md` — maintained by the decompose worker and written by the Formalizer on every merge; the lean code runner reads it.
 - `formalizer/single.qmd` — the Formalizer writes the merge planned by the decompose
   worker (single writer for the merge); the connection annotation lines are the one exception — appended
   by the Selector's resumed promoter at the marked blocks (the Selector rule §7.1) and

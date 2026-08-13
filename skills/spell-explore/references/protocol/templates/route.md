@@ -11,7 +11,7 @@ the template the Producer and the PI maintain; the filled file becomes the artif
 - created by: the Producer, from a successful report — the report is renamed a route with a
   title; the Producer archives it properly with versions.
 - the PI: the worker who produced the successful report remains and is called the PI; it
-  defends and modifies the route in the 103–118 window, makes a change list, and stays resumable.
+  defends and modifies the route in the 103–118 window (104–119 in round 3, 109–127 from round 4), makes a change list, and stays resumable.
 - where it lives: the project folder (routes/), versioned; once accepted, all its artifacts are
   gathered in the question-routes folder, in a subfolder named by the title of that route.
 - the Selector reviews each fresh route as it becomes ready; an accepted route is marked a new
@@ -54,11 +54,11 @@ round-brief sanction that allowed corollary work (or leave unset).
 - review summaries: `<the three review summaries, B/C/D, ids + versions, once produced>`
 - canary outcome: `<announced — known-false claim caught? step-error caught with the step
   cited? · unannounced swarm-stage canary detection when carried>`
-- change list + rebuttal: `<version + pointer, after the PI's 103–118 window>`
-- promoter's nearest true version note: `<pointer, written in the same 103–118 window>`
+- change list + rebuttal: `<version + pointer, after the PI's 103–118 window (104–119 in round 3, 109–127 from round 4)>`
+- promoter's nearest true version note: `<pointer, written in the same 103–118 window (104–119 in round 3, 109–127 from round 4)>`
 - promoter's connection marks: `<pointer — the connection report written in the 118–138
-  window, and the `[<route title>-T-<implied id>]` / `[<route title>-F-<initial id>]`
-  marks the promoter wrote into the single qmd file>`
+  window (119–139 in round 3, 127–149 from round 4), and the `[<route title>-T-<implied id>]` / `[<route title>-F-<initial id>]`
+  marks the promoter wrote as `<!-- connection: … -->` comment lines into the single qmd file>`
 - verdicts: `<swarm count x/3, BCD count x/3, accepted / not accepted>`
 - defender: `<current defender PI id>` · superseded versions: `<older versions of this title
   already handed over>`

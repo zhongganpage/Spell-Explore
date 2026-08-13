@@ -24,8 +24,8 @@ consistency-checked; this plan says what to build, in what order, and how to val
 ├── reports/ · routes/ · stale/   # versioned artifacts (project folder, not the dossier)
 ├── formalizer/
 │   ├── single.qmd                # the one qmd file (green pieces get LOCKED in place, never removed; may carry the promoter's connection annotation lines)
-│   ├── fragments/                # per-fragment .qmd + .lean pieces — written by the working swarm, merged by the lean code runner
-│   ├── qmd-index.md              # id list of the lemmas, definitions and theorems in single.qmd + the connections section (route bridges) — maintained by the lean code runner
+│   ├── fragments/                # per-fragment .qmd + .lean pieces — written by the working swarm, merged by the Formalizer (the lean code runner reads them; rules/formalizer.md)
+│   ├── qmd-index.md              # id list of the lemmas, definitions and theorems in single.qmd + the connections section (route bridges) — maintained by the decompose worker (the lean code runner reads it; rules/formalizer.md)
 │   ├── Integrator/               # the Integrator's sandbox: single-int.qmd · single-int.lean · ITG.lean (ITG-1/ITG-2) · symbol-list.md · integration-report.md (the milestone source)
 │   ├── dependency-graph.json     # retired as the workflow source — visualization-only (the graph now lives in ITG.lean + the integration report)
 │   └── lean/                     # lean code
@@ -46,9 +46,9 @@ consistency-checked; this plan says what to build, in what order, and how to val
 | 45–63 | linter (layer 1 ≈3, layer 2 ≈7) + examine (cap 8) | linter first, then examine; fail → stale |
 | 63–103 | Selector panel (40) | A lists by 78; B/C/D review 63–93; exchange 93–103; two panels at a time |
 | 103–118 | PI rebuts + change list; promoter's nearest true version note in parallel (a high-level check) | the PI's rebuttal and the note go to the swarm |
-| 118–138 | swarm (20, 3 odd) + resumed BCD (20) + the re-invoked promoter's connection marking (20) | accept / accept-core / reject: accept and accept-core each need ≥2/3 swarm (2 of 3) AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved; the promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
+| 118–138 | swarm (20, 3 odd) + resumed BCD (20) + the resumed promoter's connection marking (20) | accept / accept-core / reject: accept and accept-core each need ≥2/3 swarm (2 of 3) AND ≥2/3 BCD; milestone = 3/3 + 3/3 + goal achieved; the promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
 
-rounds ≥ 3 run 139 minutes: the Producer's phase-2 route writer spends 1 minute choosing its summary at the 20-min mark, and the windows after the choice shift +1 (21–46, 46–64, 64–104, 104–119, 119–139); one phase-1 report writer runs (4 fresh summaries per round).
+round 3 runs 139 minutes: the Producer's phase-2 route writer spends 1 minute choosing its summary at the 20-min mark, and the windows after the choice shift +1 (21–46, 46–64, 64–104, 104–119, 119–139); from round 4 the rounds run 149 minutes (the 148-min base + the persisting +1): 21–46, 46–64, 64–109, 109–127, 127–149; one phase-1 report writer runs (4 fresh summaries per round).
 
 Round-2+ variant: carried reviews own the critical path; Creator phase 1 + Producer run in the
 background alongside; a new route's review starts only if a full 75-min review fits.
@@ -65,7 +65,7 @@ Custom agent files (`~/.kimi-code/agents/` or project `.kimi-code/agents/`), eac
 | lean code runner | requested by the Formalizer from the Coordinator; spawns its own lean swarm | Read/Grep/Bash/Write/Edit/Agent/AgentSwarm/TaskList/TaskOutput/TaskStop | primary | ✓ |
 | lean runner swarm worker | the lean code runner | Read/Grep/Bash | secondary | ✗ (30-min life) |
 | integrator | the Coordinator | Read/Grep/Glob/Write/Edit/Bash + Agent/AgentSwarm + TaskList/TaskOutput/TaskStop (spawns its two workers) | primary | ✓ (stable ID across rounds) |
-| integrator-worker-1 (45-min primary proof writer) | the Integrator | Read/Grep/Glob/Write/Edit/Bash | primary | ✗ |
+| integrator-worker-1 (45-min primary proof writer) | the Integrator | Read/Grep/Glob/Write | primary | ✗ |
 | integrator-worker-2 (15-min secondary lean-run/fix) | the Integrator | Read/Grep/Bash/Write/Edit | secondary | ✗ |
 | PI | the Coordinator (a held-open report/route worker, birth label kept) | full (route editing) | primary | ✓ |
 | report worker (Producer phase 1; assigned-summaries core) | the Coordinator | full (writes report) | secondary | ✗ (becomes PI on success) |
@@ -155,7 +155,7 @@ unaccepted; user nominations for next-round pairings).
 2. **Core loop** — Creator (phases 1+2: phase 1 n idea-workers 0–8, the n ideas rotated; phase 2
    from round ≥ 2 when the pool has content — 2 graph workers, active when formalizer/Integrator/ITG.lean
    has nodes, plus 2 regular miners) → Producer (two phases: phase 1 two report writers in rounds 1–2 (split as evenly as possible ±1; one
-   writer from round 3 when the lane is open) — from round 3, one phase-1 writer runs (4 summaries per round) and the route writer chooses 0 or 1 summary in a 1-minute window at the 20-min mark (139-minute rounds) — [Formalized]/[Hired] premises on the goal
+   writer from round 3 when the lane is open) — from round 3, one phase-1 writer runs (4 summaries per round) and the route writer chooses 0 or 1 summary in a 1-minute window at the 20-min mark (round 3: 139 min; from round 4: 149 min) — [Formalized]/[Hired] premises on the goal
    path, hires-new-assumptions, provenance; phase 2 the route writer, gated on Creator phase 2 on
    AND accepted routes existing; then report) → linter (two layers) → examine (adds the
    structural-completeness check: every claim has a proof attempt, no GAP) → route. every worker

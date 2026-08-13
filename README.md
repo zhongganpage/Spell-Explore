@@ -23,7 +23,7 @@ Enjoy your time with math and agents :)
 
 ## What it is
 
-Spell-Explore runs a project of background agents against a locked goal, in fixed 138-minute rounds (rounds ≥ 3 run 139 minutes — the Producer's 1-minute summary choice at the round's start):
+Spell-Explore runs a project of background agents against a locked goal, in fixed rounds — 138 minutes in rounds 1–2, 139 minutes in round 3, and 149 minutes (148-min base + the persisting choice) from round 4, the Producer's 1-minute summary choice at the round's 20-min mark:
 
 - **Coordinator** — the top agent. Runs each round, enforces the timeline, regulates the five subcoordinators, measures the system (idea-yield, premature kills — never the votes), maintains `question-routes/`, and writes the manuscript (PDF) when the project reaches a milestone.
 - **Creator** — idea generation. Each phase runs n idea-workers (0 ≤ n ≤ 8); the n ideas are rotated (idea of worker i goes to worker i+1, wrapping around) and each worker writes a fresh summary into the idea pool. Phase 1 thinks around the locked goal with maximal freedom — wild ideas are preserved, not pruned: every summary is archived in the append-only idea pool and can be revived later, a revival trigger ("re-examine when <event>") returning a stalled idea or fragment to the pairing queue. Phase 2 runs from round 2 onward, once the pool has content, split between 2 graph workers (active when `formalizer/Integrator/ITG.lean` has nodes — they write bridging-lemma summaries from `ITG.lean`) and 2 regular miners; it mines stale material, the reliable idea set, and the fragment region.
@@ -34,7 +34,7 @@ Spell-Explore runs a project of background agents against a locked goal, in fixe
 
 ## How it works
 
-- Rounds are 138 minutes with binding per-phase windows (rounds ≥ 3: 139 minutes); a phase that overruns is cut, and the round closes atomically with a decision list (abstracts of accepted routes; recycle / park for each unaccepted route; user nominations for next-round pairings).
+- Rounds are 138 minutes in rounds 1–2, 139 in round 3, and 149 from round 4, with binding per-phase windows (the windows shift +1 from round 3); a phase that overruns is cut, and the round closes atomically with a decision list (abstracts of accepted routes; recycle / park for each unaccepted route; user nominations for next-round pairings).
 - Every subagent runs in the background; the subcoordinators, the PIs, and the lean code runner never close.
 - Everything is versioned (the goal file excepted — it is locked); the dossier — Knowledge State index, attempts log, verification ledger, idea pool — is the project's memory.
 - The idea pool is append-only for workers: wild and speculative ideas are archived, never deleted — ideas that go nowhere are recorded as search fuel, and they can be revived: a revival trigger ("re-examine when <event>") jumps a stalled idea's fragment to the front of the pairing queue. nothing the project knows lives only in a previous context.
@@ -71,7 +71,7 @@ How agents spawn agents — context isolation, permissions, background execution
   - `references/protocol/config.toml` — real Kimi Code config; the per-phase budgets live in rules/timekeeping.md.
 - `construction-plan.md` — the top-level build plan.
 - `skills/spell-explore/references/protocol/` — the canonical protocol: config, agent profiles, rules, templates, dossier skeleton. the packaged skill copy is the source (the old top-level `protocol/` tree is superseded and gitignored).
-- `scripts/` — `init-project.sh` (scaffold), `update-skill.sh` (fetch the latest protocol from the GitHub remote, fast-forward the clone, and sync), and `sync-skill.sh` (sync the packaged skill and the user-scope copy Kimi Code discovers).
+- `scripts/` — `init-project.sh` (scaffold), `update-skill.sh` (fetch the latest protocol from the GitHub remote, fast-forward the clone, and sync), `check-skill.sh` (the protocol-integrity check at each begin/resume), and `sync-skill.sh` (sync the packaged skill and the user-scope copy Kimi Code discovers).
 - `spec-amendments.md` — implementation clarifications and deviations from the locked spec.
 - `*.svg` — diagrams of the round timeline, workflow, and subagent nesting.
 

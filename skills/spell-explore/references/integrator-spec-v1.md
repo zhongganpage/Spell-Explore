@@ -56,7 +56,7 @@ the runner drops: graph build, `[Hired]`-marking in `single.lean`, proves/`conne
 - D1 chain/atlas report: **kept** as an Integrator deliverable.
 - D2: **no `[Hired]` in `single.lean`** (it is a dictionary); `[Hired]` appears only in `ITG.lean`.
 - D3: spec record kept; this file is the record.
-- sandbox exception: the one out-of-subfolder write is the reliable idea set deposit.
+- sandbox exception: the three out-of-subfolder writes are the reliable idea set deposit, `formalizer/hireable-registry.md`, and `formalizer/connection-proofs.md`.
 - D-GRAPH: graphify is visualization-only, out of workflow; the **milestone reads the report**; the **miners read only `ITG.lean`**; `dependency-graph.json` is retired as the workflow source.
 - D-REG: the Integrator writes **both** `hireable-registry.md` and `connection-proofs.md`.
 - D-RIS: direct (second writer). D-QUEUE: merge-handoff artifact + `runtime/requests/` request. D-BUDGET: background budget.

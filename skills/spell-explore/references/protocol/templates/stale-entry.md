@@ -55,7 +55,8 @@ that fills the missing gap, a route revision that removes the obstruction>`
 - if the route was rejected, also: promoter's nearest true version note `<the strongest claim
   the route can honestly make, and the exact point where it breaks>` and the promoter's
   connection marks `<the `[<route title>-T-<implied id>]` / `[<route title>-F-<initial id>]`
-  marks written into the single qmd file in the 118–138 window (rules/selector.md §7.1): the
+  marks written into the single qmd file as `<!-- connection: … -->` comment lines in the
+  118–138 window (rounds 1–2; 119–139 in round 3, 127–149 from round 4 — rules/selector.md §7.1): the
   pairs of statements the route's results or techniques bridge — a surviving sub-result a
   future report or route can build on>`
 

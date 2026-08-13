@@ -20,6 +20,9 @@ the template each of the three workers fills in.
 - timing, 63–103 window: B/C/D have 30 minutes to run the review and write a raw review report,
   and an additional 10 minutes to exchange the reports (each receives the reports from the other
   two), then each writes its review summary.
+- the base windows above are the rounds-1–2 values — windows shift +1 in round 3 (139 min) and
+  rounds ≥ 4 (149 min); from round 4: panel 64–109 with the list by 84, PI 109–127, swarm
+  127–149.
 - workerD is external and makes the overall judgement; with two panels at a time two exterior
   invocations are needed — any workerD falls back to an internal reviewer when the exterior
   reviewer (X) is unavailable or shares the primary's provider family, and the reduced diversity

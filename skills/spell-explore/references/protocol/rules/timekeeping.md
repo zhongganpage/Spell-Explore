@@ -9,8 +9,8 @@ keeps the clock. it is written for the Coordinator agent to read and act on.
 ## 1. before any spawn — the round start
 
 - before any agent spawns, the Coordinator records the round start in the dossier —
-  `date +%FT%T` — and announces it to the user; the 138-minute budget counts from
-  that timestamp.
+  `date +%FT%T` — and announces it to the user; the round budget counts from
+  that timestamp (138 min in rounds 1–2, 139 min in round 3, 149 min from round 4).
 
 ## 2. at each phase boundary — the phase-time table
 
@@ -41,19 +41,20 @@ keeps the clock. it is written for the Coordinator agent to read and act on.
 ## 4. the binding phase-budget table
 
 the table below is moved here from the old config.toml: the binding per-phase limits
-of the 138-minute round (critical path, one route). changing any window means the
-138-minute budget no longer holds. rounds ≥ 3 add the Producer's 1-minute
-choice at the 20-min mark: the windows after it shift +1 (21–46, 46–64,
-64–104, 104–119, 119–139) and the total is 139 minutes; rounds 1–2 run 138.
+of the round (critical path, one route). changing any window means the round budget
+no longer holds. round 3 runs 139 minutes (the Producer's 1-minute choice at the
+20-min mark: the windows after it shift +1 — 21–46, 46–64, 64–104, 104–119,
+119–139); from round 4 the rounds run 149 minutes (148-min base + the persisting
+choice, with the same shifted windows: 21–46, 46–64, 64–109, 109–127, 127–149).
 
-| window | phase | binding notes |
-|---|---|---|
-| 0–20 | Creator phase 1 | n idea-workers (0 ≤ n ≤ 8) think ≤10 min, write their summaries ≤10 min; fresh summaries ready by ~20 min |
-| 20–45 | Producer report worker | writes the idea report, 25 min |
-| 45–63 | hygiene linter + examine | linter layer 1 ≈3 min, layer 2 ≈7 min, then the examine worker (cap 8 min) |
-| 63–103 | Selector panel | workerA lists the evidence points by 78 min; workerB/C/D review 63–93 min (workerD: exterior invocation); exchange + review summaries 93–103 min |
-| 103–118 | PI rebuttal + promoter note | in parallel, the promoter's nearest true version note in the same window |
-| 118–138 | decision swarm + BCD vote | decision swarm 20 min + BCD reviewers 20 min (B/C resumed; workerD re-invoked externally); in the same window the resumed promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
+| window (rounds 1–2) | window (round 3) | window (rounds ≥ 4) | phase | binding notes |
+|---|---|---|---|---|
+| 0–20 | 0–20 | 0–20 | Creator phase 1 | n idea-workers (0 ≤ n ≤ 8) think ≤10 min, write their summaries ≤10 min; fresh summaries ready by ~20 min |
+| 20–45 | 21–46 | 21–46 | Producer report worker | writes the idea report, 25 min |
+| 45–63 | 46–64 | 46–64 | hygiene linter + examine | linter layer 1 ≈3 min, layer 2 ≈7 min, then the examine worker (cap 8 min) |
+| 63–103 | 64–104 | 64–109 | Selector panel | workerA lists the evidence points by 78 / 79 / 84 min; workerB/C/D review 63–93 / 64–94 / 64–99 min (workerD: exterior invocation); exchange + review summaries 93–103 / 94–104 / 99–109 min |
+| 103–118 | 104–119 | 109–127 | PI rebuttal + promoter note | in parallel, the promoter's nearest true version note in the same window |
+| 118–138 | 119–139 | 127–149 | decision swarm + BCD vote | decision swarm 20 / 20 / 22 min + BCD reviewers 20 / 20 / 22 min (B/C resumed; workerD re-invoked externally); in the same window the resumed promoter marks the route's connections into the single qmd file (rules/selector.md §7.1) |
 
 off the critical path and in the background: the Creator's phase 2, the Formalizer —
 not bound by the round budget, and a round close never cuts its swarm — the
@@ -97,9 +98,10 @@ can complete mid-window, not everywhere:
   the binding timeline (§4) and creates the watcher set on the engine's
   scheduler:
   - **boundary one-shots** — a one-shot scheduled job (`recurring = false`) at
-    every binding window end: 20, 45, 63, 78, 93, 103, 118, 138 minutes into
-    the round (rounds ≥ 3: 21, 46, 64, 79, 94, 104, 119, 139), so each boundary
-    is cut at its exact minute;
+    every binding window end: rounds 1–2 at 20, 45, 63, 78, 93, 103, 118, 138
+    minutes into the round; round 3 at 21, 46, 64, 79, 94, 104, 119, 139; rounds
+    ≥ 4 at 21, 46, 64, 84, 99, 109, 127, 149 — so each boundary is cut at its
+    exact minute;
   - **handoff checkpoints** — one-shot jobs at 3-minute spacing inside the two
     variable-handoff windows, 0–20 (the Creator's phase-1 rotation — when all n
     idea files are in, the Coordinator builds the rotation briefs and resumes the
@@ -136,7 +138,7 @@ can complete mid-window, not everywhere:
   path in the phase-time table, timestamp the boundary — services pending spawn
   requests (the spawn broker of Coordinator rule §3), and checks for stalls
   (expected artifacts missing with nothing running → restart per
-  rules/coordinator.md §4). at the final boundary (138 / 139) it closes the
+  rules/coordinator.md §4). at the final boundary (138 / 139 / 149) it closes the
   round atomically instead, and the final-boundary check verifies the
   decision-stage artifacts for every route under review — the swarm votes, the BCD
   votes, the verdict, and the resumed promoter's connection-marking report with

@@ -62,3 +62,6 @@ versions.
   rate is recorded in the archive.
 - for every accepted route, the summaries, the idea reports, the route with its
   versions and the review reports are copied to question-routes/<title>/.
+- all window values above are rounds-1–2; they shift +1 in round 3 (139 min)
+  and rounds ≥ 4 (149 min; panel 64–109 with workerA's list by 84, PI 109–127,
+  swarm 127–149 — rules/selector.md §3, rules/timekeeping.md §4).

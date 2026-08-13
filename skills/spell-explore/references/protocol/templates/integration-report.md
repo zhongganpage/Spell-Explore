@@ -23,9 +23,9 @@ the integration report is the Integrator's chain/atlas report: the graph-like st
 
 `[Hired] <div-id> — <the established nodes that imply it> — <#print axioms footprint>` — `[Hired]` appears only in `ITG.lean`, never `single.lean`.
 
-### goal distance
+### distance to the established base
 
-`goal node <div-id> — distance to the established base: <k> (kernel + mathlib + formalized + hired)`
+`goal node <div-id> — distance to the established base: <k> (kernel + mathlib + formalized)`
 
 ### proved connection pairs
 
@@ -33,7 +33,7 @@ the integration report is the Integrator's chain/atlas report: the graph-like st
 
 ## rules that bind this artifact
 
-- the report is the milestone source: the goal node is reachable from the established base (kernel + mathlib + formalized + hired), `#print axioms goalTheorem` contains no non-kernel axiom, and a full manuscript claim requires the hired set empty and the reachability proven in Lean. `dependency-graph.json` is retired as the workflow source.
+- the report is the milestone source: the goal node is reachable from the established base (kernel + mathlib + formalized), `#print axioms goalTheorem` contains no non-kernel axiom, and a full manuscript claim requires the hired set empty and the reachability proven in Lean. `dependency-graph.json` is retired as the workflow source.
 - graphify on `ITG.lean`, if produced, is visualization-only and never joins the workflow.
 - the report is kept consistent with `ITG.lean`: the Integrator checks consistency before the implementation/merge step, and never cites a node or edge the report does not carry with its version.
 - everything is versioned (v1, v2, …); nothing is cited or built on without its version.

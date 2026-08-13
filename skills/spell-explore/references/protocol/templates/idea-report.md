@@ -37,8 +37,8 @@ carries the uniform three-part block statement → assumptions → implications.
 ### header
 
 - title: `<a working title for the approach>`
-- assigned summaries: `<summary-id + version>` (the writer's assigned set) · complement material: `<fragment
-  ids from the fragment region>`
+- assigned summaries: `<summary-id + version>` (the writer's assigned set) · complement material: `<fresh
+  summary ids, or fragment ids from the fragment region>`
 - goal-frontier context: `<the goal-frontier scores of the assigned summaries, as given by the Producer>`
 - version: `<v1, v2, …>`
 

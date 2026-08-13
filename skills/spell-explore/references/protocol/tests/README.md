@@ -9,7 +9,7 @@ drill. run each drill, record the outcome in the last column.
 | environment preflight | `lean --version`; `kimi --version`; `export KIMI_CODE_EXPERIMENTAL_SECONDARY_MODEL=1` in the shell; exterior reviewer X access resolves (provider env var for api / `codex exec` for codex, provider family ≠ primary's) | versions + env flag present + X access resolves |
 | rotation drill | run a Creator phase with n idea-workers (0 ≤ n ≤ 8); check idea i goes to worker i+1 (wrapping); n = 0 produces nothing; the two phases may use different n | rotation order observed; n = 0 produced nothing |
 | canary gate | seed a known-false claim + one planted step-error into the panel's review batch (both excluded from the real record and the route) | claim caught ≥80%; step-error caught 100% with the step cited; else no route is delivered |
-| dry-run round 1 | run Creator → Producer → linter → examine → panel → PI → swarm within 138 min; sum the phase-time table | phase-time table; window sums = 138 min; overruns cut and recorded |
+| dry-run round 1 | run Creator → Producer → linter → examine → panel → PI → swarm within 138 min (rounds 1–2); sum the phase-time table | phase-time table; window sums = 138 min (rounds 1–2); overruns cut and recorded |
 | partial-acceptance drill | run a near-miss route with a genuine core through the vote | accept-core ≥2/3+2/3; the core banked as a reduced route with its own title in question-routes |
 | lifespan/resume-pack drill | let a long-lived role write runtime/<role>-state.md, restart the process, re-spawn the role fresh with the resume pack | role resumes from the pack; spawned workers' output paths intact |
 | sync check | run scripts/sync-skill.sh | diff -rq clean (exit 0): protocol == packaged skill |
@@ -24,3 +24,7 @@ drill. run each drill, record the outcome in the last column.
 | axiom-hire drill | seed a green lemma that derives a previously declared axiom; run `#print axioms` on the derived piece | axiom node flips `hired: true` in `ITG.lean`; the axiom's name disappears from the derived piece's `#print axioms` |
 | mathlib-import drill | formalize a fragment that Mathlib already proves — e.g. a Mertens-type claim importing Mathlib's PNT | compiles green with no declared axiom; footprint = kernel + Mathlib names only |
 | kernel-base drill | run `#print axioms <thm>` on a green piece | resolves to kernel axioms only (`propext`, `funext`, `choice`, `Quot.sound`, …) |
+
+variant: the windows shift +1 in round 3 (139 min) and rounds ≥ 4 (149 min;
+panel 64–109 with workerA's list by 84, PI 109–127, swarm 127–149 —
+rules/selector.md §3, rules/timekeeping.md §4).

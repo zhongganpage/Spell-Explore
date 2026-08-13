@@ -1,7 +1,7 @@
 # Spell-Explore — user's guide (from agents to hands-free)
 
 Spell-Explore runs a project of background agents against a locked goal in
-138-minute rounds. This guide gets you from a fresh machine to a round running
+fixed-duration rounds (138 min in rounds 1–2, 139 min in round 3, 149 min from round 4). This guide gets you from a fresh machine to a round running
 hands-free.
 
 ## The cast — names and jobs
@@ -11,7 +11,7 @@ hands-free.
 | **Coordinator** | top agent — runs each round, enforces the timeline, regulates the five subcoordinators, measures the system, writes the manuscript at a milestone |
 | **Creator** | idea generation — phase-1 idea-workers think around the goal and write fresh summaries; phase-2 miners + graph workers mine stale material and bridging lemmas (graph workers read `formalizer/Integrator/ITG.lean`), and read the connection marks in single.qmd/qmd-index — a route's ideas connect the marked statements, and they may use those ideas |
 | **Producer** | pairing and reports — report workers write idea reports from summary triples; the route writer revises accepted routes; the hygiene linter + examine worker gate them |
-| **Selector** | adversarial review — workerA evidence list, B/C/D reviews (each also asks questions about any doubtful aspect), the promoter's nearest-true-version note, the PI rebuttal (answers the questions), then the decision swarm + BCD vote (answer quality weighs in): accept / accept-core / reject — with the re-invoked promoter marking, in the same window, every statement-pair the route's results or techniques bridge in the single qmd file (`[route-T-implied]` / `[route-F-initial]`) |
+| **Selector** | adversarial review — workerA evidence list, B/C/D reviews (each also asks questions about any doubtful aspect), the promoter's nearest-true-version note, the PI rebuttal (answers the questions), then the decision swarm + BCD vote (answer quality weighs in): accept / accept-core / reject — with the resumed promoter marking, in the same window, every statement-pair the route's results or techniques bridge in the single qmd file (`[route-T-implied]` / `[route-F-initial]`) |
 | **Formalizer** | Lean formalization — decompose workers split reports into fragments; the working swarm writes .qmd/.lean pieces; the lean code runner merges, verifies, and locks green pieces; the connection marks the promoter writes into single.qmd are mirrored into qmd-index.md at each merge |
 | **Integrator** | fifth subcoordinator — owns the dependency graph as `formalizer/Integrator/ITG.lean` and the integration report (`formalizer/Integrator/integration-report.md`, the milestone source); runs two ephemeral workers (worker-1 = 45-min primary proof writer, worker-2 = 15-min secondary lean-run/fix) with a stable ID across rounds; writes `hireable-registry.md` and `connection-proofs.md`, second writer of the reliable idea set |
 | **PI** | route owner — defends and modifies its route, rebuts the panel, writes the change list answering the reviewers' questions |

@@ -7,8 +7,9 @@ Formalizer writes it into the single qmd file, how the lean code runner locks gr
 the reliable idea set and the fragment region. it is authoritative on the Formalizer's territory and consistent
 with planning-ideas-no-push.md (the locked spec) and construction-plan.md §1 and §5 — construction-plan §1's tree now includes `formalizer/fragments/` (the per-fragment files) and `formalizer/qmd-index.md` (the id list), updated in construction-plan.md by this group. the role of the
 Formalizer in the whole project is subordinated to the Coordinator, which regulates all five
-subcoordinators and enforces the 138-minute round timeline (0–20, 20–45, 45–63, 63–103,
-103–118, 118–138) — the Formalizer is not bound by it.
+subcoordinators and enforces the round timeline (0–20, 20–45, 45–63, 63–103,
+103–118, 118–138 in rounds 1–2; round 3: 139 min; from round 4: 149 min) — the
+Formalizer is not bound by it.
 
 ## territory and lifecycle
 
@@ -27,7 +28,8 @@ minute round budget — its decompose workers run per pair of reports at any tim
 critical path of the round timeline (0–20 the Creator's phase 1, 20–45 the Producer's report,
 45–63 the hygiene linter and the examine worker, 63–103 the Selector's panel, 103–118 the PI's
 rebuttal and the promoter, 118–138 the Selector's swarm, the resumed BCD reviewers and the
-resumed promoter's connection marking), and
+resumed promoter's connection marking — the rounds-1–2 windows; round 3: 139 min; from
+round 4: 149 min), and
 the Coordinator resumes the lean code runner once per round at the round start — batched,
 never on every qmd file update — subject to the run-or-postpone user gate (the lean code
 runner section below); fragments that land mid-round wait for the next resumption. the
@@ -174,7 +176,7 @@ the swarm's rules:
   plans the merge into the one qmd file (the Formalizer writes it), ordered by fragment id. single.qmd
   may also carry annotation lines — `<!-- connection: [<route title>-T-<id>] … -->`
   and `[<route title>-F-<id>]` marks, written by the Selector's resumed promoter during the
-  118–138 window (the Selector rule §7.1), and `[Similar: <green id>]` marks, written by the
+  118–138 window in rounds 1–3 (127–149 from round 4; the Selector rule §7.1), and `[Similar: <green id>]` marks, written by the
   decompose worker at merge (the decompose workers above): they are annotations (provenance),
   never content — they never change a block's statement, and the merge appends per-fragment
   pieces ordered by fragment id and never removes locked content, so they survive; the lean
@@ -394,8 +396,10 @@ delta, so the index always reflects the current formalization state and the Coor
 round-start check reads a live number. the same line carries the [acceptedR] tally — the
 green [acceptedR] pieces over the total, per accepted route — and any [no-green] markers of
 the accepted-route watch, so the round-start check reads the watch state live. the formalization status block holds the green
-count, the [Formalized] count, and the integration-report summary — nodes, edges, and the
-goal node's distance to the established base.
+count, the [Formalized] count, the hired count, the kernel + mathlib base count, the
+declared-axiom footprint, the goal distance, the fragment deposits, and the
+integration-report summary — nodes, edges (mirroring the field list of
+dossier/index.md).
 
 ## bounded resumption reads — the delta, not the whole state
 
