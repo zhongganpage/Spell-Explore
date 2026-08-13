@@ -229,15 +229,24 @@ At the start of each round it performs the bounded Formalizer check before the r
 clock starts: it reads the formalization status line in the Knowledge State index and
 the live background state, verifies that the resumable workers are present and
 working — the five subcoordinators (Creator, Producer, Selector, Formalizer, Integrator), the
-PIs, and the lean code runner — re-spawning any that a resumed session lost — and any subcoordinator that
+PIs, and the lean code runner — as a per-role checklist: every role is verified
+present-and-working or re-spawned, never selectively deferred as 'not needed yet';
+the completed checklist (role by role: present | re-spawned) is recorded in the round
+announcement. any subcoordinator that
 closed at the previous round's close per the round-boundary bounded context of
 this §3 — with its
-runtime/<role>-state.md resume pack (rules/worker-lifespans.md), and restoring each
-territory's live workers from the worker registry — and it sweeps
+runtime/<role>-state.md resume pack (rules/worker-lifespans.md) — is re-spawned, and each
+territory's live workers are restored from the worker registry. the Integrator — a
+stable-ID subcoordinator with continuous duties (ITG.lean ownership, the integration
+report, and any pending deposits from the prior round's close) — is spawned at every
+round start when its work is pending or expected; a mid-round resume precedent (e.g.
+round 7's integration-run resume) never replaces the round-start presence requirement.
+after the round-start spawns the Coordinator re-checks the TaskList for the five
+subcoordinators by name (a bounded read) and re-spawns any still missing. it also sweeps
 formalizer/fragments/ for landed-but-unintegrated per-fragment files, handing them to
 the Formalizer's next merge — and resolves any stall or conflict
 it finds; the check is a bounded read that, like the
-round-1 setup, is not counted in the 138-minute budget. It repeats the environment
+round-1 setup, is not counted in the round budget (138 min in rounds 1–2, 139 min in round 3, 149 min from round 4). It repeats the environment
 preflight of §1 — the lean toolchain (lean --version), qmd-prover availability,
 the agent-profile discovery (the five subcoordinator profiles and every worker profile the Coordinator may spawn resolve), and the
 secondary-model flag and [subagent] timeout checks — and records
