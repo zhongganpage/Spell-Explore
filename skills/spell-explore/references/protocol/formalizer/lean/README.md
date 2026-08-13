@@ -5,7 +5,7 @@ Formalizer is the fourth subcoordinator: its inputs are verdict-aware:
 examine-failed lint-passed reports go immediately; accepted/accepted-core
 routes (full or core form) together with the promoter's note go
 post-verdict from the Selector; rejected pairs go to the fragment region.
-and it runs in the background across rounds, not bound by the 138-minute
+and it runs in the background across rounds, not bound by the
 round budget.
 
 ## What lives here

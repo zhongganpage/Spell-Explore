@@ -10,7 +10,9 @@ workers:
     output: <relative path>                   # spawn only
     brief: <relative path>                    # spawn and resume — a file pointer, never inline text
 
-# the Coordinator appends on completion:
-status: <spawned | resumed | stopped | rejected>
+# the Coordinator appends on completion — a status is written only after the task is
+# verified live in the TaskList; a spawn that yields no task-id or a dead task is
+# re-attempted once with the same label, then recorded failed — never left as a gap.
+status: <spawned <task-id> | resumed <task-id> | stopped | rejected <reason> | failed → re-spawned <task-id>>
 at: <ISO timestamp>
 task-ids: <...>                               # spawn only

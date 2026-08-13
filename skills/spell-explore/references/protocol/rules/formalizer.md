@@ -42,7 +42,10 @@ the in-flight exception: it requests the round-boundary fresh spawn only when it
 territory is idle — no worker in flight (the working swarm complete, the lean code
 runner not mid-batch) and no pending decompose units — otherwise it yields
 children-in-flight and requests the close at the next natural boundary; the Coordinator
-never TaskStops it mid-flight. a round close never cuts the swarm, and the reliable
+never TaskStops it mid-flight. at the round start the Formalizer is present-and-working —
+spawned fresh from its resume pack when its territory was idle at the close, never
+selectively deferred as 'not needed yet'; a mid-round resume precedent never replaces
+the round-start presence requirement. a round close never cuts the swarm, and the reliable
 idea set, the fragment region, the qmd file and the report + ITG.lean live in the files,
 so a fresh context loses nothing.
 
@@ -503,8 +506,11 @@ accepted-route watch and the stale signal above).
   the round clock starts: it reads the formalization status line in the Knowledge State
   index that the Formalizer keeps current, and the live background state, verifies that
   the five subcoordinators (Creator, Producer, Selector, Formalizer, Integrator), the PIs, and the
-  lean code runner are present and working — re-spawning them if a
-  resumed session lost them — and resolves any stall or conflict it finds; the check is
-  a bounded read that, like the round-1 setup, is not counted in the 138-minute budget.
+  lean code runner are present and working — a per-role checklist: every role verified
+  present-and-working or re-spawned, never selectively deferred as 'not needed yet', the
+  completed checklist recorded in the round announcement — and resolves any stall or
+  conflict it finds; the check is a bounded read that, like the round-1 setup, is not
+  counted in the round budget (138 min in rounds 1–2, 139 min in round 3, 149 min from
+  round 4).
 - the Formalizer is a mandated part of the project: it always runs across rounds and winds
   down only when the project ends, as described above.

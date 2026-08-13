@@ -10,7 +10,7 @@ marked locked, that exact term must be used.
 ## 1. Round-1 setup — before the clock starts
 
 The round-1 setup happens before the round clock starts and is not counted in the
-138-minute budget:
+round budget (138 min in rounds 1–2, 139 min in round 3, 149 min from round 4):
 
 - at the beginning of the initial round, the Coordinator asks the user for the rough
   idea, and makes it the goal — writing it into the single locked goal file (goal.md
@@ -93,10 +93,15 @@ The Coordinator is the spawn broker: it polls runtime/requests/, validates each
 request against the locked format (kind: spawn | resume | stop; requester: the
 territory letter; round; per worker: label, profile, output path, and a pointer to its
 job brief — never inline brief text), spawns the requested workers named by their
-labels, appends the status line (spawned | resumed | stopped | rejected, with the
-reason when rejected) to the request file, executes the resume and stop operations the
+labels, verifies each spawn by task-id — the task live in the Coordinator's TaskList (a
+bounded read) — before appending the status line (spawned <task-id> | resumed <task-id>
+| stopped | rejected, with the reason when rejected) to the request file; a spawn that
+yields no task-id or a dead task is re-attempted once with the same label, then
+recorded `failed` in the request file and the registry, never silently left as a gap.
+it executes the resume and stop operations the
 subcoordinators instruct, and keeps the worker registry (runtime/worker-registry.md:
-request → task-ids → labels → output paths) current, so a session resume restores each
+request → task-ids → labels → output paths) current — each entry written at spawn time,
+never deferred — so a session resume restores each
 territory's live workers. the Coordinator also executes the mechanical rotations a phase brief authorizes: when all n idea files are in, it builds the per-worker rotation briefs at runtime/briefs/ — each a mechanical splice of the preceding worker's idea file and the locked summary format, never Coordinator-authored content — and resumes the workers. a request is never silently reinterpreted. the swarm exception stands: the Selector's decision swarm of 3, the Formalizer's working swarm of ~4, and the lean code runner's swarm of at most 3 are spawned and regulated by their owners, and the Coordinator does not broker them. the Coordinator is a pure relay: it never composes or edits a worker's job — job briefs are file pointers, relayed verbatim. when a request names workerD, the Coordinator executes the exterior invocation itself — the api call or `codex exec` with the worker-d-external prompt (modules/providers.md) — captures the reply (the api response text or codex stdout, delimited by standardized markers), persists it verbatim at the assigned path marked recovered from agent output, and reports the model identifier the provider actually returned to the Selector; a failed invocation is retried once within the window, then the Selector records the fallback to the internal reviewer. the Coordinator never composes or edits the exterior reviewer's job — the prompt is the worker-d-external profile's, relayed verbatim.
 
 The Coordinator monitors:
@@ -327,7 +332,7 @@ the rounds-1–2 timeline above is the 138-minute variant. round 3 runs 139 minu
 Off the critical path and in the background: the Creator's second phase, the
 Formalizer (its decompose workers run per pair of reports and feed the working swarm,
 and the lean code runner, resumed once per round at the round start (batched; run-or-postpone gate) — the Formalizer runs across
-rounds and is not bound by the 138-minute budget), the Integrator (its two workers need
+rounds and is not bound by the round budget), the Integrator (its two workers need
 45 + 15 = 60 minutes, off the critical path, spawned at the round start with a stable ID), and any additional Producer report
 workers.
 
@@ -544,4 +549,4 @@ winds down only when the project ends. The Coordinator sees that it finishes its
 existing work before closing: no new reports come in, the decompose workers finish
 their pairs, the working swarm completes transforming the decomposed fragments, and
 the lean code runner processes the remaining qmd pieces. The Formalizer is not bound
-by the 138-minute budget, and a round close never cuts its swarm.
+by the round budget, and a round close never cuts its swarm.

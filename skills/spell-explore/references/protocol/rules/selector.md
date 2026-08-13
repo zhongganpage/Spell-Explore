@@ -33,7 +33,9 @@ monitors their status, enforces the time limits and the artifact rules, and solv
 issues inside its territory, subject to the Coordinator. every worker it directs is
 spawned by the Coordinator in the explicit background mode, never the blocking
 foreground; the decision swarm is the Selector's own and is spawned by it in the
-explicit background mode. the Selector
+explicit background mode. a request filed is not a spawn: the Selector verifies each
+directed worker is live (the request's status line and the TaskList by label) before
+treating the step as done, and re-files or escalates an unanswered or rejected request. the Selector
 is resumable: it runs each review phase to completion in one run — waiting for every
 worker's artifact before returning — and is resumed by the Coordinator for the next
 phase; it never returns early, and a narrated step is not a done step.
@@ -450,6 +452,8 @@ or proof-field-invalid — records the pending re-invocation for the Coordinator
 Formalizer, and a failing artifact stays at the Selector, recorded pending like the
 other per-close decisions — non-blocking for the next round's start; the next round
 spawns it fresh from its resume pack — never resume-by-ID across rounds (rules/coordinator.md §3,
-the round-boundary bounded context). resume-by-ID stays the within-round fast path: the
+the round-boundary bounded context). the Selector is present-and-working at every round
+start — never selectively deferred as 'not needed yet'; a mid-round resume precedent
+never replaces the round-start presence requirement. resume-by-ID stays the within-round fast path: the
 phase-to-phase resumption (raw reports → exchange → swarm) and the held B/C/D panel pause across
 the PI window.

@@ -136,8 +136,11 @@ can complete mid-window, not everywhere:
   since the last recorded boundary — poll the live state (TaskList), TaskStop
   the still-running workers of the phase, record the cut and the partial output
   path in the phase-time table, timestamp the boundary — services pending spawn
-  requests (the spawn broker of Coordinator rule §3), and checks for stalls
-  (expected artifacts missing with nothing running → restart per
+  requests (the spawn broker of Coordinator rule §3): a request with no status line
+  is serviced immediately, and a worker whose registry entry says spawned/resumed
+  but is absent from the live TaskList is re-spawned with the same label (bounded) —
+  a planned spawn is never left as a gap until a later phase discovers it — and
+  checks for stalls (expected artifacts missing with nothing running → restart per
   rules/coordinator.md §4). at the final boundary (138 / 139 / 149) it closes the
   round atomically instead, and the final-boundary check verifies the
   decision-stage artifacts for every route under review — the swarm votes, the BCD
