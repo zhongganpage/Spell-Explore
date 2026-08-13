@@ -150,7 +150,8 @@ subcoordinators, the reliable idea set, or the fragment region.
   graph workers (1 from round 3) when ITG.lean has nodes, at least 1 miner
   when n > 1, and a single worker mines. the mining is at most 15 minutes.
 - the regular miners search for good ideas / techniques in the received summary /
-  report / route, and in the reliable idea set and the fragment region in the dossier.
+  report / route, and in the reliable idea set and the fragment region in the dossier,
+  toward the round's residual targets.
   they may also read the connection report — the report, not only the connections section
   of formalizer/qmd-index.md — as material for their fresh summaries: each mark's proof
   state (`route-ref` | `full-argument` | `open`, the Selector rule §7.1) tells them which

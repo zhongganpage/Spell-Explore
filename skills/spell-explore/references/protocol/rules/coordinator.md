@@ -220,7 +220,10 @@ Coordinator enforces that the version inventory stays current.
 
 At the start of a round, the Coordinator reads the Knowledge State navigation index in
 the dossier first — the conjectures registry, the obstructions register, and the
-champion-route pointer — as every fresh worker does.
+champion-route pointer — as every fresh worker does. at the round start the Coordinator
+also names the round's residual targets — 0–2 of the open subgoals from the residual
+registry (dossier/residual-registry.md) — and records them in the round-start record
+in the dossier.
 
 At the start of each round it performs the bounded Formalizer check before the round
 clock starts: it reads the formalization status line in the Knowledge State index and
@@ -332,6 +335,8 @@ Every round ends with a single atomic round close written in one pass, containin
 - the verdicts;
 - the stale list with their fragments;
 - the phase-time table;
+- the refreshed declared-axiom footprint and goal distance in the index
+  (dossier/index.md), written at each round close;
 - the decision list: the abstracts of the accepted routes; recycle / park for each
   unaccepted route; the user's nominations for which summaries or fragments to pair
   in the next round.
@@ -418,7 +423,9 @@ time: it runs phase 1, whose workers look for ideas not in the idea pool (the Cr
 supplies them the Knowledge State index; they must find ideas that do not exist in the
 pool, and not even ideas similar to the ones already archived), and phase 2 whenever
 the pool has content — stale documents (summaries / reports / routes) from the other
-subcoordinators, the reliable idea set, or the fragment region.
+subcoordinators, the reliable idea set, or the fragment region. the Creator's phase-2
+mining and the Producer's pairing prioritize the round's residual targets — the
+existing obstruction-fed pairing extends to the subgoals of the residual registry.
 
 In rounds ≥ 2 the carried review owns the critical path: its panel, PI rebuttal and
 swarm run in their windows first, while the Creator's phase 1 and the Producer's
@@ -475,7 +482,10 @@ of the condition, never a presentation bar: reachability without full consensus 
 not a milestone and goes no further.
 
 When the milestone is reached, the Coordinator writes a report about it in PDF,
-called the manuscript (locked name); the manuscript carries a version. the milestone
+called the manuscript (locked name); the manuscript carries a version. the write-up
+strongly encourages recording the open-subgoal count and the goal-distance line — an
+input to the write-up, never a veto: the milestone condition stays exactly 3/3 + 3/3 +
+the locked goal reachable, unchanged. the milestone
 is a stop condition (§6a): the rounds stop there.
 
 ## 10. question-routes maintenance

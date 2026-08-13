@@ -39,6 +39,16 @@ the template the Producer and the PI maintain; the filled file becomes the artif
 assumptions, implications — with precise citations and the promise toward the goal. revisions
 are applied here, never silently: every modification after review is a new version.>`
 
+### axiom footprint
+
+`<every declared input — each assumption the route declares rather than proves — marked
+formalized | declared, with the theorems depending on it>`
+
+### residual delta
+
+`<which subgoal this route advances + the measured delta, or none>` — when `none`, cite the
+round-brief sanction that allowed corollary work (or leave unset).
+
 ### review record (filled as the route moves)
 
 - review summaries: `<the three review summaries, B/C/D, ids + versions, once produced>`
@@ -79,3 +89,7 @@ rules/formalizer.md); a staled accepted route is demoted like any stale route.
   step-error ride in the review batch (both excluded from the real record and the route); the
   route may not be accepted unless the panel catches the claim (≥80%) and the step-error (100%,
   with the step cited).
+- the Selector's panel verifies the claimed residual delta against the residual registry and
+  the round brief — a false or unsupported delta is a blocking gap.
+- a route whose residual delta is `none` and whose round brief did not sanction corollary work
+  never reaches the panel (the Selector parks it before the panel — see rules/selector.md §9).

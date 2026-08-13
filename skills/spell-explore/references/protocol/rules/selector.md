@@ -329,6 +329,18 @@ round 3) even if a phase is mid-flight.
 
 ## 9. acceptance, milestone, and quality ranking
 
+before a route's panel starts, the Selector runs the progress gate: it checks the
+route's residual delta against the residual registry (dossier/residual-registry.md)
+and the round brief. a route whose residual delta is `none` without a round-brief
+sanction is parked before the panel — the stale entry records the reason
+`corollary-only, unsanctioned` and the revival trigger (a round brief sanctioning
+corollary work, or a subgoal the route can advance) — and the parked route consumes no
+panel. the gate is a pre-panel disposition, never a vote change: the acceptance
+thresholds stay exactly as fixed (≥2/3 swarm AND ≥2/3 BCD), the measurements never
+enter the votes, and a route that clears the gate goes to the panel exactly as before.
+once the panel runs, it verifies the route's claimed residual delta — a false or
+unsupported delta is a blocking gap, recorded with the panel record.
+
 the decision is three-way: accept, accept-core, or reject. a route is accepted when
 at least 2/3 of the swarm workers and at least 2/3 of the BCD reviewers vote accept;
 it is accepted in reduced form when at least 2/3 of the swarm workers and at least
