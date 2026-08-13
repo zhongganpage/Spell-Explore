@@ -250,7 +250,10 @@ after the round-start spawns the Coordinator re-checks the TaskList for the five
 subcoordinators by name (a bounded read) and re-spawns any still missing. it also sweeps
 formalizer/fragments/ for landed-but-unintegrated per-fragment files, handing them to
 the Formalizer's next merge — and resolves any stall or conflict
-it finds; the check is a bounded read that, like the
+it finds; it also cross-checks single.qmd's `<!-- LOCKED green ... -->` comments against
+the runner's run-summary records — a LOCKED comment whose record is NOT-GREEN/RETRACTED,
+or a piece the qmd-prover diagnostics flag, is routed to the runner's retraction duty
+(rules/formalizer.md — the lean code runner, duty 4); the check is a bounded read that, like the
 round-1 setup, is not counted in the round budget (138 min in rounds 1–2, 139 min in round 3, 149 min from round 4). It repeats the environment
 preflight of §1 — the lean toolchain (lean --version), qmd-prover availability,
 the agent-profile discovery (the five subcoordinator profiles and every worker profile the Coordinator may spawn resolve), and the

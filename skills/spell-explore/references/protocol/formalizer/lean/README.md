@@ -13,7 +13,9 @@ round budget.
 - the lean code generated from formalizer/single.qmd — the one qmd file, in
   qmd-prover form (there is only one qmd file). whenever a qmd piece is
   lean-green, the lean code runner locks that piece in the qmd file (green
-  pieces are locked in place, never removed) and places the corresponding lean
+  pieces are locked in place, never removed except by the runner's retraction
+  duty — a GREEN record found false is retracted, record + comment) and places
+  the corresponding lean
   code in the reliable idea set (lock this name), which lives in the same place
   as the idea pool in the dossier.
 - the sibling directory formalizer/fragments/ — one directory per fragment id,

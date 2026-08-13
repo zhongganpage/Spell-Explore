@@ -233,10 +233,12 @@ to the established base. the plan covers only the delta since the last resumptio
 pieces merged since the last resumption (the ids appended to qmd-index.md), the pieces
 that were not green at the last resumption (a missing premise may now be proved by the new
 pieces), and the pieces whose premise set the new pieces extend (the report's
-reverse edges). pieces already locked green are never re-dispatched — a locked green
+reverse edges). pieces already locked green are never re-dispatched by default — a locked green
 piece's lean code is fixed in the reliable idea set and its premises (kernel, mathlib,
-[Formalized]) are fixed, so it cannot turn ungreen, and re-running it would only re-read
-the same context for nothing. the mechanical compile (qmd-prover on single.qmd)
+[Formalized]) are fixed, so it cannot turn ungreen on its own, and re-running it would
+only re-read the same context for nothing — but a re-verification that falsifies a GREEN
+record (mathlib drift, or a transcription that never compiled) triggers the retraction
+leg of duty 4 below. the mechanical compile (qmd-prover on single.qmd)
 still runs on the full file; the swarm jobs — which carry the agent-turn cost — run only
 on the delta. its duties, in order, on every resumption:
 
@@ -280,14 +282,26 @@ on the delta. its duties, in order, on every resumption:
    — counting the green theorems, and running
    `#print axioms <theoremName>` on each green theorem) and reports the green pieces with their
    lean code, their axiom footprint and their dependency edges.
-4. **lock green pieces.** whenever a qmd piece is lean-green, the lean code runner locks that
-   piece in the qmd file — green pieces are locked in place, never removed — and places the
+4. **lock green pieces — and retract a GREEN record found false.** whenever a qmd piece is lean-green, the lean code runner locks that
+   piece in the qmd file — green pieces are locked in place, never removed except by the
+   retraction leg below — and places the
    corresponding lean code in the reliable idea set (lock this name), which lives in the same
    place as the idea pool in the dossier (`dossier/idea-pool/`), recording the piece's
    `#print axioms` footprint in its reliable idea set entry; when a [Similar]-marked piece
    turns green it retires the mark at lock time. so the reliable idea set holds
    the formalized pieces as lean code, and the qmd file keeps the green pieces locked in
-   place.
+   place. the negative leg — the retraction duty: when the runner finds a GREEN record
+   false — a re-verification of a locked piece fails, or a fresh compile proves a
+   transcription never compiled — it is RESPONSIBLE for removing the green mark as part of
+   the same report: (1) remove it at BOTH locations — the run-summary record (status →
+   NOT-GREEN / RETRACTED, with the reason) and the single.qmd `<!-- LOCKED green ... -->`
+   comment (replaced by `<!-- RETRACTED green (date, reason) -->`); (2) record the
+   retraction in the run-summary's §retractions block (piece · old record · reason ·
+   date); (3) re-issue GREEN only after a FRESH verification of the repaired piece (a new
+   run, a new record) — never by editing the old record. the record-correction leg binds
+   the NO-ROUND / report-only repair briefs too: a repair job that falsifies a record
+   corrects it in the same job — never deferred to a role that cannot perform it (the
+   Integrator never edits single.qmd).
 5. **mark versions and defer the report to the Integrator.** on every update of
    `formalizer/single.qmd` / `formalizer/lean/single.lean` the runner bumps the version (v1,
    v2, …). the dependency-tree/report build — the chain/atlas report that replaces
@@ -452,7 +466,7 @@ accepted-route watch and the stale signal above).
   on without its version. the goal file is excluded from this rule: it is locked and the
   project never changes it.
 - artifact locations (default layout, construction-plan §1):
-  - `formalizer/single.qmd` — the one qmd file (green pieces locked in place, never removed);
+  - `formalizer/single.qmd` — the one qmd file (green pieces locked in place, never removed except by the runner's retraction duty — a GREEN record found false is retracted, record + comment);
   - `formalizer/fragments/` — the per-fragment files: one directory per fragment id holding
     the `.qmd` piece and the `.lean` piece, written by the working swarm and merged into the
     single qmd file by the decompose worker, ordered by fragment id;
